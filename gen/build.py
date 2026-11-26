@@ -121,7 +121,7 @@ def page(rel, title, body, desc='', scripts=()):
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="stylesheet" href="{pre}css/darslik.css">
-<script>try{{var t=localStorage.getItem('uf-theme');if(t)document.documentElement.setAttribute('data-theme',t);var m=document.cookie.match(/googtrans=\/[a-z-]+\/(ru|en)/);if(m)document.documentElement.setAttribute('data-tl',m[1]);}}catch(e){{}}</script>
+<script>try{{var t=localStorage.getItem('uf-theme');if(t)document.documentElement.setAttribute('data-theme',t);var m=document.cookie.match(/googtrans=\\/[a-z-]+\\/(ru|en)/);if(m)document.documentElement.setAttribute('data-tl',m[1]);}}catch(e){{}}</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Asosiy mazmunga o‘tish</a>
