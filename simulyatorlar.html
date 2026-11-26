@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulyatorlar — Umumiy fizika</title>
+<meta name="description" content="Umumiy fizika — interaktiv elektron darslik">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/darslik.css">
+<script>try{var t=localStorage.getItem('uf-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Asosiy mazmunga o‘tish</a>
+<header class="topbar"><div class="topbar-inner">
+<a class="brand" href="index.html"><span class="brand-icon"><i class="fas fa-atom"></i></span><span><span class="brand-title">Umumiy fizika</span><span class="brand-sub">Interaktiv elektron darslik · Bakalavriat</span></span></a>
+<nav class="nav" aria-label="Asosiy menyu"><a href="annotatsiya.html">Darslik haqida</a><a href="index.html#maruzalar">Ma’ruzalar</a><a href="index.html#laboratoriya">Laboratoriya</a><a href="mustaqil.html">Mustaqil ta’lim</a><a href="simulyatorlar.html" aria-current="page">Simulyatorlar</a><a href="baholash.html">Baholash</a><a href="oqituvchi.html">O‘qituvchi uchun</a><a href="glossariy.html">Lug‘at</a><a href="vositalar.html">Vositalar</a><a href="index.html#muallif">Muallif</a></nav>
+<div class="tools">
+<div class="lang-switch notranslate" translate="no" role="group" aria-label="Til"><button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button></div>
+<button class="icon-btn" id="themeBtn" aria-label="Kun / tun rejimi"><i class="fas fa-sun"></i></button>
+<button class="icon-btn menu-btn" data-drawer-open aria-label="Menyu"><i class="fas fa-bars"></i></button>
+</div></div></header>
+<div class="drawer" id="drawer" role="dialog" aria-label="Menyu"><div class="drawer-bg" data-drawer-close></div><div class="drawer-panel"><div class="drawer-head"><span class="kicker">Mundarija</span><button class="icon-btn" data-drawer-close aria-label="Yopish"><i class="fas fa-xmark"></i></button></div><h4>Darslik</h4>
+<a href="index.html">Bosh sahifa</a>
+<a href="annotatsiya.html">Darslik haqida</a>
+<a href="mustaqil.html">Mustaqil ta’lim</a>
+<a href="simulyatorlar.html" aria-current="page">Simulyatorlar</a>
+<a href="baholash.html">Baholash</a>
+<a href="oqituvchi.html">O‘qituvchi uchun</a>
+<a href="glossariy.html">Lug‘at</a>
+<a href="vositalar.html">Vositalar</a>
+<h4>Ma’ruzalar</h4>
+<a href="lectures/lecture1.html">1. Kirish</a>
+<a href="lectures/lecture2.html">2. Kinematika</a>
+<a href="lectures/lecture3.html">3. Dinamika</a>
+<a href="lectures/lecture4.html">4. Statika</a>
+<a href="lectures/lecture5.html">5. Elastiklik</a>
+<a href="lectures/lecture6.html">6. Gravitatsiya</a>
+<a href="lectures/lecture7.html">7. Gazlar qonunlari</a>
+<a href="lectures/lecture8.html">8. Termodinamika</a>
+<a href="lectures/lecture9.html">9. Entropiya</a>
+<a href="lectures/lecture10.html">10. Molekulyar fizika</a>
+<a href="lectures/lecture11.html">11. Elektr maydon</a>
+<a href="lectures/lecture12.html">12. Magnetizm</a>
+<a href="lectures/lecture13.html">13. Elektr o‘tkazuvchanlik</a>
+<a href="lectures/lecture14.html">14. Elektrodinamika</a>
+<a href="lectures/lecture15.html">15. Optika – 1</a>
+<a href="lectures/lecture16.html">16. Optika – 2</a>
+<a href="lectures/lecture17.html">17. Yorug‘lik tabiati</a>
+<a href="lectures/lecture18.html">18. Kvant fizikasi – 1</a>
+<a href="lectures/lecture19.html">19. Kvant fizikasi – 2</a>
+<a href="lectures/lecture20.html">20. Atom tuzilishi</a>
+<a href="lectures/lecture21.html">21. Yadro fizikasi</a>
+<a href="lectures/lecture22.html">22. Elementar zarralar fizikasi</a>
+<a href="lectures/lecture23.html">23. Kvant mexanikasi</a>
+<a href="lectures/lecture24.html">24. Yangi fizikani izlash</a>
+<a class="soon" aria-disabled="true">25. Kosmik fizika</a>
+<a class="soon" aria-disabled="true">26. Fizikada metodologiya</a>
+<a class="soon" aria-disabled="true">27. Fizikada ma’lumotlar tahlili</a>
+<a class="soon" aria-disabled="true">28. Xulosa</a>
+<h4>Laboratoriya ishlari</h4>
+<a href="labs/lab1.html">L1. Dinamika</a>
+<a href="labs/lab2.html">L2. Statika</a>
+<a href="labs/lab3.html">L3. Elastiklik</a>
+<a class="soon" aria-disabled="true">L4. Termodinamika</a>
+<a class="soon" aria-disabled="true">L5. Gazlar</a>
+<a class="soon" aria-disabled="true">L6. Elektr zanjir</a>
+<a class="soon" aria-disabled="true">L7. Magnit maydon</a>
+<a class="soon" aria-disabled="true">L8. Optika</a>
+<a class="soon" aria-disabled="true">L9. Linzalar</a>
+<a class="soon" aria-disabled="true">L10. Kvantlar</a>
+<a class="soon" aria-disabled="true">L11. Yadro fizikasi</a>
+<a class="soon" aria-disabled="true">L12. Kosmik fizika</a>
+<h4>Yo‘riqnomalar (MT)</h4>
+<a href="yoriqnomalar/MT-01.html">MT-01. Dinamika va kuchlarning ta’siri</a>
+<a href="yoriqnomalar/MT-02.html">MT-02. Kinematika va grafik tahlil</a>
+<a href="yoriqnomalar/MT-03.html">MT-03. Elastiklik va Guk qonuni</a>
+<a class="soon" aria-disabled="true">MT-04</a>
+<a class="soon" aria-disabled="true">MT-05</a>
+<a class="soon" aria-disabled="true">MT-06</a>
+<a class="soon" aria-disabled="true">MT-07</a>
+<a class="soon" aria-disabled="true">MT-08</a>
+<a class="soon" aria-disabled="true">MT-09</a>
+<a class="soon" aria-disabled="true">MT-10</a>
+<a class="soon" aria-disabled="true">MT-11</a>
+<a class="soon" aria-disabled="true">MT-12</a>
+<a class="soon" aria-disabled="true">MT-13</a>
+<a class="soon" aria-disabled="true">MT-14</a>
+<a class="soon" aria-disabled="true">MT-15</a></div></div>
+<main id="main">
+<section class="page-hero"><div class="inner"><div><nav class="crumbs" aria-label="Yo‘l"><a href="index.html">Bosh sahifa</a> <span>/</span> Simulyatorlar</nav><div class="kicker">Interaktiv modellar</div><h1>Simulyatorlar</h1><div class="chips"><span class="tag a">4 ta o‘z modeli</span><span class="tag">26 ta PhET simulyatori</span></div></div></div></section><div class="layout"><nav class="card toc" aria-label="Mundarija"><span class="kicker">Mundarija</span><a href="#modellar">Saytning interaktiv modellari</a><a href="#phet">PhET simulyatorlari — fan dasturi bo‘yicha</a></nav><div class="doc">
+<section class="card doc-sec" id="modellar"><h2><span class="n">1</span>Saytning interaktiv modellari</h2>
+<div style="display:flex;flex-direction:column;gap:16px"><div class="card sim" id="mayatnik"><span class="tag a">Interaktiv model</span><h3 style="font-size:19px;margin:10px 0 4px">Matematik mayatnik</h3><p style="color:var(--text-2);font-size:14px">Davr $T = 2\pi\sqrt{l/g}$ ga teng va kichik og‘ishlarda amplitudaga bog‘liq emas. g ni Oy (1,6) yoki Yupiter (24,8) qiymatiga o‘zgartirib ko‘ring. (M7, L8)</p><canvas width="900" height="380" data-sim="mayatnik" role="img" aria-label="Matematik mayatnik"></canvas><div class="sim-ctl"><label>Ip uzunligi l: <b data-v="mayatnik-l">1.0</b> m<input type="range" data-p="mayatnik-l" min="0.2" max="2.5" step="0.05" value="1.0"></label><label>Erkin tushish tezlanishi g: <b data-v="mayatnik-g">9.8</b> m/s²<input type="range" data-p="mayatnik-g" min="1.6" max="24.8" step="0.1" value="9.8"></label><label>Boshlang‘ich og‘ish: <b data-v="mayatnik-a">15</b> °<input type="range" data-p="mayatnik-a" min="3" max="40" step="1" value="15"></label></div><div class="sim-out" data-out="mayatnik"></div></div><div class="card sim" id="otilish"><span class="tag a">Interaktiv model</span><h3 style="font-size:19px;margin:10px 0 4px">Burchak ostida otilgan jism</h3><p style="color:var(--text-2);font-size:14px">Uchish uzoqligi $L = v_0^2\sin 2\alpha / g$, ko‘tarilish balandligi $H = v_0^2\sin^2\alpha / 2g$. Qaysi burchakda uzoqlik eng katta? (M1–M2, MT-5)</p><canvas width="900" height="380" data-sim="otilish" role="img" aria-label="Burchak ostida otilgan jism"></canvas><div class="sim-ctl"><label>Boshlang‘ich tezlik v₀: <b data-v="otilish-v">20</b> m/s<input type="range" data-p="otilish-v" min="5" max="40" step="1" value="20"></label><label>Otilish burchagi α: <b data-v="otilish-u">45</b> °<input type="range" data-p="otilish-u" min="5" max="85" step="1" value="45"></label><label>g: <b data-v="otilish-g">9.8</b> m/s²<input type="range" data-p="otilish-g" min="1.6" max="24.8" step="0.1" value="9.8"></label></div><div class="sim-out" data-out="otilish"></div></div><div class="card sim" id="linza"><span class="tag a">Interaktiv model</span><h3 style="font-size:19px;margin:10px 0 4px">Yupqa linzada tasvir yasash</h3><p style="color:var(--text-2);font-size:14px">Yupqa linza formulasi $\frac{1}{F} = \frac{1}{d} + \frac{1}{f}$. F manfiy bo‘lsa — sochuvchi linza. Buyumni fokusdan yaqinroq qo‘yib, mavhum tasvirni kuzating. (M22, L29)</p><canvas width="900" height="380" data-sim="linza" role="img" aria-label="Yupqa linzada tasvir yasash"></canvas><div class="sim-ctl"><label>Fokus masofasi F: <b data-v="linza-F">10</b> sm<input type="range" data-p="linza-F" min="-20" max="20" step="1" value="10"></label><label>Buyumgacha masofa d: <b data-v="linza-d">25</b> sm<input type="range" data-p="linza-d" min="2" max="45" step="0.5" value="25"></label></div><div class="sim-out" data-out="linza"></div></div><div class="card sim" id="yemirilish"><span class="tag a">Interaktiv model</span><h3 style="font-size:19px;margin:10px 0 4px">Radioaktiv yemirilish</h3><p style="color:var(--text-2);font-size:14px">Har bir yadro tasodifiy yemiriladi, lekin ko‘p yadrolar uchun $N = N_0\, 2^{-t/T_{1/2}}$ qonuni bajariladi. Ko‘k chiziq — nazariya, nuqtalar — model. (M26)</p><canvas width="900" height="380" data-sim="yemirilish" role="img" aria-label="Radioaktiv yemirilish"></canvas><div class="sim-ctl"><label>Yarim yemirilish davri T½: <b data-v="yemirilish-T">3</b> s<input type="range" data-p="yemirilish-T" min="1" max="10" step="0.5" value="3"></label><label><button class="btn btn-ghost" type="button" data-reset="yemirilish"><i class="fas fa-rotate"></i> Qayta boshlash</button></label></div><div class="sim-out" data-out="yemirilish"></div></div></div>
+</section>
+<section class="card doc-sec" id="phet"><h2><span class="n">2</span>PhET simulyatorlari — fan dasturi bo‘yicha</h2>
+<p>Kolorado universitetining <b>PhET</b> simulyatorlari bepul, brauzerda ishlaydi va rus tilini qo‘llab-quvvatlaydi. Fan dasturi ma’ruzalariga moslab tanlangan:</p><div class="tbl-wrap"><table><thead><tr><th>Ma’ruza</th><th>Simulyator</th><th>Nimani o‘rganadi</th></tr></thead><tbody><tr><td><span class="mono">M1</span></td><td><a href="https://phet.colorado.edu/en/simulations/projectile-motion" target="_blank" rel="noopener"><span class="notranslate" translate="no">Projectile Motion</span></a></td><td>Otilgan jism trayektoriyasi, tezlik va tezlanish vektorlari</td></tr><tr><td><span class="mono">M3</span></td><td><a href="https://phet.colorado.edu/en/simulations/collision-lab" target="_blank" rel="noopener"><span class="notranslate" translate="no">Collision Lab</span></a></td><td>Impuls va to‘qnashuvlar (5-ma’ruza bilan ham bog‘liq)</td></tr><tr><td><span class="mono">M4</span></td><td><a href="https://phet.colorado.edu/en/simulations/hookes-law" target="_blank" rel="noopener"><span class="notranslate" translate="no">Hooke’s Law</span></a></td><td>Elastiklik kuchi va prujina bikirligi</td></tr><tr><td><span class="mono">M4</span></td><td><a href="https://phet.colorado.edu/en/simulations/gravity-force-lab" target="_blank" rel="noopener"><span class="notranslate" translate="no">Gravity Force Lab</span></a></td><td>Butun olam tortishish qonuni</td></tr><tr><td><span class="mono">M5</span></td><td><a href="https://phet.colorado.edu/en/simulations/energy-skate-park" target="_blank" rel="noopener"><span class="notranslate" translate="no">Energy Skate Park</span></a></td><td>Kinetik va potensial energiya, saqlanish qonuni</td></tr><tr><td><span class="mono">M6</span></td><td><a href="https://phet.colorado.edu/en/simulations/gravity-and-orbits" target="_blank" rel="noopener"><span class="notranslate" translate="no">Gravity and Orbits</span></a></td><td>Orbital harakat, tortishish va aylanma harakat</td></tr><tr><td><span class="mono">M7</span></td><td><a href="https://phet.colorado.edu/en/simulations/pendulum-lab" target="_blank" rel="noopener"><span class="notranslate" translate="no">Pendulum Lab</span></a></td><td>Matematik va fizik mayatnik davri</td></tr><tr><td><span class="mono">M7</span></td><td><a href="https://phet.colorado.edu/en/simulations/masses-and-springs" target="_blank" rel="noopener"><span class="notranslate" translate="no">Masses and Springs</span></a></td><td>Prujinali mayatnik, garmonik tebranish energiyasi</td></tr><tr><td><span class="mono">M7</span></td><td><a href="https://phet.colorado.edu/en/simulations/wave-on-a-string" target="_blank" rel="noopener"><span class="notranslate" translate="no">Wave on a String</span></a></td><td>Ko‘ndalang to‘lqin, amplituda, chastota, qaytish</td></tr><tr><td><span class="mono">M8</span></td><td><a href="https://phet.colorado.edu/en/simulations/gas-properties" target="_blank" rel="noopener"><span class="notranslate" translate="no">Gas Properties</span></a></td><td>Molekulalar harakati, bosim, temperatura, gaz qonunlari</td></tr><tr><td><span class="mono">M11</span></td><td><a href="https://phet.colorado.edu/en/simulations/fluid-pressure-and-flow" target="_blank" rel="noopener"><span class="notranslate" translate="no">Fluid Pressure and Flow</span></a></td><td>Suyuqlik bosimi va Bernulli tenglamasi</td></tr><tr><td><span class="mono">M12</span></td><td><a href="https://phet.colorado.edu/en/simulations/coulombs-law" target="_blank" rel="noopener"><span class="notranslate" translate="no">Coulomb’s Law</span></a></td><td>Nuqtaviy zaryadlar o‘zaro ta’siri</td></tr><tr><td><span class="mono">M12</span></td><td><a href="https://phet.colorado.edu/en/simulations/charges-and-fields" target="_blank" rel="noopener"><span class="notranslate" translate="no">Charges and Fields</span></a></td><td>Elektr maydon kuchlanganligi va potensial</td></tr><tr><td><span class="mono">M12</span></td><td><a href="https://phet.colorado.edu/en/simulations/capacitor-lab-basics" target="_blank" rel="noopener"><span class="notranslate" translate="no">Capacitor Lab: Basics</span></a></td><td>Yassi kondensator sig‘imi va energiyasi</td></tr><tr><td><span class="mono">M13</span></td><td><a href="https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc" target="_blank" rel="noopener"><span class="notranslate" translate="no">Circuit Construction Kit: DC</span></a></td><td>O‘zgarmas tok zanjirlari, Om qonuni, Kirxgof qoidalari</td></tr><tr><td><span class="mono">M16</span></td><td><a href="https://phet.colorado.edu/en/simulations/faradays-electromagnetic-lab" target="_blank" rel="noopener"><span class="notranslate" translate="no">Faraday’s Electromagnetic Lab</span></a></td><td>Elektromagnit induksiya, generator, transformator</td></tr><tr><td><span class="mono">M18</span></td><td><a href="https://phet.colorado.edu/en/simulations/circuit-construction-kit-ac" target="_blank" rel="noopener"><span class="notranslate" translate="no">Circuit Construction Kit: AC</span></a></td><td>O‘zgaruvchan tok, RLC zanjir, rezonans</td></tr><tr><td><span class="mono">M19</span></td><td><a href="https://phet.colorado.edu/en/simulations/wave-interference" target="_blank" rel="noopener"><span class="notranslate" translate="no">Wave Interference</span></a></td><td>Ikki manbadan interferensiya, difraksiya (20-ma’ruza)</td></tr><tr><td><span class="mono">M22</span></td><td><a href="https://phet.colorado.edu/en/simulations/bending-light" target="_blank" rel="noopener"><span class="notranslate" translate="no">Bending Light</span></a></td><td>Qaytish, sinish, to‘la ichki qaytish, prizma</td></tr><tr><td><span class="mono">M22</span></td><td><a href="https://phet.colorado.edu/en/simulations/geometric-optics" target="_blank" rel="noopener"><span class="notranslate" translate="no">Geometric Optics</span></a></td><td>Linzalar va ko‘zgularda tasvir yasash</td></tr><tr><td><span class="mono">M23</span></td><td><a href="https://phet.colorado.edu/en/simulations/blackbody-spectrum" target="_blank" rel="noopener"><span class="notranslate" translate="no">Blackbody Spectrum</span></a></td><td>Issiqlik nurlanishi, Vin siljish qonuni</td></tr><tr><td><span class="mono">M23</span></td><td><a href="https://phet.colorado.edu/en/simulations/photoelectric" target="_blank" rel="noopener"><span class="notranslate" translate="no">Photoelectric Effect</span></a></td><td>Tashqi fotoeffekt qonunlari</td></tr><tr><td><span class="mono">M25</span></td><td><a href="https://phet.colorado.edu/en/simulations/rutherford-scattering" target="_blank" rel="noopener"><span class="notranslate" translate="no">Rutherford Scattering</span></a></td><td>Rezerford tajribasi va atomning yadro modeli</td></tr><tr><td><span class="mono">M25</span></td><td><a href="https://phet.colorado.edu/en/simulations/models-of-the-hydrogen-atom" target="_blank" rel="noopener"><span class="notranslate" translate="no">Models of the Hydrogen Atom</span></a></td><td>Tomson, Rezerford, Bor modellari</td></tr><tr><td><span class="mono">M26</span></td><td><a href="https://phet.colorado.edu/en/simulations/alpha-decay" target="_blank" rel="noopener"><span class="notranslate" translate="no">Alpha Decay</span></a></td><td>Alfa-yemirilish va yarim yemirilish davri</td></tr><tr><td><span class="mono">M27</span></td><td><a href="https://phet.colorado.edu/en/simulations/nuclear-fission" target="_blank" rel="noopener"><span class="notranslate" translate="no">Nuclear Fission</span></a></td><td>Yadro bo‘linishi va zanjir reaksiya</td></tr></tbody></table></div>
+</section></div></div>
+</main>
+<footer class="footer">© 2026 Umumiy fizika · Qo‘qon davlat universiteti, Fizika va astronomiya kafedrasi · Fan dasturi: UMF11210, 2026/2027</footer>
+<script src="js/sims.js"></script><script src="js/app.js"></script>
+</body>
+</html>

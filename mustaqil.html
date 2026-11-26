@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mustaqil ta’lim — Umumiy fizika</title>
+<meta name="description" content="Fan dasturidagi 45 ta mustaqil ta’lim mavzusi va topshiriq talablari.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/darslik.css">
+<script>try{var t=localStorage.getItem('uf-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Asosiy mazmunga o‘tish</a>
+<header class="topbar"><div class="topbar-inner">
+<a class="brand" href="index.html"><span class="brand-icon"><i class="fas fa-atom"></i></span><span><span class="brand-title">Umumiy fizika</span><span class="brand-sub">Interaktiv elektron darslik · Bakalavriat</span></span></a>
+<nav class="nav" aria-label="Asosiy menyu"><a href="annotatsiya.html">Darslik haqida</a><a href="index.html#maruzalar">Ma’ruzalar</a><a href="index.html#laboratoriya">Laboratoriya</a><a href="mustaqil.html" aria-current="page">Mustaqil ta’lim</a><a href="simulyatorlar.html">Simulyatorlar</a><a href="baholash.html">Baholash</a><a href="oqituvchi.html">O‘qituvchi uchun</a><a href="glossariy.html">Lug‘at</a><a href="vositalar.html">Vositalar</a><a href="index.html#muallif">Muallif</a></nav>
+<div class="tools">
+<div class="lang-switch notranslate" translate="no" role="group" aria-label="Til"><button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button></div>
+<button class="icon-btn" id="themeBtn" aria-label="Kun / tun rejimi"><i class="fas fa-sun"></i></button>
+<button class="icon-btn menu-btn" data-drawer-open aria-label="Menyu"><i class="fas fa-bars"></i></button>
+</div></div></header>
+<div class="drawer" id="drawer" role="dialog" aria-label="Menyu"><div class="drawer-bg" data-drawer-close></div><div class="drawer-panel"><div class="drawer-head"><span class="kicker">Mundarija</span><button class="icon-btn" data-drawer-close aria-label="Yopish"><i class="fas fa-xmark"></i></button></div><h4>Darslik</h4>
+<a href="index.html">Bosh sahifa</a>
+<a href="annotatsiya.html">Darslik haqida</a>
+<a href="mustaqil.html" aria-current="page">Mustaqil ta’lim</a>
+<a href="simulyatorlar.html">Simulyatorlar</a>
+<a href="baholash.html">Baholash</a>
+<a href="oqituvchi.html">O‘qituvchi uchun</a>
+<a href="glossariy.html">Lug‘at</a>
+<a href="vositalar.html">Vositalar</a>
+<h4>Ma’ruzalar</h4>
+<a href="lectures/lecture1.html">1. Kirish</a>
+<a href="lectures/lecture2.html">2. Kinematika</a>
+<a href="lectures/lecture3.html">3. Dinamika</a>
+<a href="lectures/lecture4.html">4. Statika</a>
+<a href="lectures/lecture5.html">5. Elastiklik</a>
+<a href="lectures/lecture6.html">6. Gravitatsiya</a>
+<a href="lectures/lecture7.html">7. Gazlar qonunlari</a>
+<a href="lectures/lecture8.html">8. Termodinamika</a>
+<a href="lectures/lecture9.html">9. Entropiya</a>
+<a href="lectures/lecture10.html">10. Molekulyar fizika</a>
+<a href="lectures/lecture11.html">11. Elektr maydon</a>
+<a href="lectures/lecture12.html">12. Magnetizm</a>
+<a href="lectures/lecture13.html">13. Elektr o‘tkazuvchanlik</a>
+<a href="lectures/lecture14.html">14. Elektrodinamika</a>
+<a href="lectures/lecture15.html">15. Optika – 1</a>
+<a href="lectures/lecture16.html">16. Optika – 2</a>
+<a href="lectures/lecture17.html">17. Yorug‘lik tabiati</a>
+<a href="lectures/lecture18.html">18. Kvant fizikasi – 1</a>
+<a href="lectures/lecture19.html">19. Kvant fizikasi – 2</a>
+<a href="lectures/lecture20.html">20. Atom tuzilishi</a>
+<a href="lectures/lecture21.html">21. Yadro fizikasi</a>
+<a href="lectures/lecture22.html">22. Elementar zarralar fizikasi</a>
+<a href="lectures/lecture23.html">23. Kvant mexanikasi</a>
+<a href="lectures/lecture24.html">24. Yangi fizikani izlash</a>
+<a class="soon" aria-disabled="true">25. Kosmik fizika</a>
+<a class="soon" aria-disabled="true">26. Fizikada metodologiya</a>
+<a class="soon" aria-disabled="true">27. Fizikada ma’lumotlar tahlili</a>
+<a class="soon" aria-disabled="true">28. Xulosa</a>
+<h4>Laboratoriya ishlari</h4>
+<a href="labs/lab1.html">L1. Dinamika</a>
+<a href="labs/lab2.html">L2. Statika</a>
+<a href="labs/lab3.html">L3. Elastiklik</a>
+<a class="soon" aria-disabled="true">L4. Termodinamika</a>
+<a class="soon" aria-disabled="true">L5. Gazlar</a>
+<a class="soon" aria-disabled="true">L6. Elektr zanjir</a>
+<a class="soon" aria-disabled="true">L7. Magnit maydon</a>
+<a class="soon" aria-disabled="true">L8. Optika</a>
+<a class="soon" aria-disabled="true">L9. Linzalar</a>
+<a class="soon" aria-disabled="true">L10. Kvantlar</a>
+<a class="soon" aria-disabled="true">L11. Yadro fizikasi</a>
+<a class="soon" aria-disabled="true">L12. Kosmik fizika</a>
+<h4>Yo‘riqnomalar (MT)</h4>
+<a href="yoriqnomalar/MT-01.html">MT-01. Dinamika va kuchlarning ta’siri</a>
+<a href="yoriqnomalar/MT-02.html">MT-02. Kinematika va grafik tahlil</a>
+<a href="yoriqnomalar/MT-03.html">MT-03. Elastiklik va Guk qonuni</a>
+<a class="soon" aria-disabled="true">MT-04</a>
+<a class="soon" aria-disabled="true">MT-05</a>
+<a class="soon" aria-disabled="true">MT-06</a>
+<a class="soon" aria-disabled="true">MT-07</a>
+<a class="soon" aria-disabled="true">MT-08</a>
+<a class="soon" aria-disabled="true">MT-09</a>
+<a class="soon" aria-disabled="true">MT-10</a>
+<a class="soon" aria-disabled="true">MT-11</a>
+<a class="soon" aria-disabled="true">MT-12</a>
+<a class="soon" aria-disabled="true">MT-13</a>
+<a class="soon" aria-disabled="true">MT-14</a>
+<a class="soon" aria-disabled="true">MT-15</a></div></div>
+<main id="main">
+<section class="page-hero"><div class="inner"><div><nav class="crumbs" aria-label="Yo‘l"><a href="index.html">Bosh sahifa</a> <span>/</span> Mustaqil ta’lim</nav><div class="kicker">Mustaqil ta’lim · Fan dasturi, 6-bo‘lim</div><h1>Mustaqil ta’lim mavzulari va topshiriqlari</h1><div class="chips"><span class="tag">180 soat</span><span class="tag">45 mavzu</span><span class="tag v">1-MT: taqdimot · 2-MT: keys-stadi</span></div></div><button class="btn btn-ghost listen-btn" id="listenBtn" type="button"><i class="fas fa-volume-high"></i> Tinglash</button></div></section><div class="layout"><nav class="card toc" aria-label="Mundarija"><span class="kicker">Mundarija</span><a href="#talablar">Talablar va baholash</a><a href="#mavzular">45 ta mavzu — fan dasturi bo‘yicha</a><a href="#taqdimot">Taqdimot tayyorlash bo‘yicha tavsiyalar</a><a href="#yoriqnomalar">Yo‘riqnomalar (MT)</a></nav><div class="doc">
+<section class="card doc-sec hl" id="talablar"><h2><span class="n">1</span>Talablar va baholash</h2>
+<p>Mustaqil ta’lim fan dasturiga ko‘ra <b>180 soat</b> bo‘lib, 45 ta mavzu bo‘yicha taqdimot tayyorlashdan iborat (har biri 4 soat). Joriy nazoratda ikki topshiriq baholanadi:</p><ul><li><b>1-MT — taqdimot va himoya (5 ball).</b> Qo‘shimcha ilmiy-uslubiy adabiyotlardan foydalanilgan, fizik jarayonlar, formulalar va chizmalar mantiqan izchil bayon qilingan bo‘lishi; himoyada fikrni mustaqil ifodalash talab etiladi.</li><li><b>2-MT — keys-stadi tahlili va yechimi (5 ball).</b> Fizik qonunlarni hayotiy yoki amaliy muammoga qo‘llab, asoslangan yechim taklif qilish.</li></ul><div class="box note">Ish belgilangan muddatda <b>HEMIS</b> tizimiga yuklanishi shart; muddatida yuklanmagan ish baholanmaydi. Ko‘chirmachilik minimal darajadan past baholanadi.</div>
+</section>
+<section class="card doc-sec" id="mavzular"><h2><span class="n">2</span>45 ta mavzu — fan dasturi bo‘yicha</h2>
+<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Mavzu</th><th class=c>Soat</th><th>Shakl</th></tr></thead><tbody><tr><td><span class="mono">1</span></td><td>Vektor kattaliklarni qo‘shish</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">2</span></td><td>Butun olam tortishish qonuni</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">3</span></td><td>Elastiklik kuchlari ta’sirida harakat</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">4</span></td><td>O‘zgarmas kuchlar ta’sirida harakat</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">5</span></td><td>Gorizontal otilgan jismlar harakati</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">6</span></td><td>Qiya tekislikda jismlar harakati</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">7</span></td><td>Ichki energiyani topishga doir masalalar yechish</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">8</span></td><td>Issiqlik miqdorini topish</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">9</span></td><td>Solishtirma issiqlik sig‘imini topishga doir masalalar yechish</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">10</span></td><td>O‘zgaruvchan tok qonunlari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">11</span></td><td>Elektromagnit tebranishlar, to‘lqinlar</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">12</span></td><td>Toklarning magnit maydoni</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">13</span></td><td>Yorug‘lik dispersiyasi. Yorug‘likning yutilishi va sochilishi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">14</span></td><td>Yorug‘lik bosimi. Lebedev tajribalari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">15</span></td><td>Issiqlik nurlanishi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">16</span></td><td>O‘zgaruvchan tok qonunlari. O‘zgaruvchan tokning amplituda va ta’sir etuvchi qiymatlari. O‘zgaruvchan tok zanjirida quvvat</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">17</span></td><td>O‘zgaruvchan tok zanjiridagi aktiv, induktiv va sig‘im qarshiliklar. O‘zgaruvchan tokning to‘la qarshiligi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">18</span></td><td>Kondensator va induktivlikdagi toklar. Vektor diagrammalar. Rezonans va uning turlari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">19</span></td><td>Linzalarning kamchiliklari. Aberratsiyalar (ko‘ndalang va bo‘ylama, sferik aberratsiyalar)</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">20</span></td><td>Chiziqli va nochiziqli optika</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">21</span></td><td>Fotometrlar va ularning qo‘llanilishi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">22</span></td><td>Yorug‘lik tezligini o‘lchash usullari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">23</span></td><td>Yupqa yassi-parallel plastinkada nurlar yo‘li</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">24</span></td><td>Sinish qonunini Nyuton va Gyuygens nazariyalari bo‘yicha hisoblash</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">25</span></td><td>Lupada nurlar yo‘li va uning qo‘llanilishi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">26</span></td><td>Mikroskopda nurlar yo‘li va uning qo‘llanilishi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">27</span></td><td>Ko‘zgu formulasi (fokus, fokal tekislik)</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">28</span></td><td>Yassi, botiq va qavariq ko‘zgularda tasvir yasash</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">29</span></td><td>Sferik sirtda yorug‘likning sinishi. Linza formulasini keltirib chiqarish (bosh optik o‘q, fokal tekislik, fokus, optik kuch)</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">30</span></td><td>Qavariq va botiq linzalarda tasvir yasash. Yig‘uvchi va sochuvchi linzalarning xarakteristikalari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">31</span></td><td>Optik tizimlar aberratsiyalari va ularning turlari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">32</span></td><td>Ko‘z. Ko‘z optik asbob sifatida. Ko‘rish burchagi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">33</span></td><td>Yorug‘lik interferensiyasi va uni kuzatish usullari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">34</span></td><td>Difraksiya hodisasining fan va texnikada qo‘llanilishi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">35</span></td><td>Qutblangan yorug‘lik olish</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">36</span></td><td>Tomsonning atom modeli</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">37</span></td><td>Alfa-zarralarning sochilishi. Rezerford formulasi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">38</span></td><td>Bor postulatlari. Frank–Gers tajribalari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">39</span></td><td>Vodorod atomi uchun Bor nazariyasi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">40</span></td><td>Faza va guruh tezliklari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">41</span></td><td>Kvant sonlar. Shtern–Gerlax tajribasi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">42</span></td><td>Pauli prinsipi. Zeeman effekti</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">43</span></td><td>Yadro massasi va uni o‘lchash usullari</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">44</span></td><td>Sun’iy radioaktivlik. Yadroning gamma-nurlanishi</td><td class=c>4</td><td>Taqdimot</td></tr><tr><td><span class="mono">45</span></td><td>Elementar zarralar. Kvarklar. Glyuonlar</td><td class=c>4</td><td>Taqdimot</td></tr></tbody></table></div>
+</section>
+<section class="card doc-sec" id="taqdimot"><h2><span class="n">3</span>Taqdimot tayyorlash bo‘yicha tavsiyalar</h2>
+<p>Quyidagi tavsiyalar JN rubrikasining “yuqori daraja” mezonlaridan kelib chiqadi:</p><ol><li>Mavzuning fizik mohiyati va asosiy qonuniyatlarini aniq ifodalang; formulalarni kattaliklar va birliklar bilan bering.</li><li>Har bir muhim fikrni chizma, sxema yoki grafik bilan ko‘rsating.</li><li>Asosiy darslikdan tashqari kamida bitta qo‘shimcha manbadan foydalaning va slayd oxirida manbalarni keltiring.</li><li>Mavzuga oid hayotiy yoki texnik misol, iloji bo‘lsa simulyator yoki tajriba natijasini qo‘shing.</li><li>Himoyaga tayyor matnsiz, o‘z so‘zlaringiz bilan gapirishga tayyorlaning.</li></ol>
+</section>
+<section class="card doc-sec" id="yoriqnomalar"><h2><span class="n">4</span>Yo‘riqnomalar (MT)</h2>
+<div class="grid"><a class="card" href="yoriqnomalar/MT-01.html"><span class="tag">MT-01</span><h3>Dinamika va kuchlarning ta’siri</h3><p>Nazariy savollar, masala yechish va amaliy tahlil.</p></a><a class="card" href="yoriqnomalar/MT-02.html"><span class="tag">MT-02</span><h3>Kinematika va grafik tahlil</h3><p>Nazariy savollar, masala yechish va amaliy tahlil.</p></a><a class="card" href="yoriqnomalar/MT-03.html"><span class="tag">MT-03</span><h3>Elastiklik va Guk qonuni</h3><p>Nazariy savollar, masala yechish va amaliy tahlil.</p></a><div class="card soon"><div class="card-body"><span class="tag">MT-04</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 4</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-05</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 5</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-06</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 6</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-07</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 7</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-08</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 8</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-09</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 9</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-10</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 10</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-11</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 11</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-12</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 12</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-13</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 13</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-14</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 14</h3><p>Material tayyorlanmoqda.</p></div></div><div class="card soon"><div class="card-body"><span class="tag">MT-15</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq 15</h3><p>Material tayyorlanmoqda.</p></div></div></div>
+</section></div></div>
+</main>
+<footer class="footer">© 2026 Umumiy fizika · Qo‘qon davlat universiteti, Fizika va astronomiya kafedrasi · Fan dasturi: UMF11210, 2026/2027</footer>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,119 +1,117 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="uz" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MT-02: Kinematika va Grafik tahlil - Umumiy Fizika</title>
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MT-02. Kinematika va Grafik tahlil — Umumiy fizika</title>
+<meta name="description" content="Umumiy fizika — interaktiv elektron darslik">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../css/darslik.css">
+<script>try{var t=localStorage.getItem('uf-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 </head>
-<body class="markdown-body">
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo"><i class="fas fa-atom"></i> Umumiy Fizika</div>
-            <nav>
-                <button class="nav-btn" onclick="location.href='../index.html'"><i class="fas fa-home"></i> Bosh sahifa</button>
-                <div class="nav-group">
-                    <span class="nav-group-title"><i class="fas fa-book-open"></i> Marozalar (28)</span>
-                    <a href="../lectures/lecture1.html">1. Kirish</a>
-                    <a href="../lectures/lecture2.html">2. Kinematika</a>
-                    <a href="../lectures/lecture3.html">3. Dinamika</a>
-                    <a href="../lectures/lecture4.html">4. Statika</a>
-                    <a href="../lectures/lecture5.html">5. Elastiklik</a>
-                    <a href="../lectures/lecture6.html">6. Gravitatsiya</a>
-                    <a href="../lectures/lecture7.html">7. Gazlar qonunlari</a>
-                    <a href="../lectures/lecture8.html">8. Termodinamika</a>
-                    <a href="../lectures/lecture9.html">9. Entropiya</a>
-                    <a href="../lectures/lecture10.html">10. Molekulyar fizika</a>
-                    <a href="../lectures/lecture11.html">11. Elektrik maydon</a>
-                    <a href="../lectures/lecture12.html">12. Magnitizm</a>
-                    <a href="../lectures/lecture13.html">13. Elektrokuzatuvchanlik</a>
-                    <a href="../lectures/lecture14.html">14. Elektrodinamika</a>
-                    <a href="../lectures/lecture15.html">15. Optika - 1</a>
-                    <a href="../lectures/lecture16.html">16. Optika - 2</a>
-                    <a href="../lectures/lecture17.html">17. Yorug'lik tabiiylari</a>
-                    <a href="../lectures/lecture18.html">18. Kvant fizikasi - 1</a>
-                    <a href="../lectures/lecture19.html">19. Kvant fizikasi - 2</a>
-                    <a href="../lectures/lecture20.html">20. Atom strukturasi</a>
-                    <a href="../lectures/lecture21.html">21. Nyukleer fizika</a>
-                    <a href="../lectures/lecture22.html">22. Partikulalar fizikasi</a>
-                    <a href="../lectures/lecture23.html">23. Kvant mexanikasi</a>
-                    <a href="../lectures/lecture24.html">24. Yangi fizikani izlash</a>
-                    <a href="../lectures/lecture25.html">25. Kosmik fizika</a>
-                    <a href="../lectures/lecture26.html">26. Fizikada metodologiya</a>
-                    <a href="../lectures/lecture27.html">27. Fizikada ma'lumotlar tahlili</a>
-                    <a href="../lectures/lecture28.html">28. Xulosa</a>
-                </div>
-                <div class="nav-group">
-                    <span class="nav-group-title"><i class="fas fa-flask"></i> Laboratoriyalar (12)</span>
-                    <a href="../labs/lab1.html">Lab 1: Dinamika</a>
-                    <a href="../labs/lab2.html">Lab 2: Statika</a>
-                    <a href="../labs/lab3.html">Lab 3: Elastiklik</a>
-                    <a href="../labs/lab4.html">Lab 4: Termodinamika</a>
-                    <a href="../labs/lab5.html">Lab 5: Gazlar</a>
-                    <a href="../labs/lab6.html">Lab 6: Elektrik zanjir</a>
-                    <a href="../labs/lab7.html">Lab 7: Magnit maydon</a>
-                    <a href="../labs/lab8.html">Lab 8: Optika</a>
-                    <a href="../labs/lab9.html">Lab 9: Linzalar</a>
-                    <a href="../labs/lab10.html">Lab 10: Kvantlar</a>
-                    <a href="../labs/lab11.html">Lab 11: Nyukleer</a>
-                    <a href="../labs/lab12.html">Lab 12: Kosmik</a>
-                </div>
-                <div class="nav-group">
-                    <span class="nav-group-title"><i class="fas fa-pen-nib"></i> Yoriknomalar (15)</span>
-                    <a href="../yoriqnomalar/MT-01.html">MT-01</a>
-                    <a href="../yoriqnomalar/MT-02.html" class="active">MT-02</a>
-                    <a href="../yoriqnomalar/MT-03.html">MT-03</a>
-                    <a href="../yoriqnomalar/MT-04.html">MT-04</a>
-                    <a href="../yoriqnomalar/MT-05.html">MT-05</a>
-                    <a href="../yoriqnomalar/MT-06.html">MT-06</a>
-                    <a href="../yoriqnomalar/MT-07.html">MT-07</a>
-                    <a href="../yoriqnomalar/MT-08.html">MT-08</a>
-                    <a href="../yoriqnomalar/MT-09.html">MT-09</a>
-                    <a href="../yoriqnomalar/MT-10.html">MT-10</a>
-                    <a href="../yoriqnomalar/MT-11.html">MT-11</a>
-                    <a href="../yoriqnomalar/MT-12.html">MT-12</a>
-                    <a href="../yoriqnomalar/MT-13.html">MT-13</a>
-                    <a href="../yoriqnomalar/MT-14.html">MT-14</a>
-                    <a href="../yoriqnomalar/MT-15.html">MT-15</a>
-                </div>
-            </nav>
-            <div class="sidebar-footer">
-                <p>&copy; 2026 Fizika Platformasi</p>
-            </div>
-        </aside>
-        <main class="content">
-            <article class="markdown-page">
-                <header>
-                    <h1>Yoriknoma MT-02: Kinematika va Grafik tahlil</h1>
-                    <p class="meta">Mavzu: Mexanika | Daraja: Boshlang'ich</p>
-                </header>
-
-                <section class="content-body">
-                    <p>Ushbu yoriknoma talabalardan jismning harakatini grafik ko'rinishda tahlil qilish va tezlik-vaqt, yo'l-vaqt grafiklarini o'qishni talab qiladi.</p>
-                    
-                    <h3 class="sub-heading">1-topshiriq: Grafik tahlili</h3>
-                    <p>Berilgan tezlik-vaqt grafikani ko'rib, quyidagilarni aniqlang:</p>
-                    <ul>
-                        <li>Jism necha daqiqada to'xtagan?</li>
-                        <li>Jism necha vaqt davomida teng tezlikda harakat qilgan?</li>
-                        <li>Jism necha metr yo'l bosib o'tgan?</li>
-                    </ul>
-
-                    <h3 class="sub-heading">2-topshiriq: Masala yechish</h3>
-                    <p>Mashina 10 daqiqa davomida 15 m/s tezlik bilan harakatlangan bo'lsa, u necha metr yo'l bosib o'tadi? (Javobni o'lcham birliklari bilan ko'rsating).</p>
-
-                    <h3 class="sub-heading">3-topshiriq: Amaliy tahlil</h3>
-                    <p>Laboratoriya 1 natijalari asosida, tezlanish o'zgarayotgan va o'zgarmayotgan harakatlarning grafik farqlarini tahlil qiling va xulosangizni yozing.</p>
-                </section>
-
-                <div class="navigation-footer">
-                    <a href="../index.html" class="btn prev"><i class="fas fa-chevron-left"></i> Bosh sahifa</a>
-                    <a href="../yoriqnomalar/MT-03.html" class="btn next">MT-03 <i class="fas fa-chevron-right"></i></a>
-                </div>
-            </article>
-        </main>
-    </div>
-    <script src="../js/ui-controller.js"></script>
+<body>
+<a class="skip-link" href="#main">Asosiy mazmunga o‘tish</a>
+<header class="topbar"><div class="topbar-inner">
+<a class="brand" href="../index.html"><span class="brand-icon"><i class="fas fa-atom"></i></span><span><span class="brand-title">Umumiy fizika</span><span class="brand-sub">Interaktiv elektron darslik · Bakalavriat</span></span></a>
+<nav class="nav" aria-label="Asosiy menyu"><a href="../annotatsiya.html">Darslik haqida</a><a href="../index.html#maruzalar">Ma’ruzalar</a><a href="../index.html#laboratoriya">Laboratoriya</a><a href="../mustaqil.html">Mustaqil ta’lim</a><a href="../simulyatorlar.html">Simulyatorlar</a><a href="../baholash.html">Baholash</a><a href="../oqituvchi.html">O‘qituvchi uchun</a><a href="../glossariy.html">Lug‘at</a><a href="../vositalar.html">Vositalar</a><a href="../index.html#muallif">Muallif</a></nav>
+<div class="tools">
+<div class="lang-switch notranslate" translate="no" role="group" aria-label="Til"><button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button></div>
+<button class="icon-btn" id="themeBtn" aria-label="Kun / tun rejimi"><i class="fas fa-sun"></i></button>
+<button class="icon-btn menu-btn" data-drawer-open aria-label="Menyu"><i class="fas fa-bars"></i></button>
+</div></div></header>
+<div class="drawer" id="drawer" role="dialog" aria-label="Menyu"><div class="drawer-bg" data-drawer-close></div><div class="drawer-panel"><div class="drawer-head"><span class="kicker">Mundarija</span><button class="icon-btn" data-drawer-close aria-label="Yopish"><i class="fas fa-xmark"></i></button></div><h4>Darslik</h4>
+<a href="../index.html">Bosh sahifa</a>
+<a href="../annotatsiya.html">Darslik haqida</a>
+<a href="../mustaqil.html">Mustaqil ta’lim</a>
+<a href="../simulyatorlar.html">Simulyatorlar</a>
+<a href="../baholash.html">Baholash</a>
+<a href="../oqituvchi.html">O‘qituvchi uchun</a>
+<a href="../glossariy.html">Lug‘at</a>
+<a href="../vositalar.html">Vositalar</a>
+<h4>Ma’ruzalar</h4>
+<a href="../lectures/lecture1.html">1. Kirish</a>
+<a href="../lectures/lecture2.html">2. Kinematika</a>
+<a href="../lectures/lecture3.html">3. Dinamika</a>
+<a href="../lectures/lecture4.html">4. Statika</a>
+<a href="../lectures/lecture5.html">5. Elastiklik</a>
+<a href="../lectures/lecture6.html">6. Gravitatsiya</a>
+<a href="../lectures/lecture7.html">7. Gazlar qonunlari</a>
+<a href="../lectures/lecture8.html">8. Termodinamika</a>
+<a href="../lectures/lecture9.html">9. Entropiya</a>
+<a href="../lectures/lecture10.html">10. Molekulyar fizika</a>
+<a href="../lectures/lecture11.html">11. Elektr maydon</a>
+<a href="../lectures/lecture12.html">12. Magnetizm</a>
+<a href="../lectures/lecture13.html">13. Elektr o‘tkazuvchanlik</a>
+<a href="../lectures/lecture14.html">14. Elektrodinamika</a>
+<a href="../lectures/lecture15.html">15. Optika – 1</a>
+<a href="../lectures/lecture16.html">16. Optika – 2</a>
+<a href="../lectures/lecture17.html">17. Yorug‘lik tabiati</a>
+<a href="../lectures/lecture18.html">18. Kvant fizikasi – 1</a>
+<a href="../lectures/lecture19.html">19. Kvant fizikasi – 2</a>
+<a href="../lectures/lecture20.html">20. Atom tuzilishi</a>
+<a href="../lectures/lecture21.html">21. Yadro fizikasi</a>
+<a href="../lectures/lecture22.html">22. Elementar zarralar fizikasi</a>
+<a href="../lectures/lecture23.html">23. Kvant mexanikasi</a>
+<a href="../lectures/lecture24.html">24. Yangi fizikani izlash</a>
+<a class="soon" aria-disabled="true">25. Kosmik fizika</a>
+<a class="soon" aria-disabled="true">26. Fizikada metodologiya</a>
+<a class="soon" aria-disabled="true">27. Fizikada ma’lumotlar tahlili</a>
+<a class="soon" aria-disabled="true">28. Xulosa</a>
+<h4>Laboratoriya ishlari</h4>
+<a href="../labs/lab1.html">L1. Dinamika</a>
+<a href="../labs/lab2.html">L2. Statika</a>
+<a href="../labs/lab3.html">L3. Elastiklik</a>
+<a class="soon" aria-disabled="true">L4. Termodinamika</a>
+<a class="soon" aria-disabled="true">L5. Gazlar</a>
+<a class="soon" aria-disabled="true">L6. Elektr zanjir</a>
+<a class="soon" aria-disabled="true">L7. Magnit maydon</a>
+<a class="soon" aria-disabled="true">L8. Optika</a>
+<a class="soon" aria-disabled="true">L9. Linzalar</a>
+<a class="soon" aria-disabled="true">L10. Kvantlar</a>
+<a class="soon" aria-disabled="true">L11. Yadro fizikasi</a>
+<a class="soon" aria-disabled="true">L12. Kosmik fizika</a>
+<h4>Yo‘riqnomalar (MT)</h4>
+<a href="../yoriqnomalar/MT-01.html">MT-01. Dinamika va kuchlarning ta’siri</a>
+<a href="../yoriqnomalar/MT-02.html" aria-current="page">MT-02. Kinematika va grafik tahlil</a>
+<a href="../yoriqnomalar/MT-03.html">MT-03. Elastiklik va Guk qonuni</a>
+<a class="soon" aria-disabled="true">MT-04</a>
+<a class="soon" aria-disabled="true">MT-05</a>
+<a class="soon" aria-disabled="true">MT-06</a>
+<a class="soon" aria-disabled="true">MT-07</a>
+<a class="soon" aria-disabled="true">MT-08</a>
+<a class="soon" aria-disabled="true">MT-09</a>
+<a class="soon" aria-disabled="true">MT-10</a>
+<a class="soon" aria-disabled="true">MT-11</a>
+<a class="soon" aria-disabled="true">MT-12</a>
+<a class="soon" aria-disabled="true">MT-13</a>
+<a class="soon" aria-disabled="true">MT-14</a>
+<a class="soon" aria-disabled="true">MT-15</a></div></div>
+<main id="main">
+<section class="page-hero"><div class="inner"><div><nav class="crumbs" aria-label="Yo‘l"><a href="../index.html">Bosh sahifa</a> <span>/</span> <a href="../mustaqil.html">Mustaqil ta’lim</a> <span>/</span> MT-02</nav><div class="kicker">Yo‘riqnoma · MT-02</div><h1>Kinematika va Grafik tahlil</h1><div class="chips"><span class="tag notranslate" translate="no">MT-02</span><span class="tag v">Mustaqil topshiriq</span><span class="tag m">Mavzu: Mexanika</span><span class="tag m">Daraja: Boshlang&#x27;ich</span></div></div><button class="btn btn-ghost listen-btn" id="listenBtn" type="button"><i class="fas fa-volume-high"></i> Tinglash</button></div></section><div class="layout"><nav class="card toc" aria-label="Mundarija"><span class="kicker">Mundarija</span><a href="#topshiriq-mazmuni">Topshiriq mazmuni</a><a href="#1-topshiriq-grafik-tahlili">1-topshiriq: Grafik tahlili</a><a href="#2-topshiriq-masala-yechish">2-topshiriq: Masala yechish</a><a href="#3-topshiriq-amaliy-tahlil">3-topshiriq: Amaliy tahlil</a><a href="#topshirish">Topshirish va baholash</a></nav><div class="doc">
+<section class="card doc-sec" id="topshiriq-mazmuni"><h2><span class="n">1</span>Topshiriq mazmuni</h2>
+<p>Ushbu yo‘riqnoma talabalardan jismning harakatini grafik ko'rinishda tahlil qilish va tezlik-vaqt, yo'l-vaqt grafiklarini o'qishni talab qiladi.</p>
+</section>
+<section class="card doc-sec" id="1-topshiriq-grafik-tahlili"><h2><span class="n">2</span>1-topshiriq: Grafik tahlili</h2>
+<p>Berilgan tezlik-vaqt grafikani ko'rib, quyidagilarni aniqlang:</p>
+<ul>
+<li>Jism necha daqiqada to'xtagan?</li>
+<li>Jism necha vaqt davomida teng tezlikda harakat qilgan?</li>
+<li>Jism necha metr yo'l bosib o'tgan?</li>
+</ul>
+</section>
+<section class="card doc-sec" id="2-topshiriq-masala-yechish"><h2><span class="n">3</span>2-topshiriq: Masala yechish</h2>
+<p>Mashina 10 daqiqa davomida 15 m/s tezlik bilan harakatlangan bo'lsa, u necha metr yo'l bosib o'tadi? (Javobni o'lcham birliklari bilan ko'rsating).</p>
+</section>
+<section class="card doc-sec" id="3-topshiriq-amaliy-tahlil"><h2><span class="n">4</span>3-topshiriq: Amaliy tahlil</h2>
+<p>Laboratoriya 1 natijalari asosida, tezlanish o'zgarayotgan va o'zgarmayotgan harakatlarning grafik farqlarini tahlil qiling va xulosangizni yozing.</p>
+</section>
+<section class="card doc-sec hl" id="topshirish"><h2><span class="n">5</span>Topshirish va baholash</h2>
+<p>Bajarilgan ish belgilangan muddatda <b>HEMIS</b> tizimiga yuklanadi. Joriy nazorat mezonlari: <a href="../baholash.html#jn-rubrika">Baholash → JN rubrikasi</a>. Mustaqil ta’lim mavzulari: <a href="../mustaqil.html">Mustaqil ta’lim</a>.</p>
+</section><div class="pager"><a class="card" href="MT-01.html"><span class="lbl">← Oldingi</span>MT-01</a><a class="card nx" href="MT-03.html"><span class="lbl">Keyingi →</span>MT-03</a></div></div></div>
+</main>
+<footer class="footer">© 2026 Umumiy fizika · Qo‘qon davlat universiteti, Fizika va astronomiya kafedrasi · Fan dasturi: UMF11210, 2026/2027</footer>
+<script src="../js/app.js"></script>
 </body>
 </html>
