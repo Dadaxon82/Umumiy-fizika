@@ -45,7 +45,8 @@ img { max-width: 100%; }
 .brand-icon { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; color: #fff; font-size: 18px; background: linear-gradient(135deg, var(--accent), #3b5bdb); box-shadow: 0 6px 18px -6px var(--accent); }
 .brand-title { display: block; font-weight: 800; font-size: 14px; letter-spacing: .02em; text-transform: uppercase; line-height: 1.2; }
 .brand-sub { display: block; font-size: 11px; color: var(--accent); }
-.nav { display: flex; gap: 2px; margin-left: auto; }
+.nav { display: flex; gap: 2px; margin-left: auto; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
 .nav a { font-size: 13px; font-weight: 500; color: var(--text-2); padding: 6px 8px; border-radius: 8px; white-space: nowrap; }
 .nav a:hover, .nav a[aria-current="page"] { color: var(--accent); background: var(--accent-soft); text-decoration: none; }
 .tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -200,6 +201,7 @@ body { top: 0 !important; position: static !important; }
 .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
 
 @media (max-width: 1180px) { .nav { display: none; } .menu-btn { display: grid; } }
+@media (max-width: 1500px) { [data-tl="ru"] .nav, [data-tl="en"] .nav { display: none; } [data-tl="ru"] .menu-btn, [data-tl="en"] .menu-btn { display: grid; } }
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
   .toc { position: static; max-height: none; }
