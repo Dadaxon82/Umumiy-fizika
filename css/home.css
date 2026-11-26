@@ -1,0 +1,196 @@
+/* Bosh sahifa dizayni (faqat index.html uchun) */
+:root {
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --text: #0f172a;
+  --text-2: #475569;
+  --muted: #64748b;
+  --border: #dbe3ee;
+  --line: rgba(15, 23, 42, .045);
+  --accent: #1d7fe0;
+  --accent-2: #14b8a6;
+  --accent-soft: #e6f1fd;
+  --accent-ink: #1e4fa8;
+  --shadow: 0 10px 30px -18px rgba(15, 23, 42, .25);
+  --radius: 18px;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+[data-theme="dark"] {
+  --bg: #0b1220;
+  --surface: #111a2b;
+  --surface-2: #0f1828;
+  --text: #e6edf7;
+  --text-2: #a9b6c9;
+  --muted: #8392a8;
+  --border: #22314a;
+  --line: rgba(255, 255, 255, .035);
+  --accent: #4ea3ff;
+  --accent-2: #2dd4bf;
+  --accent-soft: #15284a;
+  --accent-ink: #9cc7ff;
+  --shadow: 0 10px 30px -18px rgba(0, 0, 0, .7);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body {
+  font-family: var(--sans);
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 44px 44px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ---------- Yuqori menyu ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-inner {
+  max-width: 1240px; margin: 0 auto; padding: 10px 24px;
+  display: flex; align-items: center; gap: 24px;
+}
+.brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.brand-icon {
+  width: 40px; height: 40px; border-radius: 11px;
+  display: grid; place-items: center; color: #fff; font-size: 18px;
+  background: linear-gradient(135deg, var(--accent), #3b5bdb);
+  box-shadow: 0 6px 18px -6px var(--accent);
+}
+.brand-title { font-weight: 800; font-size: 14px; letter-spacing: .02em; text-transform: uppercase; line-height: 1.2; }
+.brand-sub { font-size: 11px; color: var(--accent); }
+.nav { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+.nav a {
+  font-size: 13px; font-weight: 500; color: var(--text-2);
+  padding: 6px 9px; border-radius: 8px; transition: .15s;
+}
+.nav a:hover { color: var(--accent); background: var(--accent-soft); }
+.theme-btn, .menu-btn {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-2);
+  cursor: pointer; font-size: 14px;
+}
+.theme-btn:hover, .menu-btn:hover { color: var(--accent); border-color: var(--accent); }
+.menu-btn { display: none; }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; text-align: center; padding: 96px 24px 72px; overflow: hidden; }
+.hero::before {
+  content: ""; position: absolute; left: 50%; top: 40%; width: 620px; height: 420px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 22%, transparent), transparent);
+  pointer-events: none;
+}
+.kicker {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--accent-2);
+}
+.hero .kicker { color: var(--accent); }
+.hero h1 {
+  position: relative; font-size: clamp(38px, 6.4vw, 72px); line-height: 1.06;
+  letter-spacing: -.035em; font-weight: 800; margin: 22px auto 26px; max-width: 900px;
+}
+.hero h1 .grad {
+  background: linear-gradient(90deg, #60a5fa, #22d3ee 45%, #34d399);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-lead { position: relative; max-width: 620px; margin: 0 auto; color: var(--text-2); font-size: 16px; }
+.hero-actions { position: relative; display: flex; gap: 12px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-weight: 600; font-size: 14px; padding: 11px 20px; border-radius: 12px; transition: .15s;
+}
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 8px 20px -10px var(--accent); }
+.btn-primary:hover { transform: translateY(-1px); filter: brightness(1.08); }
+.btn-ghost { border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+.stats {
+  position: relative; max-width: 960px; margin: 56px auto 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; text-align: left;
+}
+.stat { padding: 20px 18px 22px; }
+.stat .num { font-family: var(--mono); font-size: 11px; color: var(--accent-2); }
+.stat h3 { font-size: 17px; margin: 6px 0 10px; }
+.stat p { font-size: 14px; color: var(--text-2); }
+
+/* ---------- Bo'limlar ---------- */
+.section { border-top: 1px solid var(--border); padding: 72px 24px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+.section h2 { font-size: clamp(28px, 4vw, 38px); letter-spacing: -.03em; line-height: 1.15; margin: 10px 0 14px; }
+.section-lead { color: var(--text-2); max-width: 640px; margin-bottom: 32px; }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+.card {
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); transition: transform .15s, border-color .15s;
+}
+a.card { display: block; padding: 18px 18px 22px; }
+a.card:hover { transform: translateY(-3px); border-color: var(--accent); }
+.card-body { padding: 18px 18px 22px; }
+.card h3 { font-size: 16.5px; line-height: 1.35; margin: 10px 0 10px; }
+.card p { font-size: 14px; color: var(--text-2); }
+.card .meta { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+.tag {
+  display: inline-block; font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  color: var(--accent-ink); background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  padding: 2px 8px; border-radius: 999px;
+}
+.card.soon { opacity: .6; box-shadow: none; cursor: default; }
+.card.soon:hover { transform: none; border-color: var(--border); }
+.tag-soon { color: var(--muted); background: transparent; border-color: var(--border); margin-left: 6px; }
+
+/* Baholash bloki */
+.callout {
+  border-left: 3px solid var(--accent); padding: 28px 30px;
+}
+.callout h2 { margin-top: 8px; }
+.callout p { color: var(--text-2); }
+
+/* Muallif */
+.author { display: flex; gap: 28px; align-items: center; padding: 28px; }
+.avatar {
+  width: 132px; height: 132px; border-radius: 22px; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 40px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: var(--shadow);
+}
+.author h2 { margin: 6px 0 4px; }
+.author .role { font-weight: 600; font-size: 14px; margin-bottom: 10px; }
+.author p { color: var(--text-2); font-size: 14px; }
+
+.footer { border-top: 1px solid var(--border); padding: 28px 24px; text-align: center; font-size: 13px; color: var(--muted); }
+
+/* ---------- Moslashuvchan ---------- */
+@media (max-width: 1080px) {
+  .menu-btn { display: block; margin-left: auto; }
+  .nav {
+    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    flex-direction: column; padding: 10px 16px 16px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  .nav.open { display: flex; }
+}
+@media (max-width: 860px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .stats, .grid { grid-template-columns: 1fr; }
+  .brand-sub { display: none; }
+  .hero { padding-top: 64px; }
+  .author { flex-direction: column; text-align: center; }
+}

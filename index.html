@@ -1,125 +1,233 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Umumiy Fizika Platformasi | 2026</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Umumiy fizika — interaktiv elektron darslik</title>
+  <meta name="description" content="Umumiy fizika fani bo‘yicha ochiq elektron darslik: ma’ruzalar, laboratoriya ishlari va mustaqil topshiriqlar.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="css/home.css">
+  <script>
+    try { var t = localStorage.getItem('uf-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+  </script>
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="fas fa-atom"></i> Umumiy Fizika
-            </div>
-            <nav>
-                <button class="nav-btn active" onclick="location.href='index.html'"><i class="fas fa-home"></i> Bosh sahifa</button>
 
-                <div class="nav-group">
-                    <span class="nav-group-title"><i class="fas fa-book-open"></i> Marozalar (28)</span>
-                    <a href="lectures/lecture1.html">1. Kirish</a>
-                    <a href="lectures/lecture2.html">2. Kinematika</a>
-                    <a href="lectures/lecture3.html">3. Dinamika</a>
-                    <a href="lectures/lecture4.html">4. Statika</a>
-                    <a href="lectures/lecture5.html">5. Elastiklik</a>
-                    <a href="lectures/lecture6.html">6. Gravitatsiya</a>
-                    <a href="lectures/lecture7.html">7. Gazlar qonunlari</a>
-                    <a href="lectures/lecture8.html">8. Termodinamika</a>
-                    <a href="lectures/lecture9.html">9. Entropiya</a>
-                    <a href="lectures/lecture10.html">10. Molekulyar fizika</a>
-                    <a href="lectures/lecture11.html">11. Elektrik maydon</a>
-                    <a href="lectures/lecture12.html">12. Magnitizm</a>
-                    <a href="lectures/lecture13.html">13. Elektrokuzatuvchanlik</a>
-                    <a href="lectures/lecture14.html">14. Elektrodinamika</a>
-                    <a href="lectures/lecture15.html">15. Optika - 1</a>
-                    <a href="lectures/lecture16.html">16. Optika - 2</a>
-                    <a href="lectures/lecture17.html">17. Yorug'lik tabiiylari</a>
-                    <a href="lectures/lecture18.html">18. Kvant fizikasi - 1</a>
-                    <a href="lectures/lecture19.html">19. Kvant fizikasi - 2</a>
-                    <a href="lectures/lecture20.html">20. Atom strukturasi</a>
-                    <a href="lectures/lecture21.html">21. Nyukleer fizika</a>
-                    <a href="lectures/lecture22.html">22. Partikulalar fizikasi</a>
-                    <a href="lectures/lecture23.html">23. Kvant mexanikasi</a>
-                    <a href="lectures/lecture24.html">24. Yangi fizikani izlash</a>
-                    <a href="lectures/lecture25.html">25. Kosmik fizika</a>
-                    <a href="lectures/lecture26.html">26. Fizikada metodologiya</a>
-                    <a href="lectures/lecture27.html">27. Fizikada ma'lumotlar tahlili</a>
-                    <a href="lectures/lecture28.html">28. Xulosa</a>
-                </div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-icon"><i class="fas fa-atom"></i></span>
+      <span>
+        <span class="brand-title">Umumiy fizika</span><br>
+        <span class="brand-sub">Interaktiv elektron darslik</span>
+      </span>
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-label="Menyu"><i class="fas fa-bars"></i></button>
+    <nav class="nav" id="nav">
+      <a href="#fan-haqida">Fan haqida</a>
+      <a href="#oquv-modeli">O‘quv modeli</a>
+      <a href="#maruzalar">Ma’ruzalar</a>
+      <a href="#laboratoriya">Laboratoriya</a>
+      <a href="#mustaqil">Mustaqil ta’lim</a>
+      <a href="#baholash">Baholash</a>
+      <a href="#muallif">Muallif</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="Rejimni almashtirish"><i class="fas fa-sun"></i></button>
+  </div>
+</header>
 
-                <div class="nav-group">
-                    <span class="nav-group-title"><i class="fas fa-flask"></i> Laboratoriyalar (12)</span>
-                    <a href="labs/lab1.html">Lab 1: Dinamika</a>
-                    <a href="labs/lab2.html">Lab 2: Statika</a>
-                    <a href="labs/lab3.html">Lab 3: Elastiklik</a>
-                    <a href="labs/lab4.html">Lab 4: Termodinamika</a>
-                    <a href="labs/lab5.html">Lab 5: Gazlar</a>
-                    <a href="labs/lab6.html">Lab 6: Elektrik zanjir</a>
-                    <a href="labs/lab7.html">Lab 7: Magnit maydon</a>
-                    <a href="labs/lab8.html">Lab 8: Optika</a>
-                    <a href="labs/lab9.html">Lab 9: Linzalar</a>
-                    <a href="labs/lab10.html">Lab 10: Kvantlar</a>
-                    <a href="labs/lab11.html">Lab 11: Nyukleer</a>
-                    <a href="labs/lab12.html">Lab 12: Kosmik</a>
-                </div>
-
-                <div class="nav-group">
-                    <span class="nav-group-title"><i class="fas fa-pen-nib"></i> Yoriknomalar (15)</span>
-                    <a href="yoriqnomalar/MT-01.html">MT-01</a>
-                    <a href="yoriqnomalar/MT-02.html">MT-02</a>
-                    <a href="yoriqnomalar/MT-03.html">MT-03</a>
-                    <a href="yoriqnomalar/MT-04.html">MT-04</a>
-                    <a href="yoriqnomalar/MT-05.html">MT-05</a>
-                    <a href="yoriqnomalar/MT-06.html">MT-06</a>
-                    <a href="yoriqnomalar/MT-07.html">MT-07</a>
-                    <a href="yoriqnomalar/MT-08.html">MT-08</a>
-                    <a href="yoriqnomalar/MT-09.html">MT-09</a>
-                    <a href="yoriqnomalar/MT-10.html">MT-10</a>
-                    <a href="yoriqnomalar/MT-11.html">MT-11</a>
-                    <a href="yoriqnomalar/MT-12.html">MT-12</a>
-                    <a href="yoriqnomalar/MT-13.html">MT-13</a>
-                    <a href="yoriqnomalar/MT-14.html">MT-14</a>
-                    <a href="yoriqnomalar/MT-15.html">MT-15</a>
-                </div>
-            </nav>
-            <div class="sidebar-footer">
-                <p>&copy; 2026 Fizika Platformasi</p>
-            </div>
-        </aside>
-        <main class="content">
-            <header class="hero-header">
-                <h1 id="main-title">Umumiy Fizika Platformasi</h1>
-                <p id="sub-title">2026-11-25 taqsadagi yangi fan dasturi asosida tuzilgan ochiq ta'lim resursi</p>
-            </header>
-
-            <section class="dashboard">
-                <div class="card">
-                    <div class="card-icon"><i class="fas fa-book"></i></div>
-                    <h3 class="card-title">Marozalar</h3>
-                    <p class="card-desc">Jami 28 ta nazariy dars. Mexanika, Termodinamika, Elektromagnetizm va Kvant fizikasi bo'yicha mukammal nazariy bazani o'rganing.</p>
-                    <a href="lectures/lecture1.html" class="btn"><i class="fas fa-arrow-right"></i> Boshlash</a>
-                </div>
-                <div class="card">
-                    <div class="card-icon"><i class="fas fa-microscope"></i></div>
-                    <h3 class="card-title">Laboratoriya ishlari</h3>
-                    <p class="card-desc">Jami 12 ta amaliy mashq. Nazariy bilimlarni tajribalar, o'lchovlar va simulyatsiyalar yordamida tasdiqlang.</p>
-                    <a href="labs/lab1.html" class="btn"><i class="fas fa-arrow-right"></i> Boshlash</a>
-                </div>
-                <div class="card">
-                    <div class="card-icon"><i class="fas fa-tasks"></i></div>
-                    <h3 class="card-title">Mustaqil topshiriqlar</h3>
-                    <p class="card-desc">Jami 15 ta yoriknoma (MT). Har bir mavzu bo'yicha mustaqil tahlil va amaliy mashqlar to'plami.</p>
-                    <a href="yoriqnomalar/MT-01.html" class="btn"><i class="fas fa-arrow-right"></i> Ko'rish</a>
-                </div>
-            </section>
-
-            <section class="info-section">
-                <h3>Platforma haqida</h3>
-                <p>Ushbu platforma talabalar uchun zamonaviy, vizual va interaktiv o'quv muhitini taqdim etadi. Har bir bo'lim PDF fan dasturidagi namunaviy o'quv rejasi asosida ishlab chiqilgan.</p>
-            </section>
-        </main>
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="kicker">Umumiy fizika · Fan dasturi asosida · Ochiq ta’lim resursi</div>
+    <h1>Tabiat qonunlarini<br><span class="grad">tushuning, o‘lchang<br>va modellashtiring.</span></h1>
+    <p class="hero-lead">Mexanika va termodinamikadan elektromagnetizm, optika, kvant va yadro fizikasigacha —
+      fan dasturi asosida tuzilgan ochiq elektron darslik. Nazariya, laboratoriya va mustaqil ish bitta joyda.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="lectures/lecture1.html"><i class="fas fa-play"></i> Birinchi ma’ruzadan boshlash</a>
+      <a class="btn btn-ghost" href="#maruzalar"><i class="fas fa-list"></i> Mundarija</a>
     </div>
-    <script src="js/ui-controller.js"></script>
+
+    <div class="stats">
+      <div class="card stat"><div class="num">01</div><h3>28 ta ma’ruza</h3><p>Maqsad, asosiy tushunchalar, nazariy ma’lumot va nazorat savollari.</p></div>
+      <div class="card stat"><div class="num">02</div><h3>12 ta laboratoriya</h3><p>Tajriba, o‘lchov va natijalarni tahlil qilish orqali nazariyani tasdiqlash.</p></div>
+      <div class="card stat"><div class="num">03</div><h3>15 ta mustaqil ish</h3><p>Har bir mavzu bo‘yicha savollar, masalalar va amaliy tahlil.</p></div>
+      <div class="card stat"><div class="num">04</div><h3>6 ta bo‘lim</h3><p>Klassik fizikadan zamonaviy fizikagacha izchil yo‘nalish.</p></div>
+    </div>
+  </section>
+
+  <!-- FAN HAQIDA -->
+  <section class="section" id="fan-haqida">
+    <div class="wrap">
+      <div class="kicker">Fan haqida</div>
+      <h2>Maqsad va fan bo‘limlari</h2>
+      <p class="section-lead">Fanni o‘qitishdan maqsad — talabalarni makro va mikrodunyodagi harakat turlari, modda tuzilishi va xossalari,
+        turli agregat holatlardagi makroskopik tizimlarning fizik xossalari, Koinot obyektlari va hodisalari haqidagi ilmiy
+        tasavvurlar bilan qurollantirish hamda ularda fenomenologik ko‘nikmalarni shakllantirish.</p>
+      <div class="grid">
+        <a class="card" href="lectures/lecture1.html"><span class="tag">1–6-ma’ruza</span><h3>Mexanika</h3><p>Kinematika, dinamika, statika, elastiklik va gravitatsiya.</p></a>
+        <a class="card" href="lectures/lecture7.html"><span class="tag">7–10-ma’ruza</span><h3>Molekulyar fizika va termodinamika</h3><p>Gaz qonunlari, issiqlik, ish, energiya va entropiya.</p></a>
+        <a class="card" href="lectures/lecture11.html"><span class="tag">11–14-ma’ruza</span><h3>Elektr va magnetizm</h3><p>Elektr maydon, tok, magnit maydon va elektromagnit induksiya.</p></a>
+        <a class="card" href="lectures/lecture15.html"><span class="tag">15–17-ma’ruza</span><h3>Optika</h3><p>Yorug‘likning to‘lqin xossalari, qaytish va sinish, yorug‘lik tabiati.</p></a>
+        <a class="card" href="lectures/lecture18.html"><span class="tag">18–23-ma’ruza</span><h3>Kvant, atom va yadro fizikasi</h3><p>Fotoeffekt, dualizm, atom tuzilishi, radioaktivlik va elementar zarralar.</p></a>
+        <a class="card" href="lectures/lecture24.html"><span class="tag">24–28-ma’ruza</span><h3>Zamonaviy fizika va metodologiya</h3><p>Yangi fizika, kosmik fizika, ilmiy uslub va ma’lumotlar tahlili.</p></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- O'QUV MODELI -->
+  <section class="section" id="oquv-modeli">
+    <div class="wrap">
+      <div class="kicker">O‘quv modeli</div>
+      <h2>Har bir mavzu bo‘yicha olti qadam</h2>
+      <p class="section-lead">Nazariya, tajriba va mustaqil ish bitta o‘quv sikliga birlashtirilgan.</p>
+      <div class="grid">
+        <div class="card"><div class="card-body"><span class="tag">QADAM 1</span><h3>Maqsad</h3><p>Mavzuning maqsadi va o‘rganiladigan asosiy tushunchalar bilan tanishish.</p></div></div>
+        <div class="card"><div class="card-body"><span class="tag">QADAM 2</span><h3>Nazariya</h3><p>Ma’ruzadagi nazariy ma’lumot, qonunlar va formulalarni o‘zlashtirish.</p></div></div>
+        <div class="card"><div class="card-body"><span class="tag">QADAM 3</span><h3>Nazorat savollari</h3><p>Har bir ma’ruza oxiridagi savollar orqali tushunishni tekshirish.</p></div></div>
+        <div class="card"><div class="card-body"><span class="tag">QADAM 4</span><h3>Laboratoriya</h3><p>Tajriba o‘tkazish, o‘lchash va natijalarni nazariya bilan solishtirish.</p></div></div>
+        <div class="card"><div class="card-body"><span class="tag">QADAM 5</span><h3>Mustaqil ish</h3><p>Yo‘riqnoma bo‘yicha masalalar yechish va amaliy tahlil.</p></div></div>
+        <div class="card"><div class="card-body"><span class="tag">QADAM 6</span><h3>Baholash</h3><p>Natijalar HEMIS tizimida belgilangan tartibda baholanadi.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MA'RUZALAR -->
+  <section class="section" id="maruzalar">
+    <div class="wrap">
+      <div class="kicker">Ma’ruzalar · 28 mavzu</div>
+      <h2>28 ta ma’ruza</h2>
+      <p class="section-lead">Har bir ma’ruza: maqsad, asosiy tushunchalar, nazariy ma’lumot va nazorat savollari.</p>
+      <div class="grid">
+<a class="card" href="lectures/lecture1.html"><span class="tag">1-ma’ruza</span><h3>Kirish</h3><p>Fizika fanining vazifalari, o‘rganish usullari va fizik qonunlar.</p></a>
+<a class="card" href="lectures/lecture2.html"><span class="tag">2-ma’ruza</span><h3>Kinematika</h3><p>Yo‘l, ko‘chish, tezlik va tezlanish; harakatni tasvirlash.</p></a>
+<a class="card" href="lectures/lecture3.html"><span class="tag">3-ma’ruza</span><h3>Dinamika</h3><p>Kuch tushunchasi va Nyuton qonunlari.</p></a>
+<a class="card" href="lectures/lecture4.html"><span class="tag">4-ma’ruza</span><h3>Statika</h3><p>Jismlar muvozanati, kuchlar tizimi va kuch momenti.</p></a>
+<a class="card" href="lectures/lecture5.html"><span class="tag">5-ma’ruza</span><h3>Elastiklik</h3><p>Deformatsiya turlari va Guk qonuni.</p></a>
+<a class="card" href="lectures/lecture6.html"><span class="tag">6-ma’ruza</span><h3>Gravitatsiya</h3><p>Butun olam tortishish qonuni va Yerning tortish kuchi.</p></a>
+<a class="card" href="lectures/lecture7.html"><span class="tag">7-ma’ruza</span><h3>Gazlar qonunlari</h3><p>Boyl–Mariott, Gey-Lyussak, Avogadro va ideal gaz qonunlari.</p></a>
+<a class="card" href="lectures/lecture8.html"><span class="tag">8-ma’ruza</span><h3>Termodinamika</h3><p>Issiqlik, ish, ichki energiya va termodinamikaning birinchi qonuni.</p></a>
+<a class="card" href="lectures/lecture9.html"><span class="tag">9-ma’ruza</span><h3>Entropiya</h3><p>Entropiya tushunchasi va termodinamik jarayonlar yo‘nalishi.</p></a>
+<a class="card" href="lectures/lecture10.html"><span class="tag">10-ma’ruza</span><h3>Molekulyar fizika</h3><p>Moddaning molekulyar tuzilishi va zarralar harakati.</p></a>
+<a class="card" href="lectures/lecture11.html"><span class="tag">11-ma’ruza</span><h3>Elektr maydon</h3><p>Elektr zaryadlari, Kulon qonuni va elektrostatik maydon.</p></a>
+<a class="card" href="lectures/lecture12.html"><span class="tag">12-ma’ruza</span><h3>Magnetizm</h3><p>Magnit maydon, uning manbalari va moddalarning magnitlanishi.</p></a>
+<a class="card" href="lectures/lecture13.html"><span class="tag">13-ma’ruza</span><h3>Elektr o‘tkazuvchanlik</h3><p>Elektr toki, qarshilik va elektr zanjirlar qonunlari.</p></a>
+<a class="card" href="lectures/lecture14.html"><span class="tag">14-ma’ruza</span><h3>Elektrodinamika</h3><p>Elektr va magnit maydonlarning o‘zaro bog‘liqligi, elektromagnit induksiya.</p></a>
+<a class="card" href="lectures/lecture15.html"><span class="tag">15-ma’ruza</span><h3>Optika – 1</h3><p>Yorug‘lik tabiati, yorug‘lik tezligi va to‘lqin xossalari.</p></a>
+<a class="card" href="lectures/lecture16.html"><span class="tag">16-ma’ruza</span><h3>Optika – 2</h3><p>Yorug‘likning qaytishi va sinishi qonunlari.</p></a>
+<a class="card" href="lectures/lecture17.html"><span class="tag">17-ma’ruza</span><h3>Yorug‘lik tabiati</h3><p>Yorug‘likning to‘lqin va zarra xossalari.</p></a>
+<a class="card" href="lectures/lecture18.html"><span class="tag">18-ma’ruza</span><h3>Kvant fizikasi – 1</h3><p>Kvantlash g‘oyasi va fotoeffekt.</p></a>
+<a class="card" href="lectures/lecture19.html"><span class="tag">19-ma’ruza</span><h3>Kvant fizikasi – 2</h3><p>Korpuskulyar-to‘lqin dualizmi va de Broyl to‘lqinlari.</p></a>
+<a class="card" href="lectures/lecture20.html"><span class="tag">20-ma’ruza</span><h3>Atom tuzilishi</h3><p>Atom modellari, yadro va elektron qobiqlar.</p></a>
+<a class="card" href="lectures/lecture21.html"><span class="tag">21-ma’ruza</span><h3>Yadro fizikasi</h3><p>Atom yadrosi tuzilishi, yadro reaksiyalari va radioaktivlik.</p></a>
+<a class="card" href="lectures/lecture22.html"><span class="tag">22-ma’ruza</span><h3>Elementar zarralar fizikasi</h3><p>Elementar zarralar va standart model.</p></a>
+<a class="card" href="lectures/lecture23.html"><span class="tag">23-ma’ruza</span><h3>Kvant mexanikasi</h3><p>To‘lqin funksiyasi va Shredinger tenglamasi.</p></a>
+<a class="card" href="lectures/lecture24.html"><span class="tag">24-ma’ruza</span><h3>Yangi fizikani izlash</h3><p>Fizikaning zamonaviy chegaralari va ochiq muammolari.</p></a>
+<div class="card soon"><div class="card-body"><span class="tag">25-ma’ruza</span><span class="tag tag-soon">tez orada</span><h3>Kosmik fizika</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">26-ma’ruza</span><span class="tag tag-soon">tez orada</span><h3>Fizikada metodologiya</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">27-ma’ruza</span><span class="tag tag-soon">tez orada</span><h3>Fizikada ma’lumotlar tahlili</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">28-ma’ruza</span><span class="tag tag-soon">tez orada</span><h3>Xulosa</h3><p>Material tayyorlanmoqda.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LABORATORIYA -->
+  <section class="section" id="laboratoriya">
+    <div class="wrap">
+      <div class="kicker">Laboratoriya ishlari</div>
+      <h2>12 ta laboratoriya ishi</h2>
+      <p class="section-lead">Nazariy bilimlarni tajriba, o‘lchov va hisob-kitob orqali mustahkamlash.</p>
+      <div class="grid">
+<a class="card" href="labs/lab1.html"><span class="tag">L1</span><h3>Dinamika</h3><p>Kuchlarning ta’siri va harakat qonunlarini tajribada tekshirish.</p></a>
+<a class="card" href="labs/lab2.html"><span class="tag">L2</span><h3>Statika</h3><p>Kuchlar muvozanati va kuch momentini o‘lchash.</p></a>
+<a class="card" href="labs/lab3.html"><span class="tag">L3</span><h3>Elastiklik</h3><p>Guk qonuni va materiallarning elastik xossalarini aniqlash.</p></a>
+<div class="card soon"><div class="card-body"><span class="tag">L4</span><span class="tag tag-soon">tez orada</span><h3>Termodinamika</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">L5</span><span class="tag tag-soon">tez orada</span><h3>Gazlar</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">L6</span><span class="tag tag-soon">tez orada</span><h3>Elektr zanjir</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">L7</span><span class="tag tag-soon">tez orada</span><h3>Magnit maydon</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">L8</span><span class="tag tag-soon">tez orada</span><h3>Optika</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">L9</span><span class="tag tag-soon">tez orada</span><h3>Linzalar</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">L10</span><span class="tag tag-soon">tez orada</span><h3>Kvantlar</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">L11</span><span class="tag tag-soon">tez orada</span><h3>Yadro fizikasi</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">L12</span><span class="tag tag-soon">tez orada</span><h3>Kosmik fizika</h3><p>Material tayyorlanmoqda.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MUSTAQIL TA'LIM -->
+  <section class="section" id="mustaqil">
+    <div class="wrap">
+      <div class="kicker">Mustaqil ta’lim</div>
+      <h2>15 ta mustaqil topshiriq</h2>
+      <p class="section-lead">Har bir yo‘riqnomada nazariy savollar, masala yechish va amaliy tahlil topshiriqlari bor.</p>
+      <div class="grid">
+<a class="card" href="yoriqnomalar/MT-01.html"><span class="tag">MT-01</span><h3>Dinamika va kuchlarning ta’siri</h3><p>Nazariy savollar, masala yechish va amaliy tahlil.</p></a>
+<a class="card" href="yoriqnomalar/MT-02.html"><span class="tag">MT-02</span><h3>Kinematika va grafik tahlil</h3><p>Nazariy savollar, masala yechish va amaliy tahlil.</p></a>
+<a class="card" href="yoriqnomalar/MT-03.html"><span class="tag">MT-03</span><h3>Elastiklik va Guk qonuni</h3><p>Nazariy savollar, masala yechish va amaliy tahlil.</p></a>
+<div class="card soon"><div class="card-body"><span class="tag">MT-04</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 4</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-05</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 5</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-06</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 6</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-07</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 7</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-08</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 8</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-09</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 9</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-10</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 10</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-11</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 11</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-12</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 12</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-13</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 13</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-14</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 14</h3><p>Material tayyorlanmoqda.</p></div></div>
+<div class="card soon"><div class="card-body"><span class="tag">MT-15</span><span class="tag tag-soon">tez orada</span><h3>Mustaqil topshiriq 15</h3><p>Material tayyorlanmoqda.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BAHOLASH -->
+  <section class="section" id="baholash">
+    <div class="wrap">
+      <div class="card callout">
+        <div class="kicker">Rasmiy jarayonlar</div>
+        <h2>Baholash va topshiriqlarni topshirish — HEMIS’da</h2>
+        <p>Ushbu sayt ochiq o‘quv materiallari to‘plami bo‘lib, baho qo‘ymaydi va topshiriq qabul qilmaydi.
+          Joriy, oraliq va yakuniy nazorat natijalari universitetning HEMIS axborot tizimida belgilangan tartibda yuritiladi.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MUALLIF -->
+  <section class="section" id="muallif">
+    <div class="wrap">
+      <div class="card author">
+        <div class="avatar">DE</div>
+        <div>
+          <div class="kicker">Muallif</div>
+          <h2>Ergashev Dadaxon</h2>
+          <div class="role">Fizika kafedrasi</div>
+          <p>Qo‘qon davlat universiteti. “Umumiy fizika” fani bo‘yicha interaktiv elektron darslik.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">© 2026 Umumiy fizika · Qo‘qon davlat universiteti</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement, btn = document.getElementById('themeBtn');
+    function icon() { btn.innerHTML = root.getAttribute('data-theme') === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>'; }
+    icon();
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('uf-theme', next); } catch (e) {}
+      icon();
+    });
+    var nav = document.getElementById('nav');
+    document.getElementById('menuBtn').addEventListener('click', function () { nav.classList.toggle('open'); });
+    nav.addEventListener('click', function (e) { if (e.target.tagName === 'A') nav.classList.remove('open'); });
+  })();
+</script>
 </body>
 </html>
