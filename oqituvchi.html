@@ -1,115 +1,33 @@
-<!DOCTYPE html>
-<html lang="uz" data-theme="light">
+<!doctype html>
+<html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>O‘qituvchi uchun — Umumiy fizika</title>
-<meta name="description" content="Umumiy fizika — interaktiv elektron darslik">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="css/darslik.css">
-<script>try{var t=localStorage.getItem('uf-theme');if(t)document.documentElement.setAttribute('data-theme',t);var m=document.cookie.match(/googtrans=\/[a-z-]+\/(ru|en)/);if(m)document.documentElement.setAttribute('data-tl',m[1]);}catch(e){}</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Öqituvçi uçun — Umumiy fizika</title>
+<meta name="description" content="30 haftalik taqvim, dars rejasi şablonlari, laboratoriyani taşkil etiş va SI siyosati">
+<meta name="author" content="Ergaşev Dadaxon">
+<meta property="og:title" content="Öqituvçi uçun"><meta property="og:description" content="30 haftalik taqvim, dars rejasi şablonlari, laboratoriyani taşkil etiş va SI siyosati"><meta property="og:type" content="website">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement;try{d.dataset.theme=localStorage.getItem('yaf-theme')||'dark';}catch(e){d.dataset.theme='dark';}var m=document.cookie.match(/googtrans=\/uz\/(ru|en)/);if(m){d.classList.add('alif-old');d.dataset.tl=m[1];}})();</script>
+<script src="js/alifbo.js"></script>
+<link rel="stylesheet" href="css/styles.css?v=9">
+<link rel="stylesheet" href="css/darslik.css?v=9">
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<script defer src="vendor/katex/katex.min.js"></script>
+<script defer src="vendor/katex/contrib/auto-render.min.js"></script>
 </head>
 <body>
-<a class="skip-link" href="#main">Asosiy mazmunga o‘tish</a>
-<header class="topbar"><div class="topbar-inner">
-<a class="brand" href="index.html"><span class="brand-icon"><i class="fas fa-atom"></i></span><span><span class="brand-title">Umumiy fizika</span><span class="brand-sub">Interaktiv elektron darslik · Bakalavriat</span></span></a>
-<nav class="nav" aria-label="Asosiy menyu"><a href="annotatsiya.html">Darslik haqida</a><a href="index.html#maruzalar">Ma’ruzalar</a><a href="index.html#laboratoriya">Laboratoriya</a><a href="mustaqil.html">Mustaqil ta’lim</a><a href="simulyatorlar.html">Simulyatorlar</a><a href="baholash.html">Baholash</a><a href="oqituvchi.html" aria-current="page">O‘qituvchi uchun</a><a href="glossariy.html">Lug‘at</a><a href="vositalar.html">Vositalar</a><a href="index.html#muallif">Muallif</a></nav>
-<div class="tools">
-<div class="lang-switch notranslate" translate="no" role="group" aria-label="Til"><button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button></div>
-<button class="icon-btn" id="themeBtn" aria-label="Kun / tun rejimi"><i class="fas fa-sun"></i></button>
-<button class="icon-btn menu-btn" data-drawer-open aria-label="Menyu"><i class="fas fa-bars"></i></button>
-</div></div></header>
-<div class="drawer" id="drawer" role="dialog" aria-label="Menyu"><div class="drawer-bg" data-drawer-close></div><div class="drawer-panel"><div class="drawer-head"><span class="kicker">Mundarija</span><button class="icon-btn" data-drawer-close aria-label="Yopish"><i class="fas fa-xmark"></i></button></div><h4>Darslik</h4>
-<a href="index.html">Bosh sahifa</a>
-<a href="annotatsiya.html">Darslik haqida</a>
-<a href="mustaqil.html">Mustaqil ta’lim</a>
-<a href="simulyatorlar.html">Simulyatorlar</a>
-<a href="baholash.html">Baholash</a>
-<a href="oqituvchi.html" aria-current="page">O‘qituvchi uchun</a>
-<a href="glossariy.html">Lug‘at</a>
-<a href="vositalar.html">Vositalar</a>
-<h4>Ma’ruzalar</h4>
-<a href="lectures/lecture1.html">1. Kirish</a>
-<a href="lectures/lecture2.html">2. Kinematika</a>
-<a href="lectures/lecture3.html">3. Dinamika</a>
-<a href="lectures/lecture4.html">4. Statika</a>
-<a href="lectures/lecture5.html">5. Elastiklik</a>
-<a href="lectures/lecture6.html">6. Gravitatsiya</a>
-<a href="lectures/lecture7.html">7. Gazlar qonunlari</a>
-<a href="lectures/lecture8.html">8. Termodinamika</a>
-<a href="lectures/lecture9.html">9. Entropiya</a>
-<a href="lectures/lecture10.html">10. Molekulyar fizika</a>
-<a href="lectures/lecture11.html">11. Elektr maydon</a>
-<a href="lectures/lecture12.html">12. Magnetizm</a>
-<a href="lectures/lecture13.html">13. Elektr o‘tkazuvchanlik</a>
-<a href="lectures/lecture14.html">14. Elektrodinamika</a>
-<a href="lectures/lecture15.html">15. Optika – 1</a>
-<a href="lectures/lecture16.html">16. Optika – 2</a>
-<a href="lectures/lecture17.html">17. Yorug‘lik tabiati</a>
-<a href="lectures/lecture18.html">18. Kvant fizikasi – 1</a>
-<a href="lectures/lecture19.html">19. Kvant fizikasi – 2</a>
-<a href="lectures/lecture20.html">20. Atom tuzilishi</a>
-<a href="lectures/lecture21.html">21. Yadro fizikasi</a>
-<a href="lectures/lecture22.html">22. Elementar zarralar fizikasi</a>
-<a href="lectures/lecture23.html">23. Kvant mexanikasi</a>
-<a href="lectures/lecture24.html">24. Yangi fizikani izlash</a>
-<a class="soon" aria-disabled="true">25. Kosmik fizika</a>
-<a class="soon" aria-disabled="true">26. Fizikada metodologiya</a>
-<a class="soon" aria-disabled="true">27. Fizikada ma’lumotlar tahlili</a>
-<a class="soon" aria-disabled="true">28. Xulosa</a>
-<h4>Laboratoriya ishlari</h4>
-<a href="labs/lab1.html">L1. Dinamika</a>
-<a href="labs/lab2.html">L2. Statika</a>
-<a href="labs/lab3.html">L3. Elastiklik</a>
-<a class="soon" aria-disabled="true">L4. Termodinamika</a>
-<a class="soon" aria-disabled="true">L5. Gazlar</a>
-<a class="soon" aria-disabled="true">L6. Elektr zanjir</a>
-<a class="soon" aria-disabled="true">L7. Magnit maydon</a>
-<a class="soon" aria-disabled="true">L8. Optika</a>
-<a class="soon" aria-disabled="true">L9. Linzalar</a>
-<a class="soon" aria-disabled="true">L10. Kvantlar</a>
-<a class="soon" aria-disabled="true">L11. Yadro fizikasi</a>
-<a class="soon" aria-disabled="true">L12. Kosmik fizika</a>
-<h4>Yo‘riqnomalar (MT)</h4>
-<a href="yoriqnomalar/MT-01.html">MT-01. Dinamika va kuchlarning ta’siri</a>
-<a href="yoriqnomalar/MT-02.html">MT-02. Kinematika va grafik tahlil</a>
-<a href="yoriqnomalar/MT-03.html">MT-03. Elastiklik va Guk qonuni</a>
-<a class="soon" aria-disabled="true">MT-04</a>
-<a class="soon" aria-disabled="true">MT-05</a>
-<a class="soon" aria-disabled="true">MT-06</a>
-<a class="soon" aria-disabled="true">MT-07</a>
-<a class="soon" aria-disabled="true">MT-08</a>
-<a class="soon" aria-disabled="true">MT-09</a>
-<a class="soon" aria-disabled="true">MT-10</a>
-<a class="soon" aria-disabled="true">MT-11</a>
-<a class="soon" aria-disabled="true">MT-12</a>
-<a class="soon" aria-disabled="true">MT-13</a>
-<a class="soon" aria-disabled="true">MT-14</a>
-<a class="soon" aria-disabled="true">MT-15</a></div></div>
-<main id="main">
-<section class="page-hero"><div class="inner"><div><nav class="crumbs" aria-label="Yo‘l"><a href="index.html">Bosh sahifa</a> <span>/</span> O‘qituvchi uchun</nav><div class="kicker">O‘qituvchi uchun qo‘llanma</div><h1>Fanni o‘qitish bo‘yicha qo‘llanma</h1><div class="chips"><span class="tag">54 + 66 + 180 soat</span><span class="tag v">ON — 12-hafta</span><span class="tag a">YaN — attestatsiya haftasi</span></div></div><button class="btn btn-ghost listen-btn" id="listenBtn" type="button"><i class="fas fa-volume-high"></i> Tinglash</button></div></section><div class="layout"><nav class="card toc" aria-label="Mundarija"><span class="kicker">Mundarija</span><a href="#soatlar">Soatlar taqsimoti</a><a href="#taqvim">Nazorat taqvimi</a><a href="#usullar">Ta’lim texnologiyalarini qo‘llash</a><a href="#reja">Mashg‘ulot rejasi namunasi (80 daqiqa)</a><a href="#sayt">Saytdan darsda foydalanish</a><a href="#halollik">Akademik halollik</a></nav><div class="doc">
-<section class="card doc-sec" id="soatlar"><h2><span class="n">1</span>Soatlar taqsimoti</h2>
-<div class="tbl-wrap"><table><thead><tr><th>Mashg‘ulot turi</th><th class=c>Soat</th><th>Izoh</th></tr></thead><tbody><tr><td>Ma’ruza</td><td class=c>54</td><td>27 mavzu × 2 soat</td></tr><tr><td>Laboratoriya</td><td class=c>66</td><td>33 mashg‘ulot × 2 soat</td></tr><tr><td>Mustaqil ta’lim</td><td class=c>180</td><td>45 mavzu × 4 soat</td></tr><tr><td><b>Jami</b></td><td class=c><b>300</b></td><td>1–2-semestrlar, haftasiga 8 soat auditoriya</td></tr></tbody></table></div>
-</section>
-<section class="card doc-sec hl" id="taqvim"><h2><span class="n">2</span>Nazorat taqvimi</h2>
-<div class="tbl-wrap"><table><thead><tr><th>Nazorat</th><th>Muddat</th><th>Shakl</th></tr></thead><tbody><tr><td>Joriy nazorat (JN)</td><td>Semestr davomida</td><td>1-MT taqdimot va himoya, laboratoriyadagi faollik, 2-MT keys-stadi</td></tr><tr><td>Oraliq nazorat (ON)</td><td>12-hafta</td><td>HEMIS tizimida test, 20 savol</td></tr><tr><td>Yakuniy nazorat (YaN)</td><td>Attestatsiya haftasi</td><td>Yozma ish: 3 nazariy savol + 1 keys</td></tr></tbody></table></div>
-</section>
-<section class="card doc-sec" id="usullar"><h2><span class="n">3</span>Ta’lim texnologiyalarini qo‘llash</h2>
-<ul><li><b>Blits-so‘rov</b> — mashg‘ulot boshida oldingi mavzu bo‘yicha 3–5 ta qisqa savol; ma’ruza sahifalaridagi “Nazariy savollar” bo‘limidan foydalanish mumkin.</li><li><b>Keys-stadi</b> — hayotiy vaziyatni fizik qonunlar orqali tahlil qilish; YaN ning 4-savoli va 2-MT shu shaklda.</li><li><b>Guruhlarda ishlash</b> — laboratoriya natijalarini guruhlarda solishtirish va xatoliklarni muhokama qilish.</li><li><b>Taqdimotlar</b> — mustaqil ta’lim mavzulari bo‘yicha (1-MT).</li><li><b>Loyihalar</b> — jamoaviy ish va himoya; masalan, simulyator yordamida tajriba rejasini tuzish.</li></ul>
-</section>
-<section class="card doc-sec" id="reja"><h2><span class="n">4</span>Mashg‘ulot rejasi namunasi (80 daqiqa)</h2>
-<p>Bitta mashg‘ulot (2 akademik soat, 80 daqiqa) uchun <b>tavsiya</b> etiladigan tuzilma. Bu fan dasturining talabi emas, o‘qituvchi o‘z guruhiga moslashtiradi.</p><div class="tbl-wrap"><table><thead><tr><th>Bosqich</th><th>Vaqt</th><th>Mazmun</th></tr></thead><tbody><tr><td>Kirish va blits-so‘rov</td><td>10 daqiqa</td><td>Oldingi mavzuni takrorlash, maqsadni e’lon qilish</td></tr><tr><td>Nazariy qism</td><td>35 daqiqa</td><td>Asosiy tushunchalar va qonunlar, formulalarni keltirib chiqarish</td></tr><tr><td>Interaktiv model / misol</td><td>20 daqiqa</td><td>Simulyatorda parametrlarni o‘zgartirib, natijani oldindan taxmin qilish</td></tr><tr><td>Mustahkamlash</td><td>10 daqiqa</td><td>Nazariy savollar, qisqa masala</td></tr><tr><td>Yakun va topshiriq</td><td>5 daqiqa</td><td>Xulosa, mustaqil ta’lim topshirig‘ini berish</td></tr></tbody></table></div>
-</section>
-<section class="card doc-sec" id="sayt"><h2><span class="n">5</span>Saytdan darsda foydalanish</h2>
-<ul><li><b>Til:</b> yuqoridagi UZ / RU / EN tugmalari butun sahifani tarjima qiladi (Google Translate). Fan rus tilida o‘qitiladi, shuning uchun RU rejimi talabalar uchun qulay.</li><li><b>Elektron doska:</b> kun/tun tugmasi bilan yorqinlikni moslang; mundarija orqali bo‘limlarga tez o‘ting.</li><li><b>Tinglash:</b> ma’ruza matnini brauzer ovozida o‘qitish mumkin; istalgan xatboshini bosib, o‘sha joydan davom ettiriladi.</li><li><b>Chop etish:</b> brauzerning “Chop etish” funksiyasi menyusiz toza variantni chiqaradi.</li></ul>
-</section>
-<section class="card doc-sec" id="halollik"><h2><span class="n">6</span>Akademik halollik</h2>
-<p>Fan dasturi talabiga ko‘ra talabalar akademik halollik tamoyillariga rioya qilishi shart. Mustaqil ish va keyslarda ko‘chirmachilik aniqlansa, rubrikaga ko‘ra minimal darajadan past baholanadi.</p>
-</section></div></div>
-</main>
-<footer class="footer">© 2026 Umumiy fizika · Qo‘qon davlat universiteti, Fizika va astronomiya kafedrasi · Fan dasturi: UMF11210, 2026/2027</footer>
-<script src="js/app.js"></script>
-</body>
-</html>
+<a class="skip-link" href="#main">Asosiy mazmunga ötiş</a>
+<header class="site-header"><div class="container navbar"><a class="brand" href="index.html"><span class="brand-mark"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="1.6" fill="#fff"/></svg></span><span>UMUMIY FIZIKA<small>Interaktiv elektron darslik · Bakalavriat</small></span></a><nav class="nav-links" aria-label="Asosiy navigatsiya"><a href="annotatsiya.html">Darslik haqida</a><a href="index.html#maruzalar">Ma’ruzalar</a><a href="index.html#laboratoriya">Laboratoriya</a><a href="mustaqil.html">Mustaqil ta’lim</a><a href="simulyatorlar.html">Simulyatorlar</a><a href="baholash.html">Baholaş</a><a href="oqituvchi.html" aria-current="page">Öqituvçi uçun</a><a href="glossariy.html">Luğat</a><a href="vositalar.html">Vositalar</a><a href="index.html#muallif">Muallif</a></nav><div class="hdr-tools notranslate" translate="no"><div class="lang-switch" role="group" aria-label="Til / Язык / Language"><button type="button" data-lang="uz">UZ</button><button type="button" data-lang="ru">RU</button><button type="button" data-lang="en">EN</button></div><button class="icon-btn theme-btn" type="button" aria-label="Kun va tun rejimini almaştiriş" title="Kun / tun rejimi"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></div><button class="menu-toggle" type="button" aria-label="Menyuni oçiş" aria-expanded="false">☰</button></div></header>
+<main id="main"><section class="page-hero"><div class="container"><nav class="crumbs" aria-label="Yöl"><a href="index.html">Boş sahifa</a> / <span>Öqituvçi uçun</span></nav><div class="eyebrow" style="margin-top:1rem">Metodik qöllanma</div><h1>Öqituvçi uçun qöllanma</h1><p class="lead">Fan dasturi asosidagi haftalik taqvim, dars şablonlari, laboratoriyani taşkil etiş, baholaş va darslikni yangilaş böyiça körsatmalar.</p><div class="chips"><span class="chip a">2 × 15 hafta</span><span class="chip ">Haftada 4 soat</span></div></div></section>
+<div class="container doc-layout"><aside class="toc" aria-label="Sahifa mundarijasi"><h2>Mundarija</h2><ol><li><a href="#taqvim">30 haftalik taqvim</a></li><li><a href="#shablon">Dars rejasi şablonlari</a></li><li><a href="#lab">Laboratoriyani taşkil etiş</a></li><li><a href="#model">Modellar va ovozdan foydalaniş</a></li><li><a href="#si">SI siyosati</a></li><li><a href="#baholash">Baholaşni taşkil etiş</a></li><li><a href="#moslash">Darslikni yangilaş</a></li></ol></aside><div class="doc"><section class="doc-sec" id="taqvim"><h2><span class="num">1</span>Öquv taqvimi: 2 semestr × 15 hafta (haftada 4 soat)</h2><div class="tw"><table class="t"><thead><tr><th>Hafta</th><th>1-maşğulot (2 soat)</th><th>2-maşğulot (2 soat)</th><th>Nazorat / izoh</th></tr></thead><tbody><tr><td>1-sem., 1</td><td><a href="lecture1.html">M1</a>: Moddiy nuqta kinematikasi</td><td><a href="lab1.html">L1</a>: Ştangensirkul yordamida jismlarning çiziqli ölçamlarini …</td><td>—</td></tr><tr><td>1-sem., 2</td><td><a href="lecture2.html">M2</a>: Egri çiziqli harakat</td><td><a href="lab2.html">L2</a>: Töğri geometrik şakldagi jismlarning ziçligini aniqlaş</td><td>—</td></tr><tr><td>1-sem., 3</td><td><a href="lecture3.html">M3</a>: Moddiy nuqta dinamikasi</td><td><a href="lab3.html">L3</a>: Piknometr yordamida suyuqlik ziçligini aniqlaş</td><td>—</td></tr><tr><td>1-sem., 4</td><td><a href="lecture4.html">M4</a>: Tabiatdagi kuçlar</td><td><a href="lab4.html">L4</a>: Suyuqlikda çökadigan jismlarning ziçligini gidrostatik to…</td><td>—</td></tr><tr><td>1-sem., 5</td><td><a href="lecture5.html">M5</a>: Mexanikada saqlaniş qonunlari</td><td><a href="lab5.html">L5</a>: Qattiq jismlarning sirpaniş işqalaniş koeffitsiyentini an…</td><td>1-MT mavzularini taqsimlaş va himoya boşlanadi</td></tr><tr><td>1-sem., 6</td><td><a href="lecture6.html">M6</a>: Aylanma harakat dinamikasi</td><td><a href="lab6.html">L6</a>: Qattiq jismlarning elastiklik modulini egiliş usulida aniql… (1-qism)</td><td>—</td></tr><tr><td>1-sem., 7</td><td><a href="lecture7.html">M7</a>: Mexanik tebranişlar va tölqinlar</td><td><a href="lab6.html">L7</a>: Qattiq jismlarning elastiklik modulini egiliş usulida aniql… (2-qism)</td><td>—</td></tr><tr><td>1-sem., 8</td><td><a href="lecture8.html">M8</a>: Molekulyar-kinetik nazariya asoslari</td><td><a href="lab8.html">L8</a>: Matematik mayatnik yordamida erkin tuşiş tezlanişini aniq…</td><td>—</td></tr><tr><td>1-sem., 9</td><td><a href="lecture9.html">M9</a>: Ideal gaz qonunlari</td><td><a href="lab9.html">L9</a>: Fizik mayatnik yordamida erkin tuşiş tezlanişini aniqlaş</td><td>—</td></tr><tr><td>1-sem., 10</td><td><a href="lecture10.html">M10</a>: Termodinamika asoslari</td><td><a href="lab10.html">L10</a>: Suyuqliklarning hajmiy kengayiş koeffitsiyentini aniqlaş</td><td>2-MT: keys-stadi topşiriği</td></tr><tr><td>1-sem., 11</td><td><a href="lecture11.html">M11</a>: Suyuqlik va gazlarning xossalari</td><td><a href="lab11.html">L11</a>: Havo namligini aniqlaş</td><td>—</td></tr><tr><td>1-sem., 12</td><td><a href="lecture12.html">M12</a>: Elektrostatik maydon</td><td><a href="lab12.html">L12</a>: Suv aralaşmasining temperaturasini aniqlaş</td><td>Oraliq nazorat (HEMIS, 20 savol)</td></tr><tr><td>1-sem., 13</td><td><a href="lecture13.html">M13</a>: Özgarmas elektr toki qonunlari</td><td><a href="lab13.html">L13</a>: Qattiq jismlarning soliştirma issiqlik siğimini aniqlaş (1-qism)</td><td>—</td></tr><tr><td>1-sem., 14</td><td><a href="lab13.html">L14</a>: Qattiq jismlarning soliştirma issiqlik siğimini aniqlaş (2-qism)</td><td><a href="lab15.html">L15</a>: Gazlar soliştirma issiqlik siğimlarining nisbatini aniqlas… (1-qism)</td><td>—</td></tr><tr><td>1-sem., 15</td><td><a href="lab15.html">L16</a>: Gazlar soliştirma issiqlik siğimlarining nisbatini aniqlas… (2-qism)</td><td><a href="lab17.html">L17</a>: Tomçilar usulida sirt taranglik koeffitsiyentini aniqlaş</td><td>Yakuniy nazoratga tayyorgarlik</td></tr><tr><td>2-sem., 1</td><td><a href="lecture14.html">M14</a>: Turli muhitlarda elektr toki</td><td><a href="lab18.html">L18</a>: Qattiq jismlarning issiqlikdan kengayiş koeffitsiyentini an…</td><td>—</td></tr><tr><td>2-sem., 2</td><td><a href="lecture15.html">M15</a>: Magnit maydon</td><td><a href="lab19.html">L19</a>: Kondensatorlarning elektr siğimini aniqlaş</td><td>—</td></tr><tr><td>2-sem., 3</td><td><a href="lecture16.html">M16</a>: Elektromagnit induksiya</td><td><a href="lab20.html">L20</a>: Zanjir qismi uçun Om qonuni yordamida ötkazgiç qarşiligi…</td><td>—</td></tr><tr><td>2-sem., 4</td><td><a href="lecture17.html">M17</a>: Elektromagnit tebranişlar va tölqinlar</td><td><a href="lab21.html">L21</a>: Uitston köprigi yordamida qarşiliklarni aniqlaş</td><td>—</td></tr><tr><td>2-sem., 5</td><td><a href="lecture18.html">M18</a>: Özgaruvçan tok qonunlari</td><td><a href="lab22.html">L22</a>: Kirxgof qoidalarini örganiş</td><td>1-MT mavzularini taqsimlaş va himoya boşlanadi</td></tr><tr><td>2-sem., 6</td><td><a href="lecture19.html">M19</a>: Yoruğlik interferensiyasi</td><td><a href="lab23.html">L23</a>: Vakuum diodning volt-amper xarakteristikasini örganiş</td><td>—</td></tr><tr><td>2-sem., 7</td><td><a href="lecture20.html">M20</a>: Yoruğlik difraksiyasi</td><td><a href="lab24.html">L24</a>: Yer magnit maydoni kuçlanganligining gorizontal taşkil etu…</td><td>—</td></tr><tr><td>2-sem., 8</td><td><a href="lecture21.html">M21</a>: Dispersiya va qutblaniş</td><td><a href="lab25.html">L25</a>: Faradeyning elektromagnit induksiya qonunini örganiş</td><td>—</td></tr><tr><td>2-sem., 9</td><td><a href="lecture22.html">M22</a>: Geometrik optika</td><td><a href="lab26.html">L26</a>: Ignalar yordamida şişaning sindiriş körsatkiçini aniqla…</td><td>—</td></tr><tr><td>2-sem., 10</td><td><a href="lecture23.html">M23</a>: Nurlanişning kvant tabiati</td><td><a href="lab27.html">L27</a>: Mikroskopning işlaş prinsipini örganiş va uning kattalas…</td><td>2-MT: keys-stadi topşiriği</td></tr><tr><td>2-sem., 11</td><td><a href="lecture24.html">M24</a>: Fotometriya asoslari</td><td><a href="lab28.html">L28</a>: Mikroskop yordamida şişaning sindiriş körsatkiçini aniq…</td><td>—</td></tr><tr><td>2-sem., 12</td><td><a href="lecture25.html">M25</a>: Atom tuzilişi</td><td><a href="lab29.html">L29</a>: Qavariq va botiq linzalarning boş fokus masofasini aniqlaş</td><td>Oraliq nazorat (HEMIS, 20 savol)</td></tr><tr><td>2-sem., 13</td><td><a href="lecture26.html">M26</a>: Radioaktivlik</td><td><a href="lab30.html">L30</a>: Difraksion panjara yordamida yoruğlik tölqin uzunligini an…</td><td>—</td></tr><tr><td>2-sem., 14</td><td><a href="lecture27.html">M27</a>: Atom yadrosi</td><td><a href="lab31.html">L31</a>: Taşqi fotoeffekt hodisasini örganiş (1-qism)</td><td>—</td></tr><tr><td>2-sem., 15</td><td><a href="lab31.html">L32</a>: Taşqi fotoeffekt hodisasini örganiş (2-qism)</td><td><a href="lab33.html">L33</a>: Atomlar spektrlari böyiça kompyuter tajribasi. Frank–Gers …</td><td>Yakuniy nazoratga tayyorgarlik</td></tr></tbody></table></div><p class="muted" style="font-size:.85rem">Taqvim fan dasturidagi M1–M27 va L1–L33 tartibiga mos tavsiya. 1-semestr: M1–M13 va L1–L17; 2-semestr: M14–M27 va L18–L33. Nazorat muddatlari fakultetning öquv jarayoni jadvali va HEMIS böyiça aniqlaştiriladi.</p></section>
+<section class="doc-sec" id="shablon"><h2><span class="num">2</span>Ma’ruza va laboratoriya darsi rejasi şabloni</h2><h3>Ma’ruza (80 daqiqa)</h3><div class="tw"><table class="t"><thead><tr><th>Vaqt</th><th>Bosqiç</th><th>Öqituvçi</th><th>Talaba</th></tr></thead><tbody><tr><td>0–10</td><td>Kiriş</td><td>Blits-sörov, muammoli savol</td><td>Javob beradi, başorat qiladi</td></tr><tr><td>10–45</td><td>Nazariya</td><td>Qonunlarni keltirib çiqaradi</td><td>Konspekt, savollar</td></tr><tr><td>45–60</td><td>Model</td><td>Simulyatorni namoyiş qiladi</td><td>Başorat → kuzatiş → izoh</td></tr><tr><td>60–72</td><td>Misol</td><td>Masalani beradi, yönaltiradi</td><td>Juftlikda yeçadi</td></tr><tr><td>72–80</td><td>Yakun</td><td>Test, xato tuşunçalar</td><td>Öz-özini tekşiradi</td></tr></tbody></table></div><h3>Laboratoriya maşğuloti (80 daqiqa)</h3><div class="tw"><table class="t"><thead><tr><th>Vaqt</th><th>Bosqiç</th></tr></thead><tbody><tr><td>0–10</td><td>Kiriş nazorati: iş maqsadi, hisoblaş formulasi, xavfsizlik (2–3 savol)</td></tr><tr><td>10–55</td><td>Ölçaşlar: juftlikda işlaş, jadvalni töldiriş; öqituvçi DF bahosi uçun kuzatadi</td></tr><tr><td>55–70</td><td>Hisoblaş va xatolikni baholaş (kalkulyator yoki Python)</td></tr><tr><td>70–80</td><td>Natijani himoya qiliş: jadval qiymati bilan soliştiriş, nazorat savollari</td></tr></tbody></table></div></section>
+<section class="doc-sec" id="lab"><h2><span class="num">3</span>Laboratoriya işlarini taşkil etiş</h2><ul><li><b>Guruhlaş:</b> 2–3 talabadan iborat brigadalar; har bir brigada semestr davomida işlarni aylanma (frontal emas) tartibda bajaradi.</li><li><b>Kiriş nazorati:</b> talaba iş nazariyasi va tartibini bilmasa, ölçaşga qöyilmaydi — tayyorgarlik uçun darslik sahifasi va virtual model tavsiya etiladi.</li><li><b>Ikki maşğulotli işlar</b> (L6–L7, L13–L14, L15–L16, L31–L32): 1-maşğulotda asosiy ölçaş, 2-maşğulotda boşqa namuna yoki rejim, natijalarni umumlaştiriş va himoya.</li><li><b>Xatolik hisobi:</b> barça hisobotlarda natija \(x=\bar x\pm\Delta x\) körinişida, işonçlilik ehtimoli \(P=0{,}95\) körsatiladi (laboratoriyaga kiriş sahifasi).</li><li><b>L33 kompyuter tajribasi:</b> darslikdagi Bor va Frank–Gers modellari yoki PhET “Models of the Hydrogen Atom” simulyatoridan foydalaniladi.</li><li><b>Xavfsizlik:</b> har bir iş sahifasida xavfsizlik texnikasi bölimi bor; birinçi maşğulotda yöriqnoma ötkazilib, jurnalga imzo olinadi.</li></ul></section>
+<section class="doc-sec" id="model"><h2><span class="num">4</span>Interaktiv modellar va ovozdan foydalaniş</h2><ul><li><b>Başorat → kuzatiş → tuşuntiriş (POE):</b> parametrni özgartirişdan oldin talabalardan natijani başorat qilişni sörang.</li><li><b>Işlangan misol bilan tekşiriş:</b> misoldagi qiymatlarni modelga kiriting — natija mos kelişi kerak.</li><li><b>Çeklovlarni muhokama qiling:</b> modellar soddalaştirilgan (havo qarşiligi, issiqlik yöqotişi, ideal asboblar); qaysi effektlar hisobga olinmaganini sörang.</li><li><b>Proyektor uçun:</b> brauzerni töliq ekranga ötkazing (F11); modellar internetsiz ham işlaydi.</li><li><b>Ovozli namoyiş:</b> model ostidagi tugma parametrlarni özi bosqiçma-bosqiç özgartirib, natijani ovoz va yozuv bilan tuşuntiradi; tugagaç boşqaruv talabalarga ötadi.</li><li><b>Tinglaş:</b> sarlavha yonidagi tugma nazariya va misollarni öqiydi, formulalarni söz bilan aytadi. Özbekça matnlar oldindan tayyorlangan neyron ovozli MP3 fayllardan ijro etiladi — barça qurilmalarda bir xil tabiiy ovoz eşitiladi. Pastdagi panel: pauza / davom, oldingi va keyingi xatboşi, töxtatiş (Esc); istalgan xatboşini bosib, öşa joydan öqiş mumkin.</li><li><b>Til:</b> UZ / RU / EN tugmalari butun saytni (testlar bilan birga) Google Translate orqali tarjima qiladi; rus va ingliz tillarida brauzer ovozi işlatiladi.</li></ul></section>
+<section class="doc-sec" id="si"><h2><span class="num">5</span>Sun’iy intellekt böyiça kurs siyosati (tavsiya)</h2><ul><li>SI tuşuntiriş, masala yeçimini tekşiriş va Python kod qoralamasi uçun ruxsat etiladi.</li><li>Baholanadigan işda SI işlatilgan bölsa, prompt va tekşiruv natijasi ilova qilinadi.</li><li>SI bergan son va formulalar darslik yoki mustaqil hisob bilan tasdiqlanişi şart.</li><li>Yozma nazoratlarda (ON, YaN) SI dan foydalaniş taqiqlanadi.</li><li>Laboratoriya ölçov natijalarini SI yordamida “töğrilaş” yoki uydiriş akademik halollik buzilişi hisoblanadi.</li></ul></section>
+<section class="doc-sec" id="baholash"><h2><span class="num">6</span>Baholaşni taşkil etiş böyiça tavsiyalar</h2><ul><li><b>DF (20 ball):</b> har laboratoriya maşğulotida kiriş nazorati, ölçaş madaniyati va hisobot himoyasini kuzating; 4 darajali rubrikadan foydalaning (laboratoriya sahifalarining oxirgi bölimi).</li><li><b>1-MT:</b> 45 mavzuni 1-haftada taqsimlang; himoya 5–7 daqiqa + 3 daqiqa savol.</li><li><b>2-MT:</b> keys-stadi bankidan tanlov; hisobot 3–5 bet.</li><li><b>ON:</b> ma’ruzalardagi 270 ta test savoli HEMIS savol banki uçun namuna böla oladi (yangi variantlar tuziş tavsiya etiladi).</li><li><b>YaN:</b> namunaviy keys baholaş sahifasida.</li></ul></section>
+<section class="doc-sec" id="moslash"><h2><span class="num">7</span>Darslikni moslaştiriş va yangilaş</h2><p>Sayt statik HTML/CSS/JS fayllaridan iborat va GitHub Pages’da işlaydi. Mazmun <code>gen/</code> papkasidagi Python fayllarida saqlanadi: <code>lec_mex.py</code>, <code>lec_mol.py</code>, <code>lec_el.py</code>, <code>lec_opt.py</code>, <code>lec_atom.py</code> (ma’ruzalar), <code>labs_a.py</code>, <code>labs_b.py</code>, <code>lab_intro.py</code> (laboratoriya), <code>other.py</code> (mustaqil ta’lim, keyslar, luğat, vositalar), <code>tours.py</code> (ovozli namoyişlar). Matnni özgartirgaç, <code>python gen/build.py .</code> buyruği barça sahifalarni qayta yaratadi; özgargan xatboşilar uçun ovoz GitHub Actions orqali avtomatik yangilanadi. Simulyatorlar <code>js/sims.js</code> faylida.</p></section>
+</div></div>
+</main><footer class="footer"><div class="container">Umumiy fizika — interaktiv elektron darslik (UMF11210) · Qöqon davlat universiteti, Fizika va astronomiya kafedrasi · 2026 · Muallif: <a href="index.html#muallif">D. Ergaşev</a><br>Rasmiy topşiriqlar va baholaş faqat HEMIS axborot tizimida yuritiladi.</div></footer>
+
+<script src="js/app.js?v=9" defer></script>
+</body></html>

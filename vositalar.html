@@ -1,100 +1,31 @@
-<!DOCTYPE html>
-<html lang="uz" data-theme="light">
+<!doctype html>
+<html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dasturiy vositalar — Umumiy fizika</title>
-<meta name="description" content="Umumiy fizika — interaktiv elektron darslik">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="css/darslik.css">
-<script>try{var t=localStorage.getItem('uf-theme');if(t)document.documentElement.setAttribute('data-theme',t);var m=document.cookie.match(/googtrans=\/[a-z-]+\/(ru|en)/);if(m)document.documentElement.setAttribute('data-tl',m[1]);}catch(e){}</script>
+<meta name="description" content="PhET, Python, Tracker, GeoGebra va boşqa bepul vositalar">
+<meta name="author" content="Ergaşev Dadaxon">
+<meta property="og:title" content="Dasturiy vositalar"><meta property="og:description" content="PhET, Python, Tracker, GeoGebra va boşqa bepul vositalar"><meta property="og:type" content="website">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement;try{d.dataset.theme=localStorage.getItem('yaf-theme')||'dark';}catch(e){d.dataset.theme='dark';}var m=document.cookie.match(/googtrans=\/uz\/(ru|en)/);if(m){d.classList.add('alif-old');d.dataset.tl=m[1];}})();</script>
+<script src="js/alifbo.js"></script>
+<link rel="stylesheet" href="css/styles.css?v=9">
+<link rel="stylesheet" href="css/darslik.css?v=9">
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<script defer src="vendor/katex/katex.min.js"></script>
+<script defer src="vendor/katex/contrib/auto-render.min.js"></script>
 </head>
 <body>
-<a class="skip-link" href="#main">Asosiy mazmunga o‘tish</a>
-<header class="topbar"><div class="topbar-inner">
-<a class="brand" href="index.html"><span class="brand-icon"><i class="fas fa-atom"></i></span><span><span class="brand-title">Umumiy fizika</span><span class="brand-sub">Interaktiv elektron darslik · Bakalavriat</span></span></a>
-<nav class="nav" aria-label="Asosiy menyu"><a href="annotatsiya.html">Darslik haqida</a><a href="index.html#maruzalar">Ma’ruzalar</a><a href="index.html#laboratoriya">Laboratoriya</a><a href="mustaqil.html">Mustaqil ta’lim</a><a href="simulyatorlar.html">Simulyatorlar</a><a href="baholash.html">Baholash</a><a href="oqituvchi.html">O‘qituvchi uchun</a><a href="glossariy.html">Lug‘at</a><a href="vositalar.html" aria-current="page">Vositalar</a><a href="index.html#muallif">Muallif</a></nav>
-<div class="tools">
-<div class="lang-switch notranslate" translate="no" role="group" aria-label="Til"><button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button></div>
-<button class="icon-btn" id="themeBtn" aria-label="Kun / tun rejimi"><i class="fas fa-sun"></i></button>
-<button class="icon-btn menu-btn" data-drawer-open aria-label="Menyu"><i class="fas fa-bars"></i></button>
-</div></div></header>
-<div class="drawer" id="drawer" role="dialog" aria-label="Menyu"><div class="drawer-bg" data-drawer-close></div><div class="drawer-panel"><div class="drawer-head"><span class="kicker">Mundarija</span><button class="icon-btn" data-drawer-close aria-label="Yopish"><i class="fas fa-xmark"></i></button></div><h4>Darslik</h4>
-<a href="index.html">Bosh sahifa</a>
-<a href="annotatsiya.html">Darslik haqida</a>
-<a href="mustaqil.html">Mustaqil ta’lim</a>
-<a href="simulyatorlar.html">Simulyatorlar</a>
-<a href="baholash.html">Baholash</a>
-<a href="oqituvchi.html">O‘qituvchi uchun</a>
-<a href="glossariy.html">Lug‘at</a>
-<a href="vositalar.html" aria-current="page">Vositalar</a>
-<h4>Ma’ruzalar</h4>
-<a href="lectures/lecture1.html">1. Kirish</a>
-<a href="lectures/lecture2.html">2. Kinematika</a>
-<a href="lectures/lecture3.html">3. Dinamika</a>
-<a href="lectures/lecture4.html">4. Statika</a>
-<a href="lectures/lecture5.html">5. Elastiklik</a>
-<a href="lectures/lecture6.html">6. Gravitatsiya</a>
-<a href="lectures/lecture7.html">7. Gazlar qonunlari</a>
-<a href="lectures/lecture8.html">8. Termodinamika</a>
-<a href="lectures/lecture9.html">9. Entropiya</a>
-<a href="lectures/lecture10.html">10. Molekulyar fizika</a>
-<a href="lectures/lecture11.html">11. Elektr maydon</a>
-<a href="lectures/lecture12.html">12. Magnetizm</a>
-<a href="lectures/lecture13.html">13. Elektr o‘tkazuvchanlik</a>
-<a href="lectures/lecture14.html">14. Elektrodinamika</a>
-<a href="lectures/lecture15.html">15. Optika – 1</a>
-<a href="lectures/lecture16.html">16. Optika – 2</a>
-<a href="lectures/lecture17.html">17. Yorug‘lik tabiati</a>
-<a href="lectures/lecture18.html">18. Kvant fizikasi – 1</a>
-<a href="lectures/lecture19.html">19. Kvant fizikasi – 2</a>
-<a href="lectures/lecture20.html">20. Atom tuzilishi</a>
-<a href="lectures/lecture21.html">21. Yadro fizikasi</a>
-<a href="lectures/lecture22.html">22. Elementar zarralar fizikasi</a>
-<a href="lectures/lecture23.html">23. Kvant mexanikasi</a>
-<a href="lectures/lecture24.html">24. Yangi fizikani izlash</a>
-<a class="soon" aria-disabled="true">25. Kosmik fizika</a>
-<a class="soon" aria-disabled="true">26. Fizikada metodologiya</a>
-<a class="soon" aria-disabled="true">27. Fizikada ma’lumotlar tahlili</a>
-<a class="soon" aria-disabled="true">28. Xulosa</a>
-<h4>Laboratoriya ishlari</h4>
-<a href="labs/lab1.html">L1. Dinamika</a>
-<a href="labs/lab2.html">L2. Statika</a>
-<a href="labs/lab3.html">L3. Elastiklik</a>
-<a class="soon" aria-disabled="true">L4. Termodinamika</a>
-<a class="soon" aria-disabled="true">L5. Gazlar</a>
-<a class="soon" aria-disabled="true">L6. Elektr zanjir</a>
-<a class="soon" aria-disabled="true">L7. Magnit maydon</a>
-<a class="soon" aria-disabled="true">L8. Optika</a>
-<a class="soon" aria-disabled="true">L9. Linzalar</a>
-<a class="soon" aria-disabled="true">L10. Kvantlar</a>
-<a class="soon" aria-disabled="true">L11. Yadro fizikasi</a>
-<a class="soon" aria-disabled="true">L12. Kosmik fizika</a>
-<h4>Yo‘riqnomalar (MT)</h4>
-<a href="yoriqnomalar/MT-01.html">MT-01. Dinamika va kuchlarning ta’siri</a>
-<a href="yoriqnomalar/MT-02.html">MT-02. Kinematika va grafik tahlil</a>
-<a href="yoriqnomalar/MT-03.html">MT-03. Elastiklik va Guk qonuni</a>
-<a class="soon" aria-disabled="true">MT-04</a>
-<a class="soon" aria-disabled="true">MT-05</a>
-<a class="soon" aria-disabled="true">MT-06</a>
-<a class="soon" aria-disabled="true">MT-07</a>
-<a class="soon" aria-disabled="true">MT-08</a>
-<a class="soon" aria-disabled="true">MT-09</a>
-<a class="soon" aria-disabled="true">MT-10</a>
-<a class="soon" aria-disabled="true">MT-11</a>
-<a class="soon" aria-disabled="true">MT-12</a>
-<a class="soon" aria-disabled="true">MT-13</a>
-<a class="soon" aria-disabled="true">MT-14</a>
-<a class="soon" aria-disabled="true">MT-15</a></div></div>
-<main id="main">
-<section class="page-hero"><div class="inner"><div><nav class="crumbs" aria-label="Yo‘l"><a href="index.html">Bosh sahifa</a> <span>/</span> Dasturiy vositalar</nav><div class="kicker">2-ilova</div><h1>Dasturiy vositalar</h1><div class="chips"><span class="tag">Bepul vositalar</span><span class="tag g">Brauzerda ishlaydi</span></div></div></div></section><div class="layout wide"><div class="doc">
-<section class="card doc-sec" id="vositalar"><h2><span class="n">1</span>Dasturiy vositalar va ochiq resurslar</h2>
-<p>Laboratoriya natijalarini qayta ishlash, modellashtirish va mustaqil ta’lim uchun bepul yoki keng tarqalgan vositalar.</p><div class="grid-2"><a class="card" href="https://phet.colorado.edu/" target="_blank" rel="noopener"><span class="tag">Simulyatsiya</span> <span class="tag m">Bepul</span><h3><span class="notranslate" translate="no">PhET Interactive Simulations</span></h3><p>Kolorado universitetining bepul interaktiv simulyatsiyalari: mexanika, elektr, optika, kvant fizikasi. Brauzerda ishlaydi, rus tilida ham mavjud.</p></a><a class="card" href="https://physlets.org/tracker/" target="_blank" rel="noopener"><span class="tag">Video tahlil</span> <span class="tag m">Bepul, ochiq kodli</span><h3><span class="notranslate" translate="no">Tracker</span></h3><p>Tajriba videosi asosida jism harakatini kadrma-kadr tahlil qilish: yo‘l, tezlik, tezlanish grafiklari.</p></a><a class="card" href="https://www.geogebra.org/" target="_blank" rel="noopener"><span class="tag">Grafik va modellashtirish</span> <span class="tag m">Bepul</span><h3><span class="notranslate" translate="no">GeoGebra</span></h3><p>Vektorlar, grafiklar, nurlar yo‘lini yasash va oddiy fizik modellar uchun.</p></a><a class="card" href="https://www.desmos.com/calculator" target="_blank" rel="noopener"><span class="tag">Grafik kalkulyator</span> <span class="tag m">Bepul</span><h3><span class="notranslate" translate="no">Desmos</span></h3><p>Formulalar grafigini tez chizish, parametrlarni slayder bilan o‘zgartirish.</p></a><a class="card" href="https://www.python.org/" target="_blank" rel="noopener"><span class="tag">Hisoblash</span> <span class="tag m">Bepul, ochiq kodli</span><h3><span class="notranslate" translate="no">Python (NumPy, Matplotlib, Jupyter)</span></h3><p>Laboratoriya natijalarini qayta ishlash, xatoliklarni hisoblash, grafik va approksimatsiya.</p></a><a class="card" href="https://www.libreoffice.org/" target="_blank" rel="noopener"><span class="tag">Elektron jadval</span> <span class="tag m">Bepul / pullik</span><h3><span class="notranslate" translate="no">LibreOffice Calc / MS Excel</span></h3><p>O‘lchov jadvallari, o‘rtacha qiymat va xatolik, eng kichik kvadratlar usuli bilan grafik.</p></a><a class="card" href="https://www.algodoo.com/" target="_blank" rel="noopener"><span class="tag">2D fizika muhiti</span> <span class="tag m">Bepul</span><h3><span class="notranslate" translate="no">Algodoo</span></h3><p>Kuchlar, to‘qnashuvlar, ishqalanish va optikani sudrab-tashlab modellashtirish.</p></a><a class="card" href="https://openstax.org/subjects/science" target="_blank" rel="noopener"><span class="tag">Darslik</span> <span class="tag m">Bepul</span><h3><span class="notranslate" translate="no">OpenStax University Physics</span></h3><p>Uch jildli bepul universitet fizika darsligi (ingliz tilida).</p></a><a class="card" href="http://hyperphysics.phy-astr.gsu.edu/hbase/index.html" target="_blank" rel="noopener"><span class="tag">Ma’lumotnoma</span> <span class="tag m">Bepul</span><h3><span class="notranslate" translate="no">HyperPhysics</span></h3><p>Fizika tushunchalari xaritasi va formulalar ma’lumotnomasi (ingliz tilida).</p></a><a class="card" href="https://ocw.mit.edu/" target="_blank" rel="noopener"><span class="tag">Ochiq kurslar</span> <span class="tag m">Bepul</span><h3><span class="notranslate" translate="no">MIT OpenCourseWare</span></h3><p>MIT kurslari materiallari; fan dasturidagi axborot resurslaridan biri.</p></a><a class="card" href="https://www.ziyonet.uz/" target="_blank" rel="noopener"><span class="tag">Ta’lim portali</span> <span class="tag m">Bepul</span><h3><span class="notranslate" translate="no">ZiyoNET</span></h3><p>O‘zbekiston ta’lim axborot tarmog‘i; o‘zbek tilidagi darslik va qo‘llanmalar.</p></a></div>
-</section></div></div>
-</main>
-<footer class="footer">© 2026 Umumiy fizika · Qo‘qon davlat universiteti, Fizika va astronomiya kafedrasi · Fan dasturi: UMF11210, 2026/2027</footer>
-<script src="js/app.js"></script>
-</body>
-</html>
+<a class="skip-link" href="#main">Asosiy mazmunga ötiş</a>
+<header class="site-header"><div class="container navbar"><a class="brand" href="index.html"><span class="brand-mark"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="1.6" fill="#fff"/></svg></span><span>UMUMIY FIZIKA<small>Interaktiv elektron darslik · Bakalavriat</small></span></a><nav class="nav-links" aria-label="Asosiy navigatsiya"><a href="annotatsiya.html">Darslik haqida</a><a href="index.html#maruzalar">Ma’ruzalar</a><a href="index.html#laboratoriya">Laboratoriya</a><a href="mustaqil.html">Mustaqil ta’lim</a><a href="simulyatorlar.html">Simulyatorlar</a><a href="baholash.html">Baholaş</a><a href="oqituvchi.html">Öqituvçi uçun</a><a href="glossariy.html">Luğat</a><a href="vositalar.html" aria-current="page">Vositalar</a><a href="index.html#muallif">Muallif</a></nav><div class="hdr-tools notranslate" translate="no"><div class="lang-switch" role="group" aria-label="Til / Язык / Language"><button type="button" data-lang="uz">UZ</button><button type="button" data-lang="ru">RU</button><button type="button" data-lang="en">EN</button></div><button class="icon-btn theme-btn" type="button" aria-label="Kun va tun rejimini almaştiriş" title="Kun / tun rejimi"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></div><button class="menu-toggle" type="button" aria-label="Menyuni oçiş" aria-expanded="false">☰</button></div></header>
+<main id="main"><section class="page-hero"><div class="container"><nav class="crumbs" aria-label="Yöl"><a href="index.html">Boş sahifa</a> / <span>Vositalar</span></nav><div class="eyebrow" style="margin-top:1rem">2-ilova</div><h1>Dasturiy vositalar va virtual laboratoriyalar</h1><p class="lead">Ma’ruza, laboratoriya va mustaqil ta’lim topşiriqlari uçun tavsiya etilgan bepul vositalar.</p><div class="chips"></div></div></section>
+<div class="container doc-layout"><aside class="toc" aria-label="Sahifa mundarijasi"><h2>Mundarija</h2><ol><li><a href="#t1">Virtual laboratoriyalar va simulyatorlar</a></li><li><a href="#t2">Ma’lumotlarni qayta işlaş va grafik quriş</a></li><li><a href="#t3">Tajriba va video-tahlil</a></li><li><a href="#t4">Ma’lumotnomalar va oçiq darsliklar</a></li><li><a href="#t5">Hisob va sun’iy intellekt (mas’uliyat bilan)</a></li></ol></aside><div class="doc"><section class="doc-sec" id="t1"><h2><span class="num">1</span>Virtual laboratoriyalar va simulyatorlar</h2><div class="tw"><table class="t"><thead><tr><th>Vosita</th><th>Darslikda qöllanilişi</th><th>Kiriş</th></tr></thead><tbody><tr><td><a href="simulyatorlar.html">Darslikdagi interaktiv modellar</a></td><td>36 ta model: ma’ruza va laboratoriya sahifalarida, ovozli namoyiş bilan</td><td>bepul, internetsiz işlaydi</td></tr><tr><td><a href="https://phet.colorado.edu" rel="noopener" target="_blank">PhET Interactive Simulations</a></td><td>Har bir ma’ruzaning 5-bölimidagi qöşimça virtual laboratoriyalar</td><td>bepul, onlayn</td></tr><tr><td><a href="https://ophysics.com" rel="noopener" target="_blank">oPhysics</a></td><td>Mexanika, tölqinlar va optika böyiça interaktiv modellar</td><td>bepul, onlayn</td></tr><tr><td><a href="https://www.falstad.com/circuit/" rel="noopener" target="_blank">Falstad Circuit Simulator</a></td><td>Özgarmas va özgaruvçan tok zanjirlari, RLC rezonansi (M13, M18, L22)</td><td>bepul, onlayn</td></tr><tr><td><a href="https://www.walter-fendt.de/html5/phen/" rel="noopener" target="_blank">Walter Fendt — Physics Apps</a></td><td>Klassik fizika böyiça HTML5 ilovalar</td><td>bepul, onlayn</td></tr></tbody></table></div></section>
+<section class="doc-sec" id="t2"><h2><span class="num">2</span>Ma’lumotlarni qayta işlaş va grafik quriş</h2><div class="tw"><table class="t"><thead><tr><th>Vosita</th><th>Darslikda qöllanilişi</th><th>Kiriş</th></tr></thead><tbody><tr><td><a href="https://colab.research.google.com" rel="noopener" target="_blank">Google Colab</a></td><td>Laboratoriya işlaridagi Python kodlarini brauzerda işga tuşiriş</td><td>bepul (Google hisobi)</td></tr><tr><td><a href="https://numpy.org" rel="noopener" target="_blank">Python: NumPy, SciPy, Matplotlib</a></td><td>Xatoliklarni hisoblaş, eng kiçik kvadratlar usuli, grafiklar</td><td>bepul, oçiq kodli</td></tr><tr><td><a href="https://www.libreoffice.org" rel="noopener" target="_blank">LibreOffice Calc / MS Excel</a></td><td>Jadval, örtaça qiymat, çiziqli trend (LINEST)</td><td>bepul / litsenziyali</td></tr><tr><td><a href="https://www.geogebra.org" rel="noopener" target="_blank">GeoGebra</a></td><td>Vektorlar, trayektoriyalar va geometrik optika çizmalari</td><td>bepul, onlayn</td></tr><tr><td><a href="https://www.desmos.com/calculator" rel="noopener" target="_blank">Desmos</a></td><td>Funksiyalar grafigi va parametrlarni tez sinaş</td><td>bepul, onlayn</td></tr></tbody></table></div></section>
+<section class="doc-sec" id="t3"><h2><span class="num">3</span>Tajriba va video-tahlil</h2><div class="tw"><table class="t"><thead><tr><th>Vosita</th><th>Darslikda qöllanilişi</th><th>Kiriş</th></tr></thead><tbody><tr><td><a href="https://physlets.org/tracker/" rel="noopener" target="_blank">Tracker</a></td><td>Video orqali harakatni tahlil qiliş (otilgan jism, mayatnik, töqnaşuv)</td><td>bepul, oçiq kodli</td></tr><tr><td><a href="https://phyphox.org" rel="noopener" target="_blank">phyphox</a></td><td>Smartfon datçiklari bilan tajriba: tezlaniş, tovuş, magnit maydon, yoritilganlik</td><td>bepul</td></tr><tr><td><a href="https://www.audacityteam.org" rel="noopener" target="_blank">Audacity</a></td><td>Tovuş tölqinlari va çastotani tahlil qiliş (M7)</td><td>bepul, oçiq kodli</td></tr></tbody></table></div></section>
+<section class="doc-sec" id="t4"><h2><span class="num">4</span>Ma’lumotnomalar va oçiq darsliklar</h2><div class="tw"><table class="t"><thead><tr><th>Vosita</th><th>Darslikda qöllanilişi</th><th>Kiriş</th></tr></thead><tbody><tr><td><a href="https://openstax.org/subjects/science" rel="noopener" target="_blank">OpenStax University Physics</a></td><td>Xalqaro oçiq darslik (3 jild) — har bir mavzuni çuqurlaştiriş uçun</td><td>bepul, oçiq litsenziya</td></tr><tr><td><a href="http://hyperphysics.phy-astr.gsu.edu" rel="noopener" target="_blank">HyperPhysics</a></td><td>Fizika tuşunçalari xaritasi va formulalar ma’lumotnomasi</td><td>bepul, onlayn</td></tr><tr><td><a href="https://physics.nist.gov/cuu/Constants/" rel="noopener" target="_blank">NIST CODATA</a></td><td>Fundamental fizik doimiylarning tavsiya etilgan qiymatlari</td><td>bepul, onlayn</td></tr><tr><td><a href="https://www.nist.gov/pml/atomic-spectra-database" rel="noopener" target="_blank">NIST Atomic Spectra Database</a></td><td>Atom spektral çiziqlari (L30, L33)</td><td>bepul, onlayn</td></tr><tr><td><a href="https://ocw.mit.edu" rel="noopener" target="_blank">MIT OpenCourseWare</a></td><td>Fan dasturida körsatilgan xalqaro kurs materiallari</td><td>bepul, onlayn</td></tr><tr><td><a href="https://www.ziyonet.uz" rel="noopener" target="_blank">ZiyoNET</a></td><td>Özbek tilidagi ta’lim resurslari (fan dasturi böyiça axborot manbai)</td><td>bepul, onlayn</td></tr></tbody></table></div></section>
+<section class="doc-sec" id="t5"><h2><span class="num">5</span>Hisob va sun’iy intellekt (mas’uliyat bilan)</h2><div class="tw"><table class="t"><thead><tr><th>Vosita</th><th>Darslikda qöllanilişi</th><th>Kiriş</th></tr></thead><tbody><tr><td><a href="https://www.wolframalpha.com" rel="noopener" target="_blank">Wolfram|Alpha</a></td><td>Hisob-kitob, birliklarni ötkaziş va natijani tekşiriş</td><td>asosiy imkoniyatlar bepul</td></tr><tr><td><b>Sun’iy intellekt yordamçilari</b></td><td>Tuşuntiriş va kodni tekşiriş; har bir javob darslik yoki hisob bilan tekşiriladi (öqituvçi qöllanmasidagi SI siyosati)</td><td>bepul va pullik tariflar</td></tr></tbody></table></div></section>
+<div class="callout info"><b>Eslatma</b>Tariflar va litsenziya şartlari özgarib turadi — foydalanişdan oldin rasmiy saytni tekşiring. Darslikdagi barça topşiriqlarni bepul vositalar (PhET, Python/Colab, Tracker, GeoGebra) bilan bajariş mumkin.</div></div></div>
+</main><footer class="footer"><div class="container">Umumiy fizika — interaktiv elektron darslik (UMF11210) · Qöqon davlat universiteti, Fizika va astronomiya kafedrasi · 2026 · Muallif: <a href="index.html#muallif">D. Ergaşev</a><br>Rasmiy topşiriqlar va baholaş faqat HEMIS axborot tizimida yuritiladi.</div></footer>
+
+<script src="js/app.js?v=9" defer></script>
+</body></html>

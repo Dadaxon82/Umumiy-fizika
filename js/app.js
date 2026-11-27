@@ -1,258 +1,575 @@
-/* Umumiy fizika — umumiy skript.
-   Kun/tun rejimi, UZ/RU/EN (Google Translate), yangi o'zbek alifbosi (Ö, Ğ, Ş, Ç),
-   formulalar (KaTeX), mundarija, menyu, "Tinglash", lug'at qidiruvi va baho kalkulyatori. */
-(function () {
+/* Umumiy fizika — umumiy sahifa skripti (dizayn: Yarimo'tkazgich asboblar fizikasi darsligi, 2-versiya)
+   Kun/tun rejimi, UZ/RU/EN (Google Translate), ovozli o'qish va modellarning ovozli namoyishi.
+   Ovoz brauzerning o'zidagi Web Speech API orqali ishlaydi: API kalit va server talab qilinmaydi. */
+(() => {
   'use strict';
-  var html = document.documentElement;
-  var $ = function (s, r) { return (r || document).querySelector(s); };
-  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const AL = window.YAF_ALIF || { A: s => s, toOld: s => s, toNew: s => s };
+  const A = AL.A;
+  const html = document.documentElement;
+  const LANG = html.dataset.tl || 'uz';
 
-  /* ---------- Til ---------- */
-  function readLang() {
-    var m = document.cookie.match(/(?:^|;\s*)googtrans=\/[a-z-]+\/([a-z-]+)/i);
-    var l = m ? m[1].toLowerCase() : 'uz';
-    return (l === 'ru' || l === 'en') ? l : 'uz';
-  }
-  var LANG = readLang();
-  html.setAttribute('data-tl', LANG);
+  /* ---------- Menyu (mobil) ---------- */
+  const btn = $('.menu-toggle'), nav = $('.nav-links');
+  btn?.addEventListener('click', () => { const o = nav.classList.toggle('open'); btn.setAttribute('aria-expanded', String(o)); btn.textContent = o ? '✕' : '☰'; });
+  $$('.nav-links a').forEach(a => a.addEventListener('click', () => { nav?.classList.remove('open'); if (btn) { btn.textContent = '☰'; btn.setAttribute('aria-expanded', 'false'); } }));
 
-  function setLangCookie(l) {
-    var host = location.hostname;
-    var exp = l === 'uz' ? '; expires=Thu, 01 Jan 1970 00:00:00 GMT' : '';
-    var val = l === 'uz' ? '' : '/uz/' + l;
-    document.cookie = 'googtrans=' + val + '; path=/' + exp;
-    if (host.indexOf('.') > 0) {
-      document.cookie = 'googtrans=' + val + '; path=/; domain=' + host + exp;
-      document.cookie = 'googtrans=' + val + '; path=/; domain=.' + host.split('.').slice(-2).join('.') + exp;
-    }
-  }
-  $$('.lang-switch button').forEach(function (b) {
-    b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === LANG));
-    b.addEventListener('click', function () {
-      var l = b.getAttribute('data-lang');
-      if (l === LANG) return;
-      setLangCookie(l);
-      location.reload();
-    });
+  /* ---------- Kun / tun rejimi ---------- */
+  $$('.theme-btn').forEach(b => b.addEventListener('click', () => {
+    const t = html.dataset.theme === 'light' ? 'dark' : 'light';
+    html.dataset.theme = t; try { localStorage.setItem('yaf-theme', t); } catch (e) { /* xotira yopiq */ }
+    window.dispatchEvent(new Event('resize'));
+  }));
+
+  /* ---------- Til: UZ / RU / EN ---------- */
+  const setCookie = v => {
+    const exp = v ? '' : '; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    const val = v ? `/uz/${v}` : '';
+    document.cookie = `googtrans=${val}; path=/${exp}`;
+    document.cookie = `googtrans=${val}; path=/; domain=${location.hostname}${exp}`;
+  };
+  $$('.lang-switch button').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.lang === LANG));
+    b.addEventListener('click', () => { const l = b.dataset.lang; if (l === LANG) return; setCookie(l === 'uz' ? '' : l); location.reload(); });
   });
 
-  /* ---------- Kun / tun ---------- */
-  var themeBtn = $('#themeBtn');
-  function themeIcon() {
-    if (themeBtn) themeBtn.innerHTML = html.getAttribute('data-theme') === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-  }
-  themeIcon();
-  if (themeBtn) themeBtn.addEventListener('click', function () {
-    var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    try { localStorage.setItem('uf-theme', next); } catch (e) { /* saqlab bo'lmadi */ }
-    themeIcon();
-  });
-
-  /* ---------- Menyu (drawer) ---------- */
-  var drawer = $('#drawer');
-  function drawerOpen(o) { if (drawer) { drawer.classList.toggle('open', o); document.body.style.overflow = o ? 'hidden' : ''; } }
-  $$('[data-drawer-open]').forEach(function (b) { b.addEventListener('click', function () { drawerOpen(true); }); });
-  $$('[data-drawer-close]').forEach(function (b) { b.addEventListener('click', function () { drawerOpen(false); }); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') drawerOpen(false); });
-
-  /* ---------- Yangi alifbo ---------- */
-  var EXC = {};
-  ('push pull touch match watch fresh english chip chrome chat shift search switch check chart which machine shared each such much ' +
-   'schrodinger schrödinger kirchhoff michelson fischer fisher bosch zeeman cherenkov chadwick church archimedes ' +
-   'technology physics chemistry sch phet tracker python geogebra desmos algodoo openstax hyperphysics hemis').split(' ')
-    .forEach(function (w) { if (w) EXC[w] = 1; });
-  var WORD = /[A-Za-zÀ-ž‘’ʻʼ'`]+/g;
-  function wordNew(w) {
-    if (EXC[w.toLowerCase().replace(/[‘’ʻʼ'`]/g, '')]) return w;
-    return w.replace(/([oOgG])[‘ʻ'`’]/g, function (m, c) { return { o: 'ö', O: 'Ö', g: 'ğ', G: 'Ğ' }[c]; })
-      .replace(/SH/g, 'Ş').replace(/Sh/g, 'Ş').replace(/sh/g, 'ş')
-      .replace(/CH/g, 'Ç').replace(/Ch/g, 'Ç').replace(/ch/g, 'ç');
-  }
-  function toNew(s) {
-    // $...$ formulalar o'zgarmaydi
-    return String(s).split(/(\$\$[\s\S]*?\$\$|\$[^$]*\$)/).map(function (p, i) {
-      return i % 2 ? p : p.replace(WORD, wordNew);
-    }).join('');
-  }
-  function toOld(s) {
-    return String(s).replace(/Ö/g, 'O‘').replace(/ö/g, 'o‘').replace(/Ğ/g, 'G‘').replace(/ğ/g, 'g‘')
-      .replace(/Ş(?=[A-ZÇŞÖĞ])/g, 'SH').replace(/Ş/g, 'Sh').replace(/ş/g, 'sh')
-      .replace(/Ç(?=[A-ZÇŞÖĞ])/g, 'CH').replace(/Ç/g, 'Ch').replace(/ç/g, 'ch');
-  }
-  var SKIP = 'script,style,code,pre,textarea,input,select,.katex,.notranslate,[data-noalif],[lang="ru"],[lang="en"]';
-  function convertTree(root) {
-    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode: function (n) {
-        if (!/[A-Za-z]/.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
-        var p = n.parentElement;
-        return p && !p.closest(SKIP) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-      }
-    });
-    var list = [], n;
-    while ((n = w.nextNode())) list.push(n);
-    list.forEach(function (t) { t.nodeValue = toNew(t.nodeValue); });
-    $$('[title],[aria-label],[placeholder]', root).forEach(function (el) {
-      if (el.parentElement && el.parentElement.closest(SKIP)) return;
-      ['title', 'aria-label', 'placeholder'].forEach(function (a) { if (el.hasAttribute(a)) el.setAttribute(a, toNew(el.getAttribute(a))); });
-    });
-  }
-  window.UF = { toNew: toNew, toOld: toOld, lang: LANG, A: function (s) { return LANG === 'uz' ? toNew(s) : s; } };
-
-  /* ---------- Formulalar (KaTeX) ---------- */
-  function renderMath(done) {
-    if (!/\$/.test(document.body.textContent)) return done();
-    var finished = false;
-    function fin() { if (!finished) { finished = true; done(); } }
-    function css(h) { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = h; document.head.appendChild(l); }
-    function js(src, cb) { var s = document.createElement('script'); s.src = src; s.onload = cb; s.onerror = fin; document.head.appendChild(s); }
-    var base = 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/';
-    css(base + 'katex.min.css');
-    js(base + 'katex.min.js', function () {
-      js(base + 'contrib/auto-render.min.js', function () {
-        try {
-          window.renderMathInElement(document.body, {
-            delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
-            ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'input'], throwOnError: false
-          });
-        } catch (e) { /* formula xatosi */ }
-        $$('.katex').forEach(function (k) { k.classList.add('notranslate'); k.setAttribute('translate', 'no'); });
-        fin();
-      });
-    });
-    setTimeout(fin, 4000);
+  function revertAlphabet() {
+    const skip = el => el.closest('script,style,.katex,pre.code,code,.notranslate');
+    const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(n => { if (n.parentElement && !skip(n.parentElement)) n.nodeValue = AL.toOld(n.nodeValue); });
+    $$('[title],[placeholder],[aria-label]').forEach(el => ['title', 'placeholder', 'aria-label'].forEach(a => { if (el.hasAttribute(a)) el.setAttribute(a, AL.toOld(el.getAttribute(a))); }));
+    document.title = AL.toOld(document.title);
   }
 
-  /* ---------- Google Translate ---------- */
   function startTranslate() {
     if (LANG === 'uz') return;
-    var el = document.createElement('div'); el.id = 'gt-el'; document.body.appendChild(el);
-    window.ufGtInit = function () {
-      try { new google.translate.TranslateElement({ pageLanguage: 'uz', includedLanguages: 'en,ru', autoDisplay: false }, 'gt-el'); } catch (e) { /* tarmoq yo'q */ }
-    };
-    var s = document.createElement('script');
-    s.src = 'https://translate.google.com/translate_a/element.js?cb=ufGtInit'; s.async = true;
+    revertAlphabet();
+    const holder = document.createElement('div'); holder.id = 'gt-el'; document.body.appendChild(holder);
+    window.gtInit = () => { try { new google.translate.TranslateElement({ pageLanguage: 'uz', includedLanguages: 'en,ru', autoDisplay: false }, 'gt-el'); } catch (e) { /* tarmoq yo'q */ } };
+    const s = document.createElement('script'); s.src = 'https://translate.google.com/translate_a/element.js?cb=gtInit'; s.async = true;
+    s.onerror = () => toast('Tarjima xizmatiga ulanib bo‘lmadi. Internet aloqasini tekshiring.');
     document.body.appendChild(s);
   }
 
-  renderMath(function () {
-    if (LANG === 'uz') { convertTree(document.body); document.title = toNew(document.title); }
-    else startTranslate();
-  });
+  /* ---------- Formulalar (KaTeX) ---------- */
+  const renderMath = () => {
+    if (window.renderMathInElement) renderMathInElement(document.body, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }], throwOnError: false });
+    $$('.katex').forEach(k => { k.classList.add('notranslate'); k.setAttribute('translate', 'no'); });
+    $$('pre.code').forEach(p => { p.classList.add('notranslate'); p.setAttribute('translate', 'no'); });
+    startTranslate();
+  };
+  if (document.readyState === 'complete') renderMath(); else window.addEventListener('load', renderMath);
 
-  /* ---------- Mundarija: joriy bo'limni belgilash ---------- */
-  var tocLinks = $$('.toc a[href^="#"]');
-  if (tocLinks.length && 'IntersectionObserver' in window) {
-    var map = {};
-    tocLinks.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (e.isIntersecting && map[e.target.id]) {
-          tocLinks.forEach(function (a) { a.classList.remove('active'); });
-          map[e.target.id].classList.add('active');
-        }
-      });
-    }, { rootMargin: '-20% 0px -70% 0px' });
-    Object.keys(map).forEach(function (id) { var s = document.getElementById(id); if (s) io.observe(s); });
+  /* ---------- Mundarija ---------- */
+  const links = $$('.toc a');
+  if (links.length && 'IntersectionObserver' in window) {
+    const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { links.forEach(l => l.classList.remove('on')); map.get(e.target.id)?.classList.add('on'); } }), { rootMargin: '-30% 0px -60% 0px' });
+    map.forEach((_, id) => { const el = document.getElementById(id); if (el) io.observe(el); });
   }
 
-  /* ---------- Tinglash (brauzer ovozi, Web Speech API) ---------- */
-  var listenBtn = $('#listenBtn');
-  var synth = window.speechSynthesis;
-  var BCP = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-US' };
-  var LBL = { uz: ['Tinglash', 'To‘xtatish'], ru: ['Слушать', 'Стоп'], en: ['Listen', 'Stop'] };
-  if (listenBtn && !synth) listenBtn.style.display = 'none';
-  if (listenBtn && synth) {
-    var queue = [], idx = 0, playing = false, cur = null;
-    function setLbl() {
-      listenBtn.innerHTML = '<i class="fas ' + (playing ? 'fa-stop' : 'fa-volume-high') + '"></i> <span class="notranslate">' + UF.A(LBL[LANG][playing ? 1 : 0]) + '</span>';
-    }
-    function pickVoice() {
-      var vs = synth.getVoices() || [];
-      var pre = LANG;
-      var v = vs.filter(function (x) { return x.lang.toLowerCase().indexOf(pre) === 0; });
-      if (!v.length && LANG === 'uz') v = vs.filter(function (x) { return x.lang.toLowerCase().indexOf('tr') === 0; });
-      v.sort(function (a, b) { return (/natural|neural|online/i.test(b.name) ? 1 : 0) - (/natural|neural|online/i.test(a.name) ? 1 : 0); });
-      return v[0] || null;
-    }
-    function textOf(el) {
-      var t = '';
-      el.childNodes.forEach(function (n) {
-        if (n.nodeType === 3) t += n.nodeValue;
-        else if (n.nodeType === 1) {
-          if (n.classList.contains('katex')) { var a = n.querySelector('annotation'); t += ' ' + (a ? a.textContent : '') + ' '; }
-          else t += textOf(n);
-        }
-      });
-      return t;
-    }
-    function stop() {
-      playing = false; synth.cancel();
-      if (cur) cur.classList.remove('speaking');
-      cur = null; setLbl();
-    }
-    function next() {
-      if (!playing) return;
-      if (cur) cur.classList.remove('speaking');
-      if (idx >= queue.length) return stop();
-      cur = queue[idx++];
-      cur.classList.add('speaking');
-      cur.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      var text = textOf(cur).replace(/\s+/g, ' ').trim();
-      if (LANG === 'uz') text = toOld(text);
-      if (!text) return next();
-      var u = new SpeechSynthesisUtterance(text);
-      var v = pickVoice();
-      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = BCP[LANG];
-      u.rate = LANG === 'uz' ? 0.95 : 1;
-      u.onend = u.onerror = next;
-      synth.speak(u);
-    }
-    function start(from) {
-      queue = $$('.doc h1, .doc-sec > h2, .doc-sec h3, .doc-sec p, .doc-sec li, .page-hero h1').filter(function (e) { return e.offsetParent !== null; });
-      idx = Math.max(0, queue.indexOf(from));
-      playing = true; setLbl(); synth.cancel(); next();
-    }
-    setLbl();
-    listenBtn.addEventListener('click', function () { playing ? stop() : start(); });
-    var docEl = $('.doc');
-    if (docEl) docEl.addEventListener('click', function (e) {
-      if (!playing) return;
-      var t = e.target.closest('p, li, h2, h3');
-      if (t) { synth.cancel(); playing = false; start(t); }
+  /* ---------- Nusxa olish ---------- */
+  $$('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+    const src = document.getElementById(b.dataset.copy); const t = src?.innerText || '';
+    const label = b.textContent;
+    try { await navigator.clipboard.writeText(t); b.textContent = A('Nusxalandi ✓'); } catch { b.textContent = A('Qo‘lda belgilang'); }
+    setTimeout(() => { b.textContent = label; }, 1800);
+  }));
+
+  /* ---------- Testlar ---------- */
+  $$('.quiz').forEach(qz => {
+    $('[data-check]', qz)?.addEventListener('click', () => {
+      const qs = $$('.q', qz); let ok = 0, ans = 0;
+      qs.forEach(q => { q.classList.remove('right', 'wrong'); const sel = $('input:checked', q); if (!sel) return; ans++; const r = sel.value === q.dataset.a; if (r) ok++; q.classList.add(r ? 'right' : 'wrong'); });
+      const out = $('.quiz-result', qz);
+      out.textContent = ans < qs.length ? A(`Javob berilgan: ${ans}/${qs.length}. To‘g‘ri: ${ok} ta.`) : A(`Natija: ${ok}/${qs.length} (${Math.round(ok / qs.length * 100)}%)`);
     });
-    if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = function () { };
-  }
-
-  /* ---------- Lug'at qidiruvi ---------- */
-  var gs = $('#glSearch');
-  if (gs) gs.addEventListener('input', function () {
-    var q = toOld(gs.value.trim().toLowerCase());
-    var norm = function (s) { return toOld(s.toLowerCase()).replace(/[‘’ʻʼ'`]/g, ''); };
-    q = norm(q);
-    $$('.gl-item').forEach(function (it) { it.style.display = !q || norm(it.textContent).indexOf(q) >= 0 ? '' : 'none'; });
+    $('[data-reset-quiz]', qz)?.addEventListener('click', () => { $$('.q', qz).forEach(q => q.classList.remove('right', 'wrong')); $$('input', qz).forEach(i => { i.checked = false; }); $('.quiz-result', qz).textContent = ''; });
   });
+
+  /* ---------- Qidiruv filtri ---------- */
+  $$('input[data-filter]').forEach(inp => inp.addEventListener('input', () => {
+    const norm = s => AL.toOld(s).toLowerCase();
+    const v = norm(inp.value.trim()); let n = 0;
+    $$(inp.dataset.filter).forEach(el => { const hit = !v || norm(el.textContent).includes(v); el.hidden = !hit; if (hit) n++; });
+    const c = document.getElementById(inp.dataset.count || ''); if (c) c.textContent = A(`${n} ta natija`);
+  }));
 
   /* ---------- Baho kalkulyatori ---------- */
-  var calc = $('#calc');
+  const calc = $('#grade-calc');
   if (calc) {
-    var out = $('#calcOut');
-    var lim = { jn: [30, 18], on: [20, 12], yan: [50, 30] };
-    var upd = function () {
-      var v = {}, sum = 0, fails = [];
-      Object.keys(lim).forEach(function (k) {
-        var x = parseFloat(($('#c_' + k).value || '0').replace(',', '.')) || 0;
-        x = Math.max(0, Math.min(lim[k][0], x)); v[k] = x; sum += x;
-        if (x < lim[k][1]) fails.push(k.toUpperCase());
-      });
-      var g = sum >= 90 ? 'A’lo' : sum >= 70 ? 'Yaxshi' : sum >= 60 ? 'Qoniqarli' : 'Qoniqarsiz';
-      var note = fails.length
-        ? '<div class="bad">Saralash bali to‘planmagan: ' + fails.join(', ') + '. Har bir nazorat turi alohida hisoblanadi.</div>'
-        : '<div class="ok">Barcha nazorat turlari bo‘yicha saralash bali to‘plangan.</div>';
-      out.innerHTML = '<div>Jami: <b>' + (Math.round(sum * 10) / 10) + '</b> / 100 — <b>' + (fails.length ? 'Qoniqarsiz' : g) + '</b></div>' + note;
-      if (LANG === 'uz') convertTree(out);
+    const upd = () => {
+      const v = k => Number($(`#${k}`, calc).value);
+      const jn = v('jn-mt1') + v('jn-df') + v('jn-mt2'), on = v('on'), yn = v('yn');
+      $$('output[data-for]', calc).forEach(o => { o.textContent = $(`#${o.dataset.for}`, calc).value; });
+      const total = jn + on + yn, pass = jn >= 18 && on >= 12 && yn >= 30;
+      const grade = !pass ? 'Qoniqarsiz (saralash bali yetmagan)' : total >= 90 ? 'A’lo (5)' : total >= 70 ? 'Yaxshi (4)' : total >= 60 ? 'Qoniqarli (3)' : 'Qoniqarsiz (2)';
+      $('#calc-total').textContent = `${total.toFixed(1)} / 100`;
+      $('#calc-grade').textContent = A(grade);
+      $('#calc-detail').textContent = A(`JN = ${jn} / 30 (saralash 18) · ON = ${on} / 20 (saralash 12) · YaN = ${yn} / 50 (saralash 30)`);
     };
-    $$('input', calc).forEach(function (i) { i.addEventListener('input', upd); });
-    upd();
+    calc.addEventListener('input', upd); upd();
   }
+
+  /* ---------- Prompt generatori ---------- */
+  $('#gen-prompt')?.addEventListener('click', () => {
+    const topic = $('#p-topic').value, lvl = $('#p-level').value, role = $('#p-role').value;
+    const txt = role === 'teacher'
+      ? `Sen bakalavriat 1-kursida (Kimyo yo‘nalishi) "Umumiy fizika" fanidan dars beruvchi tajribali fizika o‘qituvchisi-metodistsan.
+Mavzu: ${topic}.
+Talabalar darajasi: ${lvl}.
+Vazifa:
+1) 2 akademik soatlik dars rejasi (kirish → nazariya → xato tushunchalar → interaktiv model → blits-so‘rov).
+2) 5 ta blits-savol va 3 ta hisoblash masalasi (javoblari va SI birliklari bilan).
+3) Talabalar ko‘p yo‘l qo‘yadigan 3 ta xato tushuncha va ularni tuzatish usuli.
+4) Mavzuning kimyodagi qo‘llanilishiga oid 1 ta misol va PhET yoki Python bilan 15 daqiqalik topshiriq.
+Cheklovlar: formulalarni LaTeX’da yoz; har bir son qiymatni manba yoki hisob bilan asosla; ishonching komil bo‘lmagan joyni ochiq ayt.`
+      : `Sen umumiy fizika bo‘yicha sokratik repetitorsan.\nMavzu: ${topic}. Mening darajam: ${lvl}.\nQoidalar:\n- Javobni darhol berma; avval 2–3 ta yo‘naltiruvchi savol ber.\n- Har bir formulada kattaliklar va SI birliklarini ko‘rsat.\n- Men yozgan hisobni o‘lchamlilik va limit holatlar bo‘yicha tekshir.\n- Oxirida mavzu bo‘yicha 3 ta o‘z-o‘zini tekshirish savolini ber.\nMuhim: men baholanadigan topshiriqni sen bilan yozmayman — faqat tushunishim uchun foydalanaman.`;
+    $('#p-out').textContent = A(txt);
+  });
+
+  /* =================== OVOZ (Web Speech API) =================== */
+  const synth = window.speechSynthesis;
+  const BCP = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-US' };
+  let warned = false, session = 0;
+
+  function toast(msg, ms = 7000) {
+    let t = $('.yaf-toast'); if (!t) { t = document.createElement('div'); t.className = 'yaf-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+    t.textContent = msg; t.hidden = false; clearTimeout(t._h); t._h = setTimeout(() => { t.hidden = true; }, ms);
+  }
+  const getVoices = () => new Promise(res => {
+    if (!synth) return res([]);
+    const v = synth.getVoices(); if (v.length) return res(v);
+    const h = () => { synth.removeEventListener('voiceschanged', h); res(synth.getVoices()); };
+    synth.addEventListener('voiceschanged', h); setTimeout(() => res(synth.getVoices()), 1500);
+  });
+  const rank = v => (/Natural|Online|Neural/i.test(v.name) ? 2 : 0) + (/Google|Microsoft/i.test(v.name) ? 1 : 0);
+  async function pickVoice(lang) {
+    const vs = await getVoices();
+    const by = p => vs.filter(v => v.lang.toLowerCase().replace('_', '-').startsWith(p)).sort((a, b) => rank(b) - rank(a))[0];
+    let v = by(lang);
+    if (v) return { v, mode: 'native' };
+    if (lang === 'uz') { v = by('tr'); if (v) return { v, mode: 'tr' }; }
+    return { v: null, mode: 'none' };
+  }
+  function chunks(text) {
+    const parts = text.replace(/\s+/g, ' ').match(/[^.!?;:]+[.!?;:]*|[.!?;:]+/g) || [];
+    const out = []; let cur = '';
+    parts.forEach(p => { if ((cur + p).length > 220 && cur) { out.push(cur.trim()); cur = p; } else cur += p; });
+    if (cur.trim()) out.push(cur.trim());
+    return out;
+  }
+  async function speak(text, sid) {
+    if (LANG === 'uz') { const url = await mp3For(uzSpeech(text)); if (sid !== session) return; if (url && (await playMp3(url, sid)) !== 'err') return 'mp3'; }
+    if (!synth) { toast(A('Bu brauzer ovozli o‘qishni qo‘llab-quvvatlamaydi. Chrome, Edge yoki Safari’dan foydalaning.')); return; }
+    const { v, mode } = await pickVoice(LANG);
+    if (LANG === 'uz' && mode !== 'native' && !warned) {
+      warned = true;
+      toast(A(mode === 'tr' ? 'Qurilmada o‘zbekcha ovoz topilmadi — vaqtincha turkcha ovoz ishlatilmoqda. O‘zbekcha tabiiy ovozlar (Madina, Sardor) Microsoft Edge brauzerida mavjud.' : 'Qurilmada o‘zbekcha ovoz topilmadi. Microsoft Edge brauzerida o‘zbekcha tabiiy ovozlar (Madina, Sardor) mavjud; telefonda esa matnni ovozga aylantirish sozlamalarini tekshiring.'), 11000);
+    }
+    if (!v && !(synth.getVoices() || []).length) { await new Promise(r => setTimeout(r, Math.min(text.length * 60, 12000))); return; }
+    const say = LANG === 'uz' && mode === 'native' ? uzSpeech(text) : text;
+    for (const c of chunks(say)) {
+      if (sid !== session) return;
+      await new Promise(res => {
+        const u = new SpeechSynthesisUtterance(c);
+        u.lang = v ? v.lang : (mode === 'tr' ? 'tr-TR' : BCP[LANG]); if (v) u.voice = v;
+        u.rate = LANG === 'uz' ? 0.95 : 1; u.onend = u.onerror = () => res();
+        synth.speak(u);
+        const guard = setTimeout(res, 30000 + c.length * 120); u.addEventListener('end', () => clearTimeout(guard));
+      });
+    }
+  }
+  function stopAll() { session++; synth?.cancel(); if (typeof audioStop === 'function') audioStop(); if (typeof RD !== 'undefined' && RD.state && RD.state !== 'idle') { RD.state = 'idle'; RD.bi = 0; RD.ci = 0; RD.bar && (RD.bar.hidden = true); document.body.classList.remove('has-player'); } $$('.reading').forEach(e => e.classList.remove('reading')); $$('.voice-btn.on').forEach(b => { b.classList.remove('on'); const s = $('span', b); if (s && b.dataset.label) s.textContent = b.dataset.label; }); $$('.sim-box.touring').forEach(b => b.classList.remove('touring')); }
+
+  /* ---- Formulani so'z bilan aytish (TeX → so'zlar) ---- */
+  const DICT = {
+    uz: { over: 'bo‘lingan', sqrt: 'kvadrat ildiz ostida', pow: 'darajasi', sq: 'kvadrati', cube: 'kubi', eq: 'teng', approx: 'taxminan teng', lt: 'kichik', gt: 'katta', le: 'kichik yoki teng', ge: 'katta yoki teng', plus: 'plyus', minus: 'minus', times: 'ko‘paytirilgan', exp: 'eksponenta', ln: 'natural logarifm', log: 'logarifm', propto: 'proporsional', to: 'intiladi', infty: 'cheksizlik', parallel: 'parallel', pm: 'plyus-minus', partial: 'xususiy hosila', int: 'integral', sum: 'yig‘indi', dots: 'va hokazo', cdots: 'va hokazo', vec: 'vektor', bar: 'o‘rtacha', overline: 'o‘rtacha', langle: 'o‘rtacha', sin: 'sinus', cos: 'kosinus', tan: 'tangens', tg: 'tangens', ctg: 'kotangens', arcsin: 'arksinus', arctan: 'arktangens', arctg: 'arktangens', lg: 'o‘nli logarifm', Rightarrow: 'demak', rightarrow: 'intiladi', neq: 'teng emas', circ: 'gradus', nabla: 'nabla', oint: 'yopiq kontur bo‘yicha integral', ldots: 'va hokazo', max: 'maksimal', min: 'minimal' },
+    ru: { over: 'делённое на', sqrt: 'корень из', pow: 'в степени', sq: 'в квадрате', cube: 'в кубе', eq: 'равно', approx: 'приблизительно равно', lt: 'меньше', gt: 'больше', le: 'меньше или равно', ge: 'больше или равно', plus: 'плюс', minus: 'минус', times: 'умножить на', exp: 'экспонента', ln: 'натуральный логарифм', log: 'логарифм', propto: 'пропорционально', to: 'стремится к', infty: 'бесконечность', parallel: 'параллельно', pm: 'плюс-минус', partial: 'частная производная', int: 'интеграл', sum: 'сумма', dots: 'и так далее', cdots: 'и так далее', vec: 'вектор', bar: 'среднее', overline: 'среднее', langle: 'среднее', sin: 'синус', cos: 'косинус', tan: 'тангенс', tg: 'тангенс', ctg: 'котангенс', arcsin: 'арксинус', arctan: 'арктангенс', arctg: 'арктангенс', lg: 'десятичный логарифм', Rightarrow: 'следовательно', rightarrow: 'стремится к', neq: 'не равно', circ: 'градусов', nabla: 'набла', oint: 'интеграл по замкнутому контуру', ldots: 'и так далее', max: 'максимальное', min: 'минимальное' },
+    en: { over: 'over', sqrt: 'square root of', pow: 'to the power', sq: 'squared', cube: 'cubed', eq: 'equals', approx: 'approximately equals', lt: 'less than', gt: 'greater than', le: 'less than or equal to', ge: 'greater than or equal to', plus: 'plus', minus: 'minus', times: 'times', exp: 'exponential', ln: 'natural log', log: 'log', propto: 'is proportional to', to: 'tends to', infty: 'infinity', parallel: 'parallel', pm: 'plus or minus', partial: 'partial', int: 'integral', sum: 'sum', dots: 'and so on', cdots: 'and so on', vec: 'vector', bar: 'mean', overline: 'mean', langle: 'mean', sin: 'sine', cos: 'cosine', tan: 'tangent', tg: 'tangent', ctg: 'cotangent', arcsin: 'arcsine', arctan: 'arctangent', arctg: 'arctangent', lg: 'log base ten', Rightarrow: 'therefore', rightarrow: 'tends to', neq: 'is not equal to', circ: 'degrees', nabla: 'nabla', oint: 'closed contour integral', ldots: 'and so on', max: 'max', min: 'min' }
+  };
+  const GREEK = {
+    uz: { alpha: 'alfa', beta: 'beta', gamma: 'gamma', delta: 'delta', Delta: 'delta', varepsilon: 'epsilon', epsilon: 'epsilon', eta: 'eta', theta: 'teta', lambda: 'lyambda', mu: 'myu', nu: 'nyu', pi: 'pi', rho: 'ro', sigma: 'sigma', tau: 'tau', varphi: 'fi', phi: 'fi', Phi: 'fi', psi: 'psi', omega: 'omega', Gamma: 'gamma', hbar: 'h chiziqli', chi: 'xi', kappa: 'kappa' },
+    ru: { alpha: 'альфа', beta: 'бета', gamma: 'гамма', delta: 'дельта', Delta: 'дельта', varepsilon: 'эпсилон', epsilon: 'эпсилон', eta: 'эта', theta: 'тета', lambda: 'лямбда', mu: 'мю', nu: 'ню', pi: 'пи', rho: 'ро', sigma: 'сигма', tau: 'тау', varphi: 'фи', phi: 'фи', Phi: 'фи', psi: 'пси', omega: 'омега', Gamma: 'гамма', hbar: 'аш с чертой', chi: 'хи', kappa: 'каппа' },
+    en: { alpha: 'alpha', beta: 'beta', gamma: 'gamma', delta: 'delta', Delta: 'delta', varepsilon: 'epsilon', epsilon: 'epsilon', eta: 'eta', theta: 'theta', lambda: 'lambda', mu: 'mu', nu: 'nu', pi: 'pi', rho: 'rho', sigma: 'sigma', tau: 'tau', varphi: 'phi', phi: 'phi', Phi: 'phi', psi: 'psi', omega: 'omega', Gamma: 'gamma', hbar: 'h-bar', chi: 'chi', kappa: 'kappa' }
+  };
+  // qo'shimcha belgilar: EYuK (\mathcal E), strelkalar, hosila nuqtalari, antineytrino
+  const DICT_X = {
+    uz: { Longrightarrow: 'demak', implies: 'demak', Leftrightarrow: 'mos', leftrightarrow: 'mos', longleftrightarrow: 'mos', perp: 'perpendikulyar', ne: 'teng emas', lesssim: 'taxminan kichik yoki teng', gtrsim: 'taxminan katta yoki teng', emf: 'EYuK', antinu: 'antineytrino', d1: 'ning hosilasi', d2: 'ning ikkinchi hosilasi' },
+    ru: { Longrightarrow: 'следовательно', implies: 'следовательно', Leftrightarrow: 'соответствует', leftrightarrow: 'соответствует', longleftrightarrow: 'соответствует', perp: 'перпендикулярно', ne: 'не равно', lesssim: 'меньше или порядка', gtrsim: 'больше или порядка', emf: 'ЭДС', antinu: 'антинейтрино', d1: 'производная', d2: 'вторая производная' },
+    en: { Longrightarrow: 'therefore', implies: 'therefore', Leftrightarrow: 'corresponds to', leftrightarrow: 'corresponds to', longleftrightarrow: 'corresponds to', perp: 'perpendicular to', ne: 'is not equal to', lesssim: 'less than about', gtrsim: 'greater than about', emf: 'emf', antinu: 'antineutrino', d1: 'dot', d2: 'double dot' }
+  };
+  const GREEK_X = {
+    uz: { xi: 'ksi', zeta: 'dzeta', Omega: 'omega', Lambda: 'lyambda', Sigma: 'sigma', Psi: 'psi', Theta: 'teta', vartheta: 'teta', varrho: 'ro', ell: 'el' },
+    ru: { xi: 'кси', zeta: 'дзета', Omega: 'омега', Lambda: 'лямбда', Sigma: 'сигма', Psi: 'пси', Theta: 'тета', vartheta: 'тета', varrho: 'ро', ell: 'эль' },
+    en: { xi: 'xi', zeta: 'zeta', Omega: 'omega', Lambda: 'lambda', Sigma: 'sigma', Psi: 'psi', Theta: 'theta', vartheta: 'theta', varrho: 'rho', ell: 'ell' }
+  };
+  Object.keys(DICT_X).forEach(l => { Object.assign(DICT[l], DICT_X[l]); Object.assign(GREEK[l], GREEK_X[l]); });
+  function tex2words(tex, lang) {
+    const W = DICT[lang] || DICT.uz, G = GREEK[lang] || GREEK.uz;
+    let i = 0; const s = tex.replace(/\{,\}/g, ',').replace(/\^\*/g, '');
+    const group = () => {
+      while (s[i] === ' ') i++;
+      if (s[i] === '{') { let d = 0, j = i; for (; j < s.length; j++) { if (s[j] === '{') d++; else if (s[j] === '}' && --d === 0) break; } const g = s.slice(i + 1, j); i = j + 1; return g; }
+      if (s[i] === '\\') { let j = i + 1; while (/[a-zA-Z]/.test(s[j] || '')) j++; const g = s.slice(i, Math.max(j, i + 2)); i = Math.max(j, i + 2); return g; }
+      return s[i++] || '';
+    };
+    const out = [];
+    while (i < s.length) {
+      const c = s[i];
+      if (c === '\\') {
+        let j = i + 1; while (/[a-zA-Z]/.test(s[j] || '')) j++;
+        if (j === i + 1) { const ch = s[j]; i = j + 1; if (ch === '{' || ch === '}') continue; continue; }
+        const name = s.slice(i + 1, j); i = j;
+        if (/^(d|t)?frac$/.test(name)) { const a = tex2words(group(), lang), b = tex2words(group(), lang); out.push(`${a}, ${W.over} ${b},`); }
+        else if (name === 'sqrt') out.push(`${W.sqrt} ${tex2words(group(), lang)},`);
+        else if (name === 'mathcal') { const g = group(); out.push(g === 'E' ? W.emf : tex2words(g, lang)); }
+        else if (name === 'dot' || name === 'ddot') { const g = tex2words(group(), lang), d = name === 'ddot' ? W.d2 : W.d1; out.push(lang === 'ru' ? `${d} ${g}` : `${g} ${d}`); }
+        else if (name === 'tilde' || name === 'widetilde') { const g = group(); out.push(g.trim() === '\\nu' ? W.antinu : tex2words(g, lang)); }
+        else if (/^(text|mathrm|mathbf|operatorname|textbf)$/.test(name)) out.push(group());
+        else if (/^(left|right|big|Big|bigg|Bigg)$/.test(name)) { if (s[i] === '\\') group(); else i++; }
+        else if (/^(quad|qquad|displaystyle|limits|nolimits|rangle|mathrm|,|;|!|prime)$/.test(name)) { /* bo'shliq */ }
+        else if (name === 'cdot' || name === 'times') out.push(W.times);
+        else if (name === 'lt') out.push(W.lt);
+        else if (name === 'gt') out.push(W.gt);
+        else if (name === 'le' || name === 'leq') out.push(W.le);
+        else if (name === 'ge' || name === 'geq') out.push(W.ge);
+        else if (name === 'll') out.push(W.lt);
+        else if (name === 'gg') out.push(W.gt);
+        else if (name === 'sim') out.push(W.approx);
+        else if (W[name]) out.push(W[name]);
+        else if (G[name]) out.push(G[name]);
+        else out.push(name);
+        continue;
+      }
+      if (c === '^') {
+        i++; const g = group();
+        if (g === '2') out.push(W.sq); else if (g === '3') out.push(W.cube); else if (g === '\circ') out.push(W.circ); else if (g === '\prime' || g === "'") { /* shtrix */ }
+        else if (lang === 'uz') { const e = tex2words(g, lang); const simple = /^(minus )?[A-Za-z0-9]{1,3}$/.test(e); const b = out.pop() || ''; out.push(`${b} ning ${e}${simple ? '-darajasi' : ' darajasi'},`); }
+        else out.push(`${W.pow} ${tex2words(g, lang)}`);
+        continue;
+      }
+      if (c === '_') { i++; out.push(tex2words(group(), lang)); continue; }
+      if (c === '{' || c === '}') { i++; continue; }
+      if (c === '=') out.push(W.eq); else if (c === '+') out.push(W.plus); else if (c === '-' || c === '−') out.push(W.minus);
+      else if (c === '<') out.push(W.lt); else if (c === '>') out.push(W.gt); else if (c === '/') out.push(W.over);
+      else if (/[()[\]|&~]/.test(c)) out.push(' ');
+      else if (/[A-Za-z0-9]/.test(c)) { let j = i; while (j < s.length && /[A-Za-z0-9.,‘ʻ’]/.test(s[j])) j++; out.push(s.slice(i, j)); i = j; continue; }
+      else out.push(c);
+      i++;
+    }
+    return out.join(' ').replace(/\s+([,.])/g, '$1').replace(/\s{2,}/g, ' ').replace(/(\d) , (\d)/g, '$1,$2').trim();
+  }
+  function textOf(el) {
+    let t = '';
+    el.childNodes.forEach(n => {
+      if (n.nodeType === 3) t += n.nodeValue;
+      else if (n.nodeType === 1) {
+        if (n.classList.contains('katex')) { const a = n.querySelector('annotation'); t += ' ' + (a ? tex2words(a.textContent, LANG) : n.textContent) + ' '; }
+        else if (n.classList.contains('num')) t += '';
+        else if (n.tagName === 'SUP') t += '^{' + n.textContent + '}';
+        else if (n.tagName === 'SUB') t += ' ' + n.textContent + ' ';
+        else if (!/^(BUTTON|SCRIPT|STYLE|INPUT|SELECT|CANVAS)$/.test(n.tagName)) t += textOf(n) + (/^(P|LI|TD|TH|H2|H3|DIV)$/.test(n.tagName) ? '. ' : '');
+      }
+    });
+    return t.replace(/\s+/g, ' ').trim();
+  }
+
+  /* ---- O'zbekcha neyron ovoz: oldindan tayyorlangan MP3 (barcha qurilmalarda bir xil) ---- */
+  const SUPD = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-' };
+  const UNIT = { eV: 'elektron-volt', meV: 'millielektron-volt', keV: 'kiloelektron-volt', mA: 'milliamper', mkA: 'mikroamper', nA: 'nanoamper', pA: 'pikoamper', kA: 'kiloamper', A: 'amper', mV: 'millivolt', kV: 'kilovolt', mkV: 'mikrovolt', V: 'volt', mVt: 'millivatt', mkVt: 'mikrovatt', kVt: 'kilovatt', Vt: 'vatt', K: 'kelvin', Om: 'om', kOm: 'kiloom', MOm: 'megaom', mOm: 'milliom', mkm: 'mikrometr', nm: 'nanometr', mm: 'millimetr', sm: 'santimetr', km: 'kilometr', m: 'metr', ns: 'nanosekund', ps: 'pikosekund', fs: 'femtosekund', mks: 'mikrosekund', ms: 'millisekund', s: 'sekund', Hz: 'gers', kHz: 'kilogers', Gs: 'gers', kGs: 'kilogers', MGs: 'megagers', GGs: 'gigagers', TGs: 'teragers', mS: 'millisimens', S: 'simens', MHz: 'megagers', GHz: 'gigagers', THz: 'teragers', pF: 'pikofarad', nF: 'nanofarad', mkF: 'mikrofarad', F: 'farad', dB: 'detsibel', Gy: 'grey', rad: 'rad', T: 'tesla', W: 'vatt', Pa: 'paskal', J: 'joul', C: 'kulon', kg: 'kilogramm', g: 'gramm', mg: 'milligramm', N: 'nyuton', kN: 'kilonyuton', mN: 'millinyuton', kPa: 'kilopaskal', MPa: 'megapaskal', GPa: 'gigapaskal', hPa: 'gektopaskal', atm: 'atmosfera', mol: 'mol', kmol: 'kilomol', L: 'litr', ml: 'millilitr', kJ: 'kilojoul', MJ: 'megajoul', mJ: 'millijoul', cd: 'kandela', lm: 'lyumen', lk: 'lyuks', lx: 'lyuks', Bq: 'bekkerel', Sv: 'zivert', Wb: 'veber', Vb: 'veber', Gn: 'genri', mGn: 'milligenri', mkGn: 'mikrogenri', H: 'genri', mH: 'milligenri', Tl: 'tesla', mT: 'millitesla', mkT: 'mikrotesla', mTl: 'millitesla', mkTl: 'mikrotesla', MeV: 'megaelektron-volt', GeV: 'gigaelektron-volt', dptr: 'dioptriya', min: 'minut', soat: 'soat', sut: 'sutka', kVA: 'kilovolt-amper', mkF: 'mikrofarad', Kl: 'kulon', mKl: 'millikulon', mkKl: 'mikrokulon', nKl: 'nanokulon', dm: 'detsimetr', mkm: 'mikrometr', Angstrom: 'angstrem', u: 'atom massa birligi', aem: 'atom massa birligi', pm: 'pikometr' };
+  const DEN = ['', 'o‘ndan', 'yuzdan', 'mingdan', 'o‘n mingdan', 'yuz mingdan', 'milliondan'];
+  const LET = { a: 'a', b: 'be', c: 'se', d: 'de', e: 'e', f: 'ef', g: 'ge', h: 'ha', i: 'i', j: 'je', k: 'ka', l: 'el', m: 'em', n: 'en', p: 'pe', q: 'ku', r: 'er', s: 'es', t: 'te', v: 've', w: 'dubl-ve', x: 'iks', y: 'igrek', z: 'zet' };
+  const MULTI = { ox: 'oks', kT: 'ka te', qV: 'ku ve', qN: 'ku en', qn: 'ku en', qE: 'ku e', Fn: 'ef en', Fp: 'ef pe', max: 'maks', VAX: 'volt-amper xarakteristika', VAXi: 'volt-amper xarakteristikasi', VAXini: 'volt-amper xarakteristikasini', VAXlari: 'volt-amper xarakteristikalari', VAXda: 'volt-amper xarakteristikada' };
+  const UGR = { 'α': 'alfa', 'β': 'beta', 'γ': 'gamma', 'δ': 'delta', 'Δ': 'delta', 'ε': 'epsilon', 'η': 'eta', 'θ': 'teta', 'λ': 'lyambda', 'μ': 'myu', 'ν': 'nyu', 'π': 'pi', 'ρ': 'ro', 'σ': 'sigma', 'τ': 'tau', 'φ': 'fi', 'Φ': 'fi', 'χ': 'xi', 'ψ': 'psi', 'ω': 'omega', 'Ω': 'om', 'ħ': 'h chiziqli', '∞': 'cheksizlik', '±': 'plyus-minus', '∝': 'proporsional', '·': ' ko‘paytirilgan ', 'Γ': 'gamma', 'ξ': 'ksi', 'ζ': 'dzeta', 'κ': 'kappa', 'Λ': 'lyambda', 'Σ': 'sigma', 'Ψ': 'psi', 'Θ': 'teta', '∫': 'integral', '∑': 'yig‘indi', '≠': 'teng emas', '∼': 'taxminan' };
+  // izotoplar: ¹³¹I → yod-131
+  const ELEM = { H: 'vodorod', He: 'geliy', Li: 'litiy', Be: 'berilliy', B: 'bor', C: 'uglerod', N: 'azot', O: 'kislorod', F: 'ftor', Ne: 'neon', Na: 'natriy', Mg: 'magniy', Al: 'alyuminiy', Si: 'kremniy', P: 'fosfor', S: 'oltingugurt', Cl: 'xlor', Ar: 'argon', K: 'kaliy', Ca: 'kalsiy', Fe: 'temir', Co: 'kobalt', Ni: 'nikel', Cu: 'mis', Zn: 'rux', Kr: 'kripton', Sr: 'stronsiy', Tc: 'texnetsiy', Ag: 'kumush', I: 'yod', Xe: 'ksenon', Cs: 'seziy', Ba: 'bariy', Au: 'oltin', Hg: 'simob', Pb: 'qo‘rg‘oshin', Bi: 'vismut', Po: 'poloniy', Rn: 'radon', Ra: 'radiy', Th: 'toriy', U: 'uran', Pu: 'plutoniy', Am: 'ameritsiy' };
+  const FN = { cos: 'kosinus', sin: 'sinus', tg: 'tangens', ctg: 'kotangens', lg: 'o‘nli logarifm', ln: 'natural logarifm' };
+  const UPL = { a: 'a', b: 'be', c: 'se', d: 'de', e: 'e', f: 'ef', g: 'ge', h: 'ha', i: 'i', j: 'je', k: 'ka', l: 'el', m: 'em', n: 'en', o: 'o', p: 'pe', q: 'qu', r: 'er', s: 'es', t: 'te', u: 'u', v: 've', w: 'dubl-ve', x: 'xa', y: 'ye', z: 'ze', ya: 'ya', yu: 'yu', ch: 'che', sh: 'sha' };
+  const KEEP = new Set(['PhET', 'HEMIS', 'NumPy', 'GeoGebra', 'Tracker', 'Colab', 'Excel', 'OpenStax', 'CODATA', 'MOSFET', 'SPICE', 'MATLAB', 'NASA', 'GaAs', 'SiGe', 'InGaN', 'GaN', 'InP', 'SiC', 'AlGaAs', 'InAs', 'GaP', 'ZnO', 'Si', 'Ge', 'Al', 'Au', 'Pt', 'Ti', 'Ni', 'Cu', 'Ag', 'Th', 'Fermi', 'Python', 'Multisim', 'LTspice', 'ngspice']);
+  function spell(w) {
+    const parts = w.match(/Ya|Yu|Ch|Sh|\d+|[A-Za-z]/g) || [];
+    let out = '', prevNum = false;
+    parts.forEach((x, i) => { const num = /^\d/.test(x); out += (i ? (num || prevNum ? ' ' : '-') : '') + (num ? x : UPL[x.toLowerCase()]); prevNum = num; });
+    return out;
+  }
+  function normUz(t) {
+    t = t.replace(/[αβγδΔεηθλμνπρσφΦχψωΩħ∞±∝ΓξζκΛΣΨΘ∫∑≠∼]/g, c => ' ' + UGR[c] + ' ');
+    t = t.replace(/[₀-₉]+/g, m => ' ' + [...m].map(c => c.charCodeAt(0) - 0x2080).join('') + ' ');
+    let s = ' ' + t.replace(/^\s*\d+(\.\d+)+\.?\s+/, '') + ' ';
+    s = s.replace(/√\s*\(([^()]*)\)/g, ' kvadrat ildiz ostida $1, ').replace(/√\s*/g, ' kvadrat ildiz ostida ');
+    s = s.replace(/(^|[\s(])(cos|sin|tg|ctg|lg|ln)(?=\s)/g, (m, p, f) => p + FN[f]);
+    s = s.replace(/\(\s*[–−-]\s*\)/g, '(manfiy)').replace(/\(\s*\+\s*\)/g, '(musbat)').replace(/(^|[\s(=])[−–-](\d)/g, '$1minus $2').replace(/−/g, ' minus ');
+    s = s.replace(/([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)/g, m => '^{' + [...m].map(c => SUPD[c]).join('') + '}');
+    s = s.replace(/(^|[\s(,;:–—-])\^\{(\d+)(m?)\}(ᵐ?)([A-Z][a-z]?)(?![A-Za-z])/g, (m, p, a, m1, m2, el) => ELEM[el] ? `${p}${ELEM[el]}-${a}${m1 || m2 ? ' metastabil' : ''}` : m).replace(/⁺/g, '').replace(/\s+\^\{/g, '^{');
+    // birliklar: ko'p harfli birlik daraja oldidan yoki "ning" oldidan; har qanday birlik son ortidan
+    s = s.replace(/(^|[\s(\/·])([A-Za-z]{2,4})(?=\^\{| ning |\s*bo‘lingan)/g, (m, p, u) => UNIT[u] ? p + UNIT[u] : m);
+    s = s.replace(/(\d|\}|kvadrat|kub|kvadrati|kubi|darajasi,?)(\s*)([A-Za-z]{1,4})(?=[\s.,;:)\/^]|$)/g, (m, d, sp, u) => UNIT[u] && (sp || u.length > 1) ? `${d} ${UNIT[u]}` : m);
+    s = s.replace(/\/(\s*)([A-Za-z]{1,4})(?=[\s.,;:)^]|$)/g, (m, sp, u) => UNIT[u] ? '/' + UNIT[u] : m);
+    s = s.replace(/(^|[\s(·])K(?=\^\{-1\})/g, '$1kelvin');
+    s = s.replace(/([^\s^{}–—]+)\^\{2\}/g, '$1 kvadrat').replace(/([^\s^{}–—]+)\^\{3\}/g, '$1 kub');
+    s = s.replace(/([^\s^{}–—]+)\^\{(-?)(\d+)\}/g, (m, b, mn, e) => `${b} ning ${mn ? 'minus ' : ''}${e}-darajasi`);
+    s = s.replace(/(\d)\s*[·×]\s*(\d)/g, '$1 ko‘paytirilgan $2');
+    s = s.replace(/(\d)\s*%/g, '$1 foiz').replace(/(\d)\s*°C/g, '$1 gradus Selsiy').replace(/(\d)\s*°/g, '$1 gradus');
+    s = s.replace(/(\d+),(\d+)/g, (m, a, b) => b.length < DEN.length ? `${a} butun ${DEN[b.length]} ${parseInt(b, 10)}` : m);
+    s = s.replace(/(\d)\s*[–—-]\s*(\d)/g, '$1 dan $2 gacha');
+    s = s.replace(/\s*\/\s*/g, ' bo‘lingan ').replace(/\s*=\s*/g, ' teng ').replace(/\s*≈\s*/g, ' taxminan ').replace(/\s*→\s*/g, ', keyin ').replace(/\s*[≤]\s*/g, ' kichik yoki teng ').replace(/\s*[≥]\s*/g, ' katta yoki teng ');
+    // harfiy belgilar (o'zgaruvchilar) odam o'qiganidek: V → ve, kT → ka te, p-n → pe-en
+    s = s.replace(/(^|[\s(,\/–-])([A-Za-z][A-Za-z0-9]{0,6})(?=[\s),.;:\/–-]|$)/g, (m, p, w) => {
+      if (MULTI[w]) return p + MULTI[w];
+      if (w.length === 1 && !/[uoUO]/.test(w)) return p + LET[w.toLowerCase()];
+      if (/^[a-zA-Z]\d$/.test(w)) return p + LET[w[0].toLowerCase()] + ' ' + w[1];
+      if (KEEP.has(w)) return m;
+      const sf = w.match(/^((?:[A-Z]|Ya|Yu|Ch|Sh){2,})(ning|ni|da|dan|dagi|ga|lar|larda|lari|larini|larni|lardan|i|idan|ining|ini|ida)$/);
+      if (sf && !KEEP.has(sf[1])) return p + (sf[1] === 'VAX' ? 'volt-amper xarakteristika' + sf[2].replace(/^i/, 'si') : spell(sf[1]) + '-' + sf[2]);
+      if (sf) return m;
+      if (/^(?:[A-Z]|Ya|Yu|Ch|Sh)(?:[A-Z]|Ya|Yu|Ch|Sh|\d)+$/.test(w) || /^[a-z]{1,2}[A-Z][A-Za-z]?$/.test(w)) return p + spell(w);
+      return m;
+    });
+    s = s.replace(/\s*[—–|]\s*/g, ', ').replace(/[«»“”"]/g, '').replace(/\s+([,.;:!?])/g, '$1').replace(/([,.;:])\1+/g, '$1').replace(/\.\s*\./g, '.').replace(/\s{2,}/g, ' ');
+    return s.trim();
+  }
+  function h32(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, '0'); }
+  const uzSpeech = t => normUz(AL.toOld(t));
+  const TTS = { base: 'audio/uz/', set: null, el: null, bi: -1 };
+  const ttsReady = (LANG === 'uz' && window.fetch ? fetch(TTS.base + 'manifest.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({})) : Promise.resolve({}))
+    .then(j => { TTS.set = new Set(j.files || []); });
+  async function mp3For(text) { if (LANG !== 'uz') return null; await ttsReady; const k = h32(text); return TTS.set.has(k) ? `${TTS.base}${k}.mp3` : null; }
+  function audioEl() { if (!TTS.el) { TTS.el = new Audio(); TTS.el.preload = 'auto'; } return TTS.el; }
+  function prefetch(url) { if (url && window.fetch) fetch(url).catch(() => {}); }
+  // url ni ijro etadi; resume=true bo'lsa to'xtagan joyidan davom etadi. 'end' | 'stop' | 'err'
+  function playMp3(url, sid, resume) {
+    const a = audioEl();
+    return new Promise(res => {
+      let fin = false; const done = r => { if (fin) return; fin = true; clearInterval(h); a.onended = a.onerror = null; res(r); };
+      if (!resume || !a.src.endsWith(url)) { a.src = url; a.currentTime = 0; }
+      a.onended = () => done('end'); a.onerror = () => done('err');
+      const h = setInterval(() => { if (sid !== session) { a.pause(); done('stop'); } }, 100);
+      const p = a.play(); if (p && p.catch) p.catch(() => done('err'));
+    });
+  }
+  function audioStop() { if (TTS.el) { TTS.el.pause(); } TTS.bi = -1; }
+  // Ovoz matnlarini yig'ish (GitHub Actions dagi generator uchun)
+  window.YAF_TTS = {
+    h32, normUz,
+    items() {
+      const out = [];
+      const add = t => { const s = uzSpeech(t); if (s.replace(/[^A-Za-z0-9‘’']/g, '').length > 1) out.push({ h: h32(s), t: s }); };
+      if (RD.btn) collectBlocks().forEach(el => add(textOf(el)));
+      $$('.tour-steps li').forEach(li => add(textOf(li)));
+      add(A('Namoyish tugadi. Endi parametrlarni o‘zingiz o‘zgartirib ko‘ring — natijalar darhol yangilanadi.'));
+      return out;
+    }
+  };
+
+  /* ---- Sahifani o'qish: pauza, davom, oldingi/keyingi, istalgan joydan boshlash ---- */
+  const ICON = {
+    prev: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>',
+    next: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>',
+    play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>',
+    pause: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
+    stop: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>'
+  };
+  const RD = { blocks: [], bi: 0, ci: 0, state: 'idle', btn: $('.voice-btn[data-read]'), bar: null, chip: null };
+  function collectBlocks() {
+    const b = RD.btn; if (!b) return [];
+    const secs = (b.dataset.read || '').split(',').map(id => document.getElementById(id)).filter(Boolean);
+    const title = $('.page-hero h1'); const out = title ? [title] : [];
+    secs.forEach(sec => $$('h2, h3, p, li, tr, .katex-display', sec).forEach(el => {
+      if (el.closest('.sim-box,.quiz,.prompt-box,.tour-bar,.tour-cap,.vh')) return;
+      if (el.matches('.katex-display') && el.closest('p,li')) return;
+      if (el.matches('p,li,h3') && el.parentElement.closest('li,td')) return;
+      if (el.matches('tr') && el.querySelector('th')) return;
+      out.push(el);
+    }));
+    return out;
+  }
+  function heroLabel() {
+    const sp = RD.btn && $('span', RD.btn); if (!sp) return;
+    sp.textContent = A(RD.state === 'playing' ? 'Pauza' : RD.state === 'paused' ? 'Davom etish' : (RD.btn.dataset.label || 'Tinglash'));
+    RD.btn.classList.toggle('on', RD.state === 'playing');
+  }
+  function ensureBar() {
+    if (RD.bar) return RD.bar;
+    const bar = document.createElement('div'); bar.className = 'yaf-player'; bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', A('Ovozli o‘qish boshqaruvi'));
+    bar.innerHTML = `<button type="button" data-p="prev" title="${A('Oldingi xatboshi')}" aria-label="${A('Oldingi xatboshi')}">${ICON.prev}</button>`
+      + `<button type="button" data-p="toggle" class="main" title="${A('Pauza / davom etish')}" aria-label="${A('Pauza / davom etish')}">${ICON.pause}</button>`
+      + `<button type="button" data-p="next" title="${A('Keyingi xatboshi')}" aria-label="${A('Keyingi xatboshi')}">${ICON.next}</button>`
+      + `<button type="button" data-p="stop" title="${A('To‘xtatish')}" aria-label="${A('To‘xtatish')}">${ICON.stop}</button>`
+      + `<span class="info"><b class="pos notranslate"></b><span class="hint">${A('Istalgan xatboshini bosing — o‘sha joydan o‘qiladi')}</span></span>`;
+    bar.addEventListener('click', e => {
+      const k = e.target.closest('[data-p]')?.dataset.p; if (!k) return;
+      if (k === 'toggle') (RD.state === 'playing' ? readerPause() : readLoop());
+      else if (k === 'prev') readerJump(RD.bi - 1);
+      else if (k === 'next') readerJump(RD.bi + 1);
+      else if (k === 'stop') readerStop();
+    });
+    document.body.appendChild(bar); RD.bar = bar; return bar;
+  }
+  function updateBar() {
+    const bar = ensureBar(); bar.hidden = RD.state === 'idle';
+    $('[data-p="toggle"]', bar).innerHTML = RD.state === 'playing' ? ICON.pause : ICON.play;
+    $('.pos', bar).textContent = RD.blocks.length ? `${Math.min(RD.bi + 1, RD.blocks.length)} / ${RD.blocks.length}` : '';
+    document.body.classList.toggle('has-player', RD.state !== 'idle');
+    heroLabel();
+  }
+  function mark(el) { $$('.reading').forEach(e => e.classList.remove('reading')); if (el) { el.classList.add('reading'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
+  async function sayChunk(text, v, mode, sid) {
+    if (sid !== session) return;
+    if (!synth) { await sleepR(Math.min(text.length * 60, 12000), sid); return; }
+    if (!v && !(synth.getVoices() || []).length) { await sleepR(Math.min(text.length * 60, 12000), sid); return; }
+    await new Promise(res => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = v ? v.lang : (mode === 'tr' ? 'tr-TR' : BCP[LANG]); if (v) u.voice = v;
+      u.rate = LANG === 'uz' ? 0.95 : 1;
+      const guard = setTimeout(res, 30000 + text.length * 120);
+      u.onend = u.onerror = () => { clearTimeout(guard); res(); };
+      synth.speak(u);
+    });
+  }
+  const sleepR = (ms, sid) => new Promise(r => { const t0 = Date.now(); const h = setInterval(() => { if (sid !== session || Date.now() - t0 >= ms) { clearInterval(h); r(); } }, 100); });
+  async function readLoop() {
+    if (!synth && LANG !== 'uz') { toast(A('Bu brauzer ovozli o‘qishni qo‘llab-quvvatlamaydi. Chrome, Edge yoki Safari’dan foydalaning.')); return; }
+    if (!RD.blocks.length) RD.blocks = collectBlocks();
+    if (RD.bi >= RD.blocks.length) { RD.bi = 0; RD.ci = 0; }
+    session++; synth?.cancel(); const sid = session;
+    RD.state = 'playing'; updateBar();
+    const { v, mode } = await pickVoice(LANG);
+    await ttsReady;
+    if (LANG === 'uz' && mode !== 'native' && !warned && !TTS.set.size) {
+      warned = true;
+      toast(A(mode === 'tr' ? 'Qurilmada o‘zbekcha ovoz topilmadi — vaqtincha turkcha ovoz ishlatilmoqda. O‘zbekcha tabiiy ovozlar (Madina, Sardor) Microsoft Edge brauzerida mavjud.' : 'Qurilmada o‘zbekcha ovoz topilmadi. Microsoft Edge brauzerida o‘zbekcha tabiiy ovozlar (Madina, Sardor) mavjud.'), 11000);
+    }
+    while (RD.bi < RD.blocks.length) {
+      if (sid !== session) return;
+      const el = RD.blocks[RD.bi]; mark(el); updateBar();
+      const raw = textOf(el);
+      if (LANG === 'uz') {
+        const url = await mp3For(uzSpeech(raw));
+        if (sid !== session) return;
+        if (url) {
+          const nx = RD.blocks[RD.bi + 1]; if (nx) mp3For(uzSpeech(textOf(nx))).then(prefetch);
+          const r = await playMp3(url, sid, TTS.bi === RD.bi); TTS.bi = RD.bi;
+          if (sid !== session) return;
+          if (r !== 'err') { RD.ci = 0; RD.bi++; TTS.bi = -1; continue; }
+        }
+      }
+      let t = raw; if (LANG === 'uz' && mode === 'native') t = uzSpeech(t);
+      const cs = chunks(t);
+      for (; RD.ci < cs.length; RD.ci++) { if (sid !== session) return; await sayChunk(cs[RD.ci], v, mode, sid); }
+      if (sid !== session) return;
+      RD.ci = 0; RD.bi++;
+    }
+    readerStop();
+  }
+  function readerPause() { if (RD.state !== 'playing') return; const keep = TTS.bi; session++; synth?.cancel(); TTS.el?.pause(); RD.state = 'paused'; TTS.bi = keep; updateBar(); }
+  function readerJump(i) {
+    if (!RD.blocks.length) RD.blocks = collectBlocks();
+    RD.bi = Math.max(0, Math.min(i, RD.blocks.length - 1)); RD.ci = 0; TTS.bi = -1;
+    if (RD.state === 'paused') { mark(RD.blocks[RD.bi]); updateBar(); return; }
+    readLoop();
+  }
+  function readerStop() { session++; synth?.cancel(); audioStop(); RD.state = 'idle'; RD.bi = 0; RD.ci = 0; mark(null); updateBar(); }
+  RD.stop = readerStop;
+
+  if (RD.btn) {
+    RD.btn.dataset.label = $('span', RD.btn)?.textContent || '';
+    RD.btn.addEventListener('click', () => {
+      if (RD.state === 'playing') readerPause();
+      else if (RD.state === 'paused') readLoop();
+      else { stopAll(); RD.blocks = collectBlocks(); RD.bi = 0; RD.ci = 0; readLoop(); }
+    });
+    // Istalgan xatboshidan o'qish: xatboshini bosing → "Shu yerdan o'qish"
+    const chip = document.createElement('button'); chip.type = 'button'; chip.className = 'yaf-here'; chip.hidden = true;
+    chip.innerHTML = `${ICON.play}<span>${A('Shu yerdan o‘qish')}</span>`; document.body.appendChild(chip); RD.chip = chip;
+    let target = -1;
+    document.addEventListener('click', e => {
+      if (e.target.closest('.yaf-here,.yaf-player')) return;
+      chip.hidden = true;
+      if (e.target.closest('a,button,input,select,label,summary,textarea,.sim-box,.quiz')) return;
+      if (String(window.getSelection?.() || '').length > 2) return;
+      if (!RD.blocks.length) RD.blocks = collectBlocks();
+      const el = e.target.closest('h1, h2, h3, p, li, tr, .katex-display');
+      let i = el ? RD.blocks.indexOf(el) : -1;
+      if (i < 0 && el) i = RD.blocks.findIndex(b => b.contains(el) || el.contains(b));
+      if (i < 0) return;
+      target = i;
+      const r = RD.blocks[i].getBoundingClientRect();
+      chip.style.top = `${window.scrollY + r.top - 40}px`;
+      chip.style.left = `${Math.max(8, Math.min(window.scrollX + r.left, window.scrollX + document.documentElement.clientWidth - 200))}px`;
+      chip.hidden = false;
+    });
+    chip.addEventListener('click', () => {
+      chip.hidden = true; if (target < 0) return;
+      if (RD.state === 'idle') { stopAll(); RD.blocks = collectBlocks(); }
+      RD.bi = target; RD.ci = 0; TTS.bi = -1; readLoop();
+    });
+    window.addEventListener('keydown', e => { if (e.key === 'Escape' && RD.state !== 'idle') readerStop(); });
+  }
+
+  /* ---- Modellarning ovozli avtomatik namoyishi ---- */
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  function animateTo(box, set, ms = 1100) {
+    const jobs = Object.entries(set).map(([k, v]) => {
+      const el = box.querySelector(`[data-k="${k}"]`); if (!el) return null;
+      if (el.tagName === 'SELECT') { el.selectedIndex = +String(v).replace('#', ''); el.dispatchEvent(new Event('change', { bubbles: true })); return null; }
+      return { el, from: +el.value, to: +v };
+    }).filter(Boolean);
+    if (!jobs.length) return Promise.resolve();
+    return new Promise(res => {
+      const t0 = performance.now();
+      const step = now => {
+        const p = Math.min(1, (now - t0) / ms), e = p < .5 ? 2 * p * p : 1 - (-2 * p + 2) ** 2 / 2;
+        jobs.forEach(j => { j.el.value = j.from + (j.to - j.from) * e; j.el.dispatchEvent(new Event('input', { bubbles: true })); });
+        if (p < 1) requestAnimationFrame(step); else res();
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  $$('[data-tour]').forEach(b => {
+    b.dataset.label = $('span', b)?.textContent || '';
+    b.addEventListener('click', async () => {
+      if (b.classList.contains('on')) { stopAll(); return; }
+      stopAll(); const sid = session;
+      const wrap = b.closest('.sim-wrap'), box = $('.sim-box', wrap), cap = $('.tour-cap', wrap), list = document.getElementById(b.dataset.tour);
+      if (!box || !list) return;
+      b.classList.add('on'); box.classList.add('touring'); const sp = $('span', b); if (sp) sp.textContent = A('To‘xtatish');
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' }); await sleep(500);
+      for (const li of $$('li', list)) {
+        if (sid !== session) return;
+        let set = {}; try { set = JSON.parse(li.dataset.set || '{}'); } catch (e) { /* noto'g'ri qadam */ }
+        await animateTo(box, set);
+        const t = textOf(li); cap.textContent = li.textContent.trim();
+        const ro = $('.readout', box); ro?.classList.add('reading');
+        const t0 = performance.now(); const how = await speak(t, sid);
+        const need = t.length * 55 - (performance.now() - t0); if (how !== 'mp3' && need > 0 && sid === session && !synth?.speaking) await sleep(Math.min(need, 9000));
+        ro?.classList.remove('reading'); await sleep(450);
+      }
+      if (sid === session) { const fin = A('Namoyish tugadi. Endi parametrlarni o‘zingiz o‘zgartirib ko‘ring — natijalar darhol yangilanadi.'); cap.textContent = fin; await speak(fin, sid); if (sid === session) { stopAll(); cap.textContent = fin; } }
+    });
+  });
+  window.addEventListener('pagehide', () => { synth?.cancel(); TTS.el?.pause(); });
+  if (synth) getVoices();
+})();
+
+/* VOICE-DOCK: pastki o'ng burchakda qotirilgan "Tinglash" tugmasi (elektron doska uchun).
+   Yuqoridagi tugmaning aynan nusxasi: bosilganda o'shani bosadi, holati avtomatik sinxronlanadi. */
+(() => {
+  const top = document.querySelector('.voice-btn[data-read]');
+  if (!top) return;
+  const dock = document.createElement('button');
+  dock.type = 'button'; dock.className = 'voice-btn voice-dock';
+  dock.setAttribute('aria-label', top.getAttribute('aria-label') || 'Tinglash');
+  dock.setAttribute('translate', 'no');
+  const sync = () => {
+    dock.innerHTML = top.innerHTML;
+    dock.classList.toggle('on', top.classList.contains('on'));
+    dock.title = (top.querySelector('span')?.textContent || '').trim();
+  };
+  sync();
+  new MutationObserver(sync).observe(top, { attributes: true, childList: true, subtree: true, characterData: true });
+  dock.addEventListener('click', e => { e.stopPropagation(); top.click(); });
+  document.body.appendChild(dock);
 })();

@@ -1,521 +1,475 @@
-# -*- coding: utf-8 -*-
-"""Umumiy fizika — sayt generatori.
+"""Umumiy fizika elektron darsligi sahifalarini generatsiya qilish:  python gen/build.py .
+Dizayn va tuzilma: "Yarimo'tkazgich asboblar fizikasi" interaktiv darsligi (I. Eshboltayev) asosida."""
+import os, sys, re, json, random
+sys.path.insert(0, os.path.dirname(__file__))
+from common import *
+from lec_mex import L as L1
+from lec_mol import L as L2
+from lec_el import L as L3
+from lec_opt import L as L4
+from lec_atom import L as L5
+from labs_a import B as B1
+from labs_b import B as B2
+from lab_intro import INTRO
+import other
+from tours import T as TOURS
+from alifbo import html_to_new
 
-Ishlatish (repozitoriya ildizida):   python gen/build.py
+OUT = sys.argv[1] if len(sys.argv) > 1 else "."
+LECT = sorted(L1 + L2 + L3 + L4 + L5, key=lambda x: x["n"])
+LABS = sorted(B1 + B2, key=lambda x: x["n"])
+NL = len(LECT)
 
-Mazmun manbalari:
-  gen/src/lectures/lectureN.html, gen/src/labs/labN.html, gen/src/yoriqnomalar/MT-NN.html
-      — ma'ruza, laboratoriya va yo'riqnoma matnlari (<h1> + <section><h2>..</h2>..</section>)
-  gen/content.py — fan dasturi ma'lumotlari, lug'at, vositalar, simulyatorlar ro'yxati
-Shablon, menyu va sahifalar shu faylda. Natija: ildizdagi *.html, lectures/, labs/, yoriqnomalar/.
-"""
-import os, re, html
-from content import *
-
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, 'gen', 'src')
-E = html.escape
-YIL = '2026'
-
-LECT = ["Kirish", "Kinematika", "Dinamika", "Statika", "Elastiklik", "Gravitatsiya", "Gazlar qonunlari",
-        "Termodinamika", "Entropiya", "Molekulyar fizika", "Elektr maydon", "Magnetizm", "Elektr o‘tkazuvchanlik",
-        "Elektrodinamika", "Optika – 1", "Optika – 2", "Yorug‘lik tabiati", "Kvant fizikasi – 1", "Kvant fizikasi – 2",
-        "Atom tuzilishi", "Yadro fizikasi", "Elementar zarralar fizikasi", "Kvant mexanikasi", "Yangi fizikani izlash",
-        "Kosmik fizika", "Fizikada metodologiya", "Fizikada ma’lumotlar tahlili", "Xulosa"]
-LECT_D = ["Fizika fanining vazifalari, o‘rganish usullari va fizik qonunlar.",
-          "Yo‘l, ko‘chish, tezlik va tezlanish; harakatni tasvirlash.",
-          "Kuch tushunchasi va Nyuton qonunlari.",
-          "Jismlar muvozanati, kuchlar tizimi va kuch momenti.",
-          "Deformatsiya turlari va Guk qonuni.",
-          "Butun olam tortishish qonuni va Yerning tortish kuchi.",
-          "Boyl–Mariott, Gey-Lyussak, Avogadro va ideal gaz qonunlari.",
-          "Issiqlik, ish, ichki energiya va termodinamikaning birinchi qonuni.",
-          "Entropiya tushunchasi va termodinamik jarayonlar yo‘nalishi.",
-          "Moddaning molekulyar tuzilishi va zarralar harakati.",
-          "Elektr zaryadlari, Kulon qonuni va elektrostatik maydon.",
-          "Magnit maydon, uning manbalari va moddalarning magnitlanishi.",
-          "Elektr toki, qarshilik va elektr zanjirlar qonunlari.",
-          "Elektr va magnit maydonlarning o‘zaro bog‘liqligi, elektromagnit induksiya.",
-          "Yorug‘lik tabiati, yorug‘lik tezligi va to‘lqin xossalari.",
-          "Yorug‘likning qaytishi va sinishi qonunlari.",
-          "Yorug‘likning to‘lqin va zarra xossalari.",
-          "Kvantlash g‘oyasi va fotoeffekt.",
-          "Korpuskulyar-to‘lqin dualizmi va de Broyl to‘lqinlari.",
-          "Atom modellari, yadro va elektron qobiqlar.",
-          "Atom yadrosi tuzilishi, yadro reaksiyalari va radioaktivlik.",
-          "Elementar zarralar va standart model.",
-          "To‘lqin funksiyasi va Shredinger tenglamasi.",
-          "Fizikaning zamonaviy chegaralari va ochiq muammolari.",
-          "Koinot obyektlari va hodisalari fizikasi.",
-          "Ilmiy bilish usullari: kuzatish, tajriba, model.",
-          "O‘lchash natijalarini qayta ishlash va xatoliklar tahlili.",
-          "Kurs bo‘yicha umumlashtirish va yakuniy xulosalar."]
-LAB_N = ["Dinamika", "Statika", "Elastiklik", "Termodinamika", "Gazlar", "Elektr zanjir", "Magnit maydon",
-         "Optika", "Linzalar", "Kvantlar", "Yadro fizikasi", "Kosmik fizika"]
-LAB_D = {1: "Kuchlarning ta’siri va harakat qonunlarini tajribada tekshirish.",
-         2: "Kuchlar muvozanati va kuch momentini o‘lchash.",
-         3: "Guk qonuni va materiallarning elastik xossalarini aniqlash."}
-MT_T = {1: "Dinamika va kuchlarning ta’siri", 2: "Kinematika va grafik tahlil", 3: "Elastiklik va Guk qonuni"}
-BOLIM = [(1, 6, "Mexanika"), (7, 10, "Molekulyar fizika va termodinamika"), (11, 14, "Elektr va magnetizm"),
-         (15, 17, "Optika"), (18, 23, "Kvant, atom va yadro fizikasi"), (24, 28, "Zamonaviy fizika va metodologiya")]
-# Saytdagi ma'ruzalarga mos interaktiv modellar: (PhET slug lar, o'z simulyatorimiz id si)
-LECT_SIM = {2: (["projectile-motion"], "otilish"), 3: (["collision-lab"], None), 5: (["hookes-law"], None),
-            6: (["gravity-force-lab", "gravity-and-orbits"], None), 7: (["gas-properties"], None),
-            8: (["gas-properties"], None), 10: (["gas-properties"], None),
-            11: (["coulombs-law", "charges-and-fields"], None), 12: (["faradays-electromagnetic-lab"], None),
-            13: (["circuit-construction-kit-dc"], None), 14: (["faradays-electromagnetic-lab"], None),
-            15: (["wave-interference"], None), 16: (["bending-light", "geometric-optics"], "linza"),
-            17: (["wave-interference"], None), 18: (["photoelectric", "blackbody-spectrum"], None),
-            20: (["rutherford-scattering", "models-of-the-hydrogen-atom"], None), 21: (["alpha-decay", "nuclear-fission"], "yemirilish")}
-PHET_T = {slug: t for _, t, slug, _ in PHET}
-OWN_SIM = {"mayatnik": "Matematik mayatnik", "otilish": "Burchak ostida otilgan jism", "linza": "Yupqa linzada tasvir",
-           "yemirilish": "Radioaktiv yemirilish"}
+SIMNAME = {
+    "vernier": "Shtangensirkul (nonius) bilan o‘lchash", "kinem": "To‘g‘ri chiziqli harakat grafiklari", "projectile": "Gorizontga burchak ostida otilgan jism",
+    "newton": "Qiya tekislik: kuchlar va ishqalanish", "spring": "Guk qonuni va Yung moduli", "beam": "Sterjenning egilishi", "collision": "Markaziy to‘qnashuv",
+    "rotation": "Qiya tekislikdan dumalash va inersiya momenti", "oscill": "Mayatnik va prujinali tebrangich", "maxwell": "Maksvell tezliklar taqsimoti",
+    "gas": "Ideal gaz izojarayonlari (p–V diagramma)", "calorimeter": "Kalorimetr: issiqlik balansi", "capillary": "Sirt taranglik va kapillyarlik",
+    "archimedes": "Gidrostatik tortish (Arximed kuchi)", "coulomb": "Ikki nuqtaviy zaryad maydoni", "capacitor": "Kondensatorning zaryadlanishi (RC)",
+    "circuit": "To‘la zanjir uchun Om qonuni", "kirchhoff": "Kirxgof qoidalari: ikki konturli zanjir", "wheatstone": "Uitston ko‘prigi",
+    "vacdiode": "Vakuum diod VAX", "bfield": "Tokning magnit maydoni va tangens-galvanometr", "induction": "Elektromagnit induksiya",
+    "rlc": "Tebranish konturi va rezonans", "ac": "O‘zgaruvchan tok zanjiri: faza va quvvat", "young": "Ikki tirqishdan interferensiya",
+    "grating": "Difraksion panjara", "malus": "Malyus va Bryuster qonunlari", "lens": "Yupqa linzada tasvir", "snell": "Yorug‘likning sinishi va to‘la ichki qaytish",
+    "planck": "Absolyut qora jism nurlanishi", "photo": "Tashqi fotoeffekt", "photometry": "Yoritilganlik qonuni", "bohr": "Vodorod atomi spektri (Bor nazariyasi)",
+    "franck": "Frank–Gers tajribasi", "decay": "Radioaktiv yemirilish qonuni", "binding": "Yadroning solishtirma bog‘lanish energiyasi",
+}
+TN_TEXT = {
+    "TN1": "Kelajakdagi mutaxassislik doirasida yuzaga keladigan masalalarda hodisalarning fizik mohiyatini ajrata olish",
+    "TN2": "Zamonaviy fizik eksperimental asboblar (mikroskop, spektrograf va boshqalar) bilan tanish bo‘lish, turli fizik tajribalarni o‘tkazish ko‘nikmasiga ega bo‘lish",
+    "TN3": "Fizik qonunlarning qo‘llanilish chegaralarini aniqlay olish, fizikaning turli bo‘limlariga nazariy yondashuvlarning umumiyligini hisobga olish",
+    "TN4": "Elektr va magnit maydonlardagi hodisalar, elektromagnit induksiya, mexanik va elektromagnit tebranishlar hamda to‘lqinlar haqida bilimga ega bo‘lish",
+    "TN5": "Atomlar tuzilishi va mikrodunyo fizikasi, atom yadrosi va elementar zarralar fizikasi haqida bilimga ega bo‘lish",
+    "TN6": "Fizik qonuniyatlar bo‘yicha nazariy bilimlarni qo‘llab, tabiat qonunlariga oid asosiy masalalarni to‘g‘ri yecha olish",
+    "TN7": "Jismlarning mexanik harakati, dinamika va saqlanish qonunlari, molekulyar-kinetik nazariya va termodinamika asoslarini bilish",
+    "TN8": "O‘zgarmas va o‘zgaruvchan tok qonunlarini o‘rganish, taqqoslash va o‘lchov asboblari bilan mustaqil ishlay olish",
+    "TN9": "Geometrik, to‘lqin va kvant optikasi masalalarini farqlay olish va yecha olish",
+    "TN10": "Atom tuzilishi va mikrodunyo haqida tasavvurga ega bo‘lish",
+}
+# Fan dasturidagi TN — nazorat matritsasi (JN, ON, YaN)
+TN_MATRIX = {t: ("+", "+", "+") for t in ["TN1", "TN2", "TN3", "TN4", "TN5", "TN6"]}
+TN_MATRIX.update({"TN7": ("+", "—", "—"), "TN8": ("+", "—", "—"), "TN9": ("+", "+", "—"), "TN10": ("+", "—", "—")})
+MODULES = [("I", "Mexanika", 1, 7), ("II", "Molekulyar fizika va termodinamika", 8, 11), ("III", "Elektr va magnetizm", 12, 18), ("IV", "Optika", 19, 24), ("V", "Atom va yadro fizikasi", 25, 27)]
+AREA = {"mex": "Mexanika", "issiq": "Molekulyar fizika va termodinamika", "elektr": "Elektr va magnetizm", "optika": "Optika", "kvant": "Kvant va atom fizikasi"}
 
 
-def exists(rel):
-    return os.path.exists(os.path.join(SRC, rel))
+def fix_math(html):
+    f = lambda m: m.group(0).replace("<", "\\lt ")
+    html = re.sub(r"\\\(.*?\\\)", f, html, flags=re.S)
+    return re.sub(r"\$\$.*?\$\$", f, html, flags=re.S)
 
 
-def bolim(n):
-    for a, b, t in BOLIM:
-        if a <= n <= b:
-            return t
-    return ''
+# Oddiy matndagi (formuladan tashqaridagi) "C_k", "ε_max", "U_{z}" kabi belgilar → C<sub>k</sub>.
+# Formulalar, kod, skriptlar va teglar ichiga tegilmaydi.
+PROTECT = re.compile(r"<script\b.*?</script>|<style\b.*?</style>|<pre\b.*?</pre>|<code\b.*?</code>|<textarea\b.*?</textarea>|<[^>]+>|\$\$.*?\$\$|\\\(.*?\\\)", re.S)
+PLAIN_SUB = re.compile(r"(?<![\\A-Za-z])([A-Za-zΑ-Ωα-ω])_(?:\{([^{}<>]+)\}|([A-Za-z0-9À-ž‘’ʻ]+))")
 
 
-NAV = [("Darslik haqida", "annotatsiya.html"), ("Ma’ruzalar", "index.html#maruzalar"), ("Laboratoriya", "index.html#laboratoriya"),
-       ("Mustaqil ta’lim", "mustaqil.html"), ("Simulyatorlar", "simulyatorlar.html"), ("Baholash", "baholash.html"),
-       ("O‘qituvchi uchun", "oqituvchi.html"), ("Lug‘at", "glossariy.html"), ("Vositalar", "vositalar.html"), ("Muallif", "index.html#muallif")]
+def plain_subs(html):
+    rep = lambda m: f"{m.group(1)}<sub>{m.group(2) or m.group(3)}</sub>"
+    out, pos = [], 0
+    for m in PROTECT.finditer(html):
+        out.append(PLAIN_SUB.sub(rep, html[pos:m.start()]))
+        out.append(m.group(0))
+        pos = m.end()
+    out.append(PLAIN_SUB.sub(rep, html[pos:]))
+    return "".join(out)
 
 
-def drawer(pre, cur):
-    def a(href, txt, ok=True):
-        c = ' aria-current="page"' if href == cur else ''
-        return f'<a href="{pre}{href}"{c}>{E(txt)}</a>' if ok else f'<a class="soon" aria-disabled="true">{E(txt)}</a>'
-    g = ['<h4>Darslik</h4>', a('index.html', 'Bosh sahifa')]
-    g += [a(h, t) for t, h in NAV if '#' not in h]
-    g.append('<h4>Ma’ruzalar</h4>')
-    g += [a(f'lectures/lecture{i}.html', f'{i}. {t}', exists(f'lectures/lecture{i}.html')) for i, t in enumerate(LECT, 1)]
-    g.append('<h4>Laboratoriya ishlari</h4>')
-    g += [a(f'labs/lab{i}.html', f'L{i}. {t}', exists(f'labs/lab{i}.html')) for i, t in enumerate(LAB_N, 1)]
-    g.append('<h4>Yo‘riqnomalar (MT)</h4>')
-    g += [a(f'yoriqnomalar/MT-{i:02d}.html', f'MT-{i:02d}' + (f'. {MT_T[i]}' if i in MT_T else ''), exists(f'yoriqnomalar/MT-{i:02d}.html')) for i in range(1, 16)]
-    return ('<div class="drawer" id="drawer" role="dialog" aria-label="Menyu"><div class="drawer-bg" data-drawer-close></div>'
-            '<div class="drawer-panel"><div class="drawer-head"><span class="kicker">Mundarija</span>'
-            '<button class="icon-btn" data-drawer-close aria-label="Yopish"><i class="fas fa-xmark"></i></button></div>'
-            + '\n'.join(g) + '</div></div>')
+def write(name, html):
+    html = html_to_new(plain_subs(fix_math(html)))
+    path = os.path.join(OUT, name)
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(html)
 
 
-def page(rel, title, body, desc='', scripts=()):
-    pre = '../' * rel.count('/')
-    nav = ''.join(f'<a href="{pre}{h}"' + (' aria-current="page"' if h == rel else '') + f'>{E(t)}</a>' for t, h in NAV)
-    sc = ''.join(f'<script src="{pre}js/{s}"></script>' for s in scripts)
-    doc = f'''<!DOCTYPE html>
-<html lang="uz" data-theme="light">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{E(title)}</title>
-<meta name="description" content="{E(desc or 'Umumiy fizika — interaktiv elektron darslik')}">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="{pre}css/darslik.css">
-<script>try{{var t=localStorage.getItem('uf-theme');if(t)document.documentElement.setAttribute('data-theme',t);var m=document.cookie.match(/googtrans=\\/[a-z-]+\\/(ru|en)/);if(m)document.documentElement.setAttribute('data-tl',m[1]);}}catch(e){{}}</script>
-</head>
-<body>
-<a class="skip-link" href="#main">Asosiy mazmunga o‘tish</a>
-<header class="topbar"><div class="topbar-inner">
-<a class="brand" href="{pre}index.html"><span class="brand-icon"><i class="fas fa-atom"></i></span><span><span class="brand-title">Umumiy fizika</span><span class="brand-sub">Interaktiv elektron darslik · Bakalavriat</span></span></a>
-<nav class="nav" aria-label="Asosiy menyu">{nav}</nav>
-<div class="tools">
-<div class="lang-switch notranslate" translate="no" role="group" aria-label="Til"><button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button></div>
-<button class="icon-btn" id="themeBtn" aria-label="Kun / tun rejimi"><i class="fas fa-sun"></i></button>
-<button class="icon-btn menu-btn" data-drawer-open aria-label="Menyu"><i class="fas fa-bars"></i></button>
-</div></div></header>
-{drawer(pre, rel)}
-<main id="main">
-{body}
-</main>
-<footer class="footer">© {YIL} Umumiy fizika · Qo‘qon davlat universiteti, Fizika va astronomiya kafedrasi · Fan dasturi: {FAN['kod']}, {FAN['yil']}</footer>
-{sc}<script src="{pre}js/app.js"></script>
-</body>
-</html>
-'''
-    path = os.path.join(ROOT, rel)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    open(path, 'w', encoding='utf-8').write(doc)
+def strip_tags(s):
+    return re.sub(r"<[^>]+>|\\\(|\\\)|\\[a-zA-Z]+|[{}$]", "", s)
 
 
-def hero(crumbs, kicker, title, chips='', listen=True, pre=''):
-    cr = ' <span>/</span> '.join(f'<a href="{pre}{h}">{E(t)}</a>' if h else E(t) for t, h in crumbs)
-    lb = '<button class="btn btn-ghost listen-btn" id="listenBtn" type="button"><i class="fas fa-volume-high"></i> Tinglash</button>' if listen else ''
-    return (f'<section class="page-hero"><div class="inner"><div><nav class="crumbs" aria-label="Yo‘l">{cr}</nav>'
-            f'<div class="kicker">{kicker}</div><h1>{title}</h1><div class="chips">{chips}</div></div>{lb}</div></section>')
+def shuffled_quiz(items, seed):
+    rnd = random.Random(seed); out = []
+    for q, opts, a, ex in items:
+        idx = list(range(len(opts))); rnd.shuffle(idx)
+        out.append((q, [opts[i] for i in idx], idx.index(a), ex))
+    return out
 
 
-def doc_layout(sections, toc=True):
-    """sections: [(id, title, inner_html, hl)]"""
-    secs, links = [], []
-    for i, (sid, t, inner, hl) in enumerate(sections, 1):
-        secs.append(f'<section class="card doc-sec{" hl" if hl else ""}" id="{sid}"><h2><span class="n">{i}</span>{t}</h2>\n{inner}\n</section>')
-        links.append(f'<a href="#{sid}">{re.sub("<[^>]+>", "", t)}</a>')
-    t = f'<nav class="card toc" aria-label="Mundarija"><span class="kicker">Mundarija</span>{"".join(links)}</nav>' if toc else ''
-    return f'<div class="layout{"" if toc else " wide"}">{t}<div class="doc">\n' + '\n'.join(secs)
+def sims_of(x):
+    s = x.get("sim")
+    return [] if not s else ([s] if isinstance(s, str) else list(s))
+
+
+def sim_block(sim, uid):
+    steps = TOURS.get(sim, [])
+    lis = "".join(f"<li data-set='{json.dumps(p)}'>{t}</li>" for p, t in steps)
+    tour = (f'<div class="tour-bar"><button class="voice-btn" type="button" data-tour="tour-{uid}">{SPEAKER}<span>Ovozli namoyish</span></button>'
+            f'<span class="muted" style="font-size:.82rem">Model o‘zi parametrlarni o‘zgartirib, natijani tushuntiradi; so‘ng boshqaruv sizga o‘tadi.</span></div>'
+            f'<div class="tour-cap" aria-live="polite"></div><ol class="vh tour-steps" id="tour-{uid}">{lis}</ol>') if steps else ""
+    return f'<div class="sim-wrap"><div class="sim-box" data-sim="{sim}"></div>{tour}</div>'
+
+
+def tn_chips(tns):
+    return "".join(f'<span class="chip g" title="{TN_TEXT[t]}">{t}</span>' for t in tns)
+
+
+def refs_html(refs, intl, add=()):
+    items = [f"[{r}] {BASE_LIT[r]}" for r in refs] + [ADD_LIT[k] for k in add] + [INTL[k] for k in intl]
+    return ul(items) + '<p class="muted" style="font-size:.85rem">[1]–[5] — fan dasturidagi asosiy adabiyotlar raqamlanishi. Xalqaro darsliklar (ingliz tilida) mavzuni chuqurlashtirish uchun tavsiya etiladi; OpenStax darsliklari internetda bepul.</p>'
 
 
 def pager(prev, nxt):
-    p = f'<a class="card" href="{prev[1]}"><span class="lbl">← Oldingi</span>{E(prev[0])}</a>' if prev else '<span></span>'
-    n = f'<a class="card nx" href="{nxt[1]}"><span class="lbl">Keyingi →</span>{E(nxt[0])}</a>' if nxt else '<span></span>'
-    return f'<div class="pager">{p}{n}</div>'
+    p = card_link(prev[0], "← Oldingi", prev[1], "") if prev else "<span></span>"
+    n = card_link(nxt[0], "Keyingi →", nxt[1], "").replace('class="card"', 'class="card next"') if nxt else "<span></span>"
+    return f'<nav class="pager" aria-label="Sahifalar">{p}{n}</nav>'
 
 
-def slug(t, i):
-    s = re.sub(r'[^a-z0-9]+', '-', t.lower().replace('‘', '').replace('’', '').replace("'", '')).strip('-')
-    return (s or 's') + ('' if i is None else '')
+def lab_label(b):
+    s = b["sess"]
+    return f"{s[0]}–{s[-1]}" if len(s) > 1 else f"{s[0]}"
 
 
-def read_src(rel):
-    s = open(os.path.join(SRC, rel), encoding='utf-8').read()
-    h1 = re.search(r'<h1>(.*?)</h1>', s, re.S).group(1).strip()
-    meta = re.search(r'<p class="meta">(.*?)</p>', s)
-    secs, used = [], set()
-    for attrs, body in re.findall(r'<section([^>]*)>(.*?)</section>', s, re.S):
-        m = re.match(r'\s*<h2>(.*?)</h2>(.*)', body, re.S)
-        t, inner = m.group(1).strip(), m.group(2).strip()
-        sid = slug(t, None)
-        while sid in used:
-            sid += '-2'
-        used.add(sid)
-        secs.append((sid, t, inner, 'hl' in attrs))
-    return h1, (meta.group(1) if meta else ''), secs
+def lab_hours(b):
+    return 2 * len(b["sess"])
 
 
-def phet_link(sl):
-    return f'<a href="https://phet.colorado.edu/en/simulations/{sl}" target="_blank" rel="noopener"><span class="notranslate" translate="no">{E(PHET_T.get(sl, sl))}</span></a>'
+def mod_of(n):
+    for r, name, a, z in MODULES:
+        if a <= n <= z:
+            return r, name
 
 
-ADAB_SEC = ('<p>Fan dasturidagi asosiy adabiyotlar:</p><ol>' + ''.join(f'<li>{E(x)}</li>' for x in ADABIYOT_ASOSIY) +
-            '</ol><p>To‘liq ro‘yxat: <a href="../annotatsiya.html#adabiyotlar">Darslik haqida → Adabiyotlar</a>.</p>')
+def module_lit(n):
+    return {1: "[1, 2, 3]", 7: "[1, 2, 3, 4]", 8: "[2, 3, 4, 5]", 11: "[1, 2, 3, 4]", 12: "[1, 2, 3, 4]"}.get(n)
 
 
-# ================= Ma'ruzalar, laboratoriyalar, yo'riqnomalar =================
-def build_lectures():
-    have = [i for i in range(1, 29) if exists(f'lectures/lecture{i}.html')]
-    for k, i in enumerate(have):
-        h1, _, secs = read_src(f'lectures/lecture{i}.html')
-        if i in LECT_SIM:
-            sl, own = LECT_SIM[i]
-            li = ''.join(f'<li>{phet_link(s)} — PhET simulyatori (brauzerda ishlaydi)</li>' for s in sl)
-            if own:
-                li = f'<li><a href="../simulyatorlar.html#{own}">{OWN_SIM[own]}</a> — saytning o‘z interaktiv modeli</li>' + li
-            secs.insert(len(secs) - 1 if secs and secs[-1][3] else len(secs),
-                        ('model', 'Interaktiv model', f'<p>Mavzuni mustahkamlash uchun parametrlarni o‘zgartirib, natijani oldindan taxmin qiling va keyin tekshiring:</p><ul>{li}</ul>', False))
-        secs.append(('adabiyotlar', 'Adabiyotlar', ADAB_SEC, False))
-        chips = (f'<span class="tag notranslate" translate="no">M{i}</span><span class="tag m">2 akademik soat</span>'
-                 f'<span class="tag v">Bo‘lim: {E(bolim(i))}</span>')
-        if i in LECT_SIM:
-            chips += '<span class="tag a">Interaktiv model</span>'
-        prev = (f'{have[k-1]}-ma’ruza. {LECT[have[k-1]-1]}', f'lecture{have[k-1]}.html') if k > 0 else None
-        nxt = (f'{have[k+1]}-ma’ruza. {LECT[have[k+1]-1]}', f'lecture{have[k+1]}.html') if k + 1 < len(have) else None
-        body = (hero([('Bosh sahifa', 'index.html'), ('Ma’ruzalar', 'index.html#maruzalar'), (f'{i}-ma’ruza', '')],
-                     f'{i}-ma’ruza · M{i}', h1, chips, pre='../')
-                + doc_layout(secs) + pager(prev, nxt) + '</div></div>')
-        page(f'lectures/lecture{i}.html', f'{i}-ma’ruza. {LECT[i-1]} — Umumiy fizika', body, desc=LECT_D[i-1])
+# ---------------- Ma'ruza sahifalari ----------------
+def lecture_page(L):
+    n = L["n"]
+    sims = sims_of(L)
+    labs = [b for b in LABS if b["lec"] == n]
+    mts = [(i, t) for i, (t, plan, lec) in enumerate(other.MT, 1) if n in lec]
+    toc = [("maqsad", "Maqsad va natijalar"), ("reja", "Reja va tayanch tushunchalar"), ("nazariya", "Nazariy qism"), ("misol", "Ishlangan misollar"), ("model", "Interaktiv model"), ("si", "SI bilan ishlash"), ("xatolar", "Tipik xato tushunchalar"), ("test", "Nazorat testi"), ("blits", "Blits-so‘rov va topshiriqlar"), ("adabiyot", "Adabiyotlar"), ("oqituvchi", "O‘qituvchi uchun")]
+    S = []
+    S.append(sec("maqsad", 1, "Maqsad va kutilayotgan natijalar", f'<p>{L["goal"]}</p><h3>Mashg‘ulotdan so‘ng talaba:</h3>{ul(L["outcomes"])}<p class="muted">Fan dasturidagi ta’lim natijalari: {", ".join(f"<b>{t}</b> — {TN_TEXT[t]}" for t in L["tn"])}.</p>'))
+    terms = "".join(f'<span class="chip c">{t}</span>' for t in L["terms"])
+    S.append(sec("reja", 2, "Reja va tayanch tushunchalar", f'{ul(L["plan"], True)}<h3>Tayanch tushunchalar</h3><div class="chips">{terms}</div>'))
+    th = "".join(f"<h3>{n}.{k+1}. {h}</h3>{b}" for k, (h, b) in enumerate(L["theory"]))
+    if L.get("chem"):
+        th += f'<div class="callout info"><b>Kimyogar uchun: fizika va kimyo bog‘liqligi</b>{ul(L["chem"])}</div>'
+    S.append(sec("nazariya", 3, "Nazariy qism", th))
+    ex = L["example"] if isinstance(L["example"], list) else [L["example"]]
+    exh = "".join(f'<div class="example"><div class="ex-h">{k+1}-misol. {et}</div><div class="ex-b"><p><b>Shart.</b> {eg}</p><details><summary>Yechimni ko‘rsatish</summary><p>{es}</p></details></div></div>' for k, (et, eg, es) in enumerate(ex))
+    S.append(sec("misol", 4, "Ishlangan misollar", exh + '<div class="callout info"><b>Mustaqil tekshiring</b>Avval yechimni ochmasdan o‘zingiz yeching. So‘ng javobni interaktiv model yoki kalkulyator bilan qayta hisoblang, birliklar (SI) va kattalik tartibini tekshiring.</div>'))
+    simh = "".join(f'{"<h3>" + SIMNAME[s] + "</h3>" if len(sims) > 1 else ""}{sim_block(s, f"m{n}{k}")}' for k, s in enumerate(sims))
+    phet = ""
+    if L.get("phet"):
+        phet = '<h3>Qo‘shimcha virtual laboratoriya (PhET, Kolorado universiteti)</h3>' + ul([f'<a href="https://phet.colorado.edu/en/simulations/{slug}" target="_blank" rel="noopener"><span lang="en">{name}</span></a>' for name, slug in L["phet"]])
+    S.append(sec("model", 5, "Interaktiv model" + (f": {SIMNAME[sims[0]]}" if len(sims) == 1 else "lar"), f'{simh}<h3>Model bilan topshiriqlar</h3>{ul(L["simtask"], True)}<p class="muted" style="font-size:.85rem">Modellar o‘quv maqsadida soddalashtirilgan (havo qarshiligi, issiqlik yo‘qotishlari va asbob xatoliklari hisobga olinmagan bo‘lishi mumkin). Ularni tajriba natijalari va nazariya bilan solishtiring.</p>{phet}'))
+    S.append(sec("si", 6, "Sun’iy intellekt bilan ishlash topshirig‘i", f'<div class="callout ai"><b>Qoidalar</b>SI — tekshirilishi shart bo‘lgan yordamchi. Har bir formula va son darslik yoki mustaqil hisob bilan solishtiriladi. Baholanadigan ishda SI dan qanday foydalanilgani (prompt va tekshiruv) ilova qilinadi.</div>{prompt(f"ai-{n}", L["ai"])}<h3>Javobni tekshirish ro‘yxati</h3>{ul(["Birliklar va o‘lchamlilik to‘g‘rimi (SI)?", "Limit holatlar mantiqiymi (masalan, \\(m\\to0\\), \\(t\\to\\infty\\), \\(\\alpha\\to0\\))?", "Sonlar darslikdagi ishlangan misol bilan mos keladimi?", "Manba ko‘rsatilmagan qiymatlar “taxmin” deb belgilanganmi?"])}'))
+    S.append(sec("xatolar", 7, "Tipik xato tushunchalar", table(["Noto‘g‘ri tasavvur", "To‘g‘ri tushuncha"], L["mistakes"])))
+    S.append(sec("test", 8, f"Nazorat testi ({len(L['quiz'])} savol, o‘z-o‘zini tekshirish)", quiz(shuffled_quiz(L["quiz"], 1000 + n), f"m{n}") + '<p class="muted" style="font-size:.85rem;margin-top:.6rem">Bu test o‘z-o‘zini tekshirish uchun; rasmiy oraliq nazorat HEMIS’da o‘tkaziladi.</p>'))
+    rel = ""
+    if labs:
+        rel += "<h3>Bog‘liq laboratoriya ishlari</h3>" + ul([f'<a href="lab{b["n"]}.html">{lab_label(b)}-laboratoriya ishi. {b["title"]}</a>' for b in labs])
+    if mts:
+        rel += "<h3>Bog‘liq mustaqil ta’lim mavzulari</h3>" + ul([f'<a href="mustaqil.html#mt-{i:02d}">MT-{i:02d}. {t}</a>' for i, t in mts])
+    S.append(sec("blits", 9, "Blits-so‘rov va bog‘liq topshiriqlar", ul(L["blits"], True) + rel))
+    S.append(sec("adabiyot", 10, "Adabiyotlar", refs_html(L["refs"], L["intl"], L.get("add", ()))))
+    S.append(f'<section class="doc-sec teacher-note" id="oqituvchi"><h2>O‘qituvchi uchun: 80 daqiqalik dars rejasi</h2>{table(["Vaqt", "Bosqich", "Faoliyat"], [["0–10", "Kirish", "Blits-so‘rov (9-bo‘lim), oldingi mavzu bilan bog‘lash, muammoli savol"], ["10–45", "Nazariya", "3-bo‘lim: asosiy qonunlarni doskada keltirib chiqarish, birliklarni tahlil qilish"], ["45–60", "Model", "5-bo‘lim: modelni proyektorda namoyish qilish; talabalar avval natijani bashorat qiladi, so‘ng tekshiradi"], ["60–72", "Misol", "4-bo‘lim: talabalar juftlikda yechadi, so‘ng yechim ochiladi"], ["72–80", "Yakun", "Nazorat testidan 3–4 savol, tipik xatolar muhokamasi, mustaqil ish topshirig‘i"]])}<p class="muted">Batafsil: <a href="oqituvchi.html">o‘qituvchi qo‘llanmasi</a>.</p></section>')
+    prev = (f"lecture{n-1}.html", f"{n-1}-ma’ruza") if n > 1 else ("annotatsiya.html", "Darslik haqida")
+    nxt = (f"lecture{n+1}.html", f"{n+1}-ma’ruza") if n < NL else ("laboratoriya.html", "Laboratoriya ishlariga kirish")
+    r, mname = mod_of(n)
+    chips = [("c", f"M{n}"), ("", "2 akademik soat"), ("v", f"{r}. {mname}"), ("a", "Adabiyot: " + ", ".join(f"[{x}]" for x in L["refs"]))]
+    body = head(f"{n}-ma’ruza: {strip_tags(L['short'])}", strip_tags(L["goal"])[:160]) + header("index.html#maruzalar") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("index.html#maruzalar", "Ma’ruzalar"), ("", f"{n}-ma’ruza")], f"{n}-ma’ruza · M{n}", L["title"], "", chips, read="maqsad,reja,nazariya,misol,xatolar") + f'<div class="container" style="padding-top:1rem"><div class="chips">{tn_chips(L["tn"])}</div></div>' + doc(toc, S, pager(prev, nxt)) + "</main>" + footer(sims=True)
+    write(f"lecture{n}.html", body)
 
 
-def build_labs():
-    have = [i for i in range(1, 13) if exists(f'labs/lab{i}.html')]
-    for k, i in enumerate(have):
-        h1, _, secs = read_src(f'labs/lab{i}.html')
-        secs.append(('adabiyotlar', 'Adabiyotlar', ADAB_SEC, False))
-        chips = f'<span class="tag notranslate" translate="no">L{i}</span><span class="tag m">2 akademik soat</span><span class="tag v">Laboratoriya ishi</span>'
-        prev = (f'L{have[k-1]}. {LAB_N[have[k-1]-1]}', f'lab{have[k-1]}.html') if k > 0 else None
-        nxt = (f'L{have[k+1]}. {LAB_N[have[k+1]-1]}', f'lab{have[k+1]}.html') if k + 1 < len(have) else None
-        body = (hero([('Bosh sahifa', 'index.html'), ('Laboratoriya', 'index.html#laboratoriya'), (f'L{i}', '')],
-                     f'{i}-laboratoriya ishi · L{i}', h1, chips, pre='../') + doc_layout(secs) + pager(prev, nxt) + '</div></div>')
-        page(f'labs/lab{i}.html', f'L{i}. {LAB_N[i-1]} — Umumiy fizika', body, desc=LAB_D.get(i, ''))
+# ---------------- Laboratoriya sahifalari ----------------
+DF_RUBRIC = table(["Daraja", "Ball (20 dan)", "Mezon (fan dasturi bo‘yicha)"], [
+    ["Yuqori", "18–20", "Fizik qonunlarning mohiyatini to‘liq tushunadi, kerakli qonuniyatlarni aniq tanlaydi, chizma va zanjir sxemalarini xatosiz chizadi, yechim (o‘lchash va hisoblash) algoritmini mustaqil tuzadi."],
+    ["Yetarli", "14–17", "Asosiy qonuniyatlarni yozadi, biroq murakkabroq sxemalar va hisoblash ketma-ketligini tuzishda o‘qituvchi yordamiga tayanadi."],
+    ["Minimal", "12–13", "Faqat bitta formulaga qo‘yiladigan eng sodda masalalarni yozadi; chizma va sxemalarni mustaqil tuza olmaydi, qonuniyatni tanlashda adashadi."],
+    ["Erishilmagan", "0–11", "Ish shartini tushunmaydi, fizik qonuniyatlarni amaliyot bilan bog‘lay olmaydi, sxema va chizmalarni chiza olmaydi."]])
+SAFETY = {
+    "mex": ["Yuk va mayatniklarni ehtiyotkorlik bilan osing; tebranayotgan jism yo‘nalishida turmang.", "Shisha idishlar (piknometr, menzurka) bilan ehtiyot bo‘ling; singan shishani qo‘l bilan yig‘mang.", "Asboblarni ish tugagach dastlabki holatiga qaytaring."],
+    "issiq": ["Qaynoq suv va qizdirilgan jismlarni faqat qisqich yoki issiqbardosh qo‘lqop bilan ushlang.", "Elektr isitgichni suvsiz yoqmang; shnur va vilkaning butunligini tekshiring.", "Termometrlarni ehtiyot qiling; simob termometri singanda darhol o‘qituvchiga xabar bering."],
+    "elektr": ["Zanjirni faqat manba o‘chirilgan holda yig‘ing; o‘qituvchi tekshirmaguncha tokni ulamang.", "Ampermetrni ketma-ket, voltmetrni parallel ulang; o‘lchash chegarasini kattasidan boshlang.", "Izolyatsiyasi shikastlangan simlardan foydalanmang; ish tugagach manbani o‘chiring."],
+    "optika": ["Lazer nurini ko‘zga va boshqa talabaga yo‘naltirmang; aks etuvchi sirtlardan ehtiyot bo‘ling.", "Linza va panjaralar sirtini barmoq bilan ushlamang — faqat chetidan tuting.", "Yorug‘lik manbalari (lampa) qiziydi: ularni sovigandan keyin siljiting."],
+    "kvant": ["Yuqori kuchlanishli manbalar (fotoelement, Frank–Gers trubkasi) faqat o‘qituvchi ruxsati bilan yoqiladi.", "Simob lampasi ultrabinafsha nur chiqaradi: unga to‘g‘ridan-to‘g‘ri qaramang.", "Kompyuter tajribasida natijalarni faylga saqlang va hisobotga ilova qiling."],
+}
 
 
-def build_mt():
-    have = [i for i in range(1, 16) if exists(f'yoriqnomalar/MT-{i:02d}.html')]
-    for k, i in enumerate(have):
-        h1, meta, secs = read_src(f'yoriqnomalar/MT-{i:02d}.html')
-        secs.append(('topshirish', 'Topshirish va baholash',
-                     '<p>Bajarilgan ish belgilangan muddatda <b>HEMIS</b> tizimiga yuklanadi. Joriy nazorat mezonlari: '
-                     '<a href="../baholash.html#jn-rubrika">Baholash → JN rubrikasi</a>. Mustaqil ta’lim mavzulari: '
-                     '<a href="../mustaqil.html">Mustaqil ta’lim</a>.</p>', True))
-        chips = f'<span class="tag notranslate" translate="no">MT-{i:02d}</span><span class="tag v">Mustaqil topshiriq</span>'
-        if meta:
-            chips += ''.join(f'<span class="tag m">{E(x.strip())}</span>' for x in meta.split('|'))
-        prev = (f'MT-{have[k-1]:02d}', f'MT-{have[k-1]:02d}.html') if k > 0 else None
-        nxt = (f'MT-{have[k+1]:02d}', f'MT-{have[k+1]:02d}.html') if k + 1 < len(have) else None
-        body = (hero([('Bosh sahifa', 'index.html'), ('Mustaqil ta’lim', 'mustaqil.html'), (f'MT-{i:02d}', '')],
-                     f'Yo‘riqnoma · MT-{i:02d}', h1, chips, pre='../') + doc_layout(secs) + pager(prev, nxt) + '</div></div>')
-        page(f'yoriqnomalar/MT-{i:02d}.html', f'MT-{i:02d}. {h1} — Umumiy fizika', body)
+def lab_page(b):
+    n = b["n"]
+    sims = sims_of(b)
+    toc = [("maqsad", "Ishning maqsadi"), ("jihoz", "Asbob va jihozlar"), ("nazariy", "Nazariy asos"), ("tartib", "Bajarish tartibi"), ("jadval", "O‘lchash jadvali"), ("hisob", "Hisoblash va xatolik")]
+    if sims: toc.append(("model", "Virtual model"))
+    toc += [("kod", "Python bilan ishlov"), ("savollar", "Nazorat savollari"), ("xavfsizlik", "Xavfsizlik"), ("baho", "Hisobot va baholash")]
+    lec = b["lec"]
+    S = [sec("maqsad", 1, "Ishning maqsadi", f'<p>{b["goal"]}</p><p class="muted">Nazariy asos: <a href="lecture{lec}.html">{lec}-ma’ruza</a>. Ta’lim natijalari: {", ".join(f"<b>{t}</b>" for t in b["tn"])}. Hajmi: {lab_hours(b)} akademik soat{" (ikki mashg‘ulot)" if len(b["sess"]) > 1 else ""}.</p><div class="callout info"><b>Tayyorgarlik</b>Mashg‘ulotdan oldin nazariy asos va bajarish tartibini o‘qing, o‘lchash jadvalini daftarga chizib keling. Xatoliklarni hisoblash qoidalari: <a href="laboratoriya.html#xatolik">laboratoriya ishlariga kirish</a>.</div>'),
+         sec("jihoz", 2, "Asbob va jihozlar", ul(b["equip"])),
+         sec("nazariy", 3, "Nazariy asos", b["theory"]),
+         sec("tartib", 4, "Ishni bajarish tartibi", ul(b["steps"], True)),
+         sec("jadval", 5, "O‘lchash natijalari jadvali", '<p class="muted">Quyida namunaviy (o‘quv) natijalar keltirilgan. Hisobotda o‘zingiz o‘lchagan qiymatlarni yozing.</p>' + table(b["table"][0], b["table"][1])),
+         sec("hisob", 6, "Natijalarni hisoblash va xatolikni baholash", b["calc"])]
+    if sims:
+        simh = "".join(f'{"<h3>" + SIMNAME[s] + "</h3>" if len(sims) > 1 else ""}{sim_block(s, f"l{n}{k}")}' for k, s in enumerate(sims))
+        S.append(sec("model", 7, "Virtual model (tayyorgarlik va tekshiruv uchun)", simh + '<p class="muted" style="font-size:.85rem">Virtual model haqiqiy tajribaning o‘rnini bosmaydi: undan bashorat qilish va natijangizni tekshirish uchun foydalaning.</p>'))
+    k = len(S)
+    S.append(sec("kod", k + 1, "Kompyuterda ishlov berish (Python)", f'<p class="muted">Kodni Google Colab yoki Jupyter’da ishga tushiring, namunaviy sonlar o‘rniga o‘z o‘lchovlaringizni kiriting va natijani qo‘lda hisob bilan solishtiring.</p>{code(f"code-{n}", b["code"])}'))
+    S.append(sec("savollar", k + 2, "Nazorat savollari", ul(b["questions"], True)))
+    S.append(sec("xavfsizlik", k + 3, "Xavfsizlik texnikasi", ul(SAFETY[b["area"]] + ["Laboratoriyada ovqatlanish, telefonni asbob ustiga qo‘yish va ruxsatsiz asbobni yoqish taqiqlanadi."])))
+    S.append(sec("baho", k + 4, "Hisobot va baholash", '<h3>Hisobot tarkibi</h3>' + ul(["Ish nomi, maqsadi, asbob va jihozlar ro‘yxati", "Qurilma (zanjir) sxemasi va asosiy hisoblash formulasi", "O‘lchash natijalari jadvali (birliklari bilan)", "Hisoblash, absolyut va nisbiy xatolik; natija \\(x=\\bar x\\pm\\Delta x\\) ko‘rinishida", "Grafik (zarur bo‘lsa) va xulosa: natijani jadvaldagi qiymat bilan taqqoslash, xatolik manbalari"], True) + "<h3>Laboratoriya mashg‘ulotlaridagi faollik (JN tarkibidagi 20 ball)</h3>" + DF_RUBRIC + '<p class="muted" style="font-size:.85rem">Fan dasturiga ko‘ra laboratoriya mashg‘ulotlaridagi faollik (DF) semestr davomida jami 20 ball bilan baholanadi. Rasmiy ball HEMIS’da qo‘yiladi.</p>'))
+    i = LABS.index(b)
+    prev = (f"lab{LABS[i-1]['n']}.html", f"{lab_label(LABS[i-1])}-laboratoriya") if i > 0 else ("laboratoriya.html", "Laboratoriyaga kirish")
+    nxt = (f"lab{LABS[i+1]['n']}.html", f"{lab_label(LABS[i+1])}-laboratoriya") if i < len(LABS) - 1 else ("mustaqil.html", "Mustaqil ta’lim")
+    chips = [("c", "L" + lab_label(b).replace("–", "–L")), ("", f"{lab_hours(b)} akademik soat"), ("v", AREA[b["area"]]), ("a", f"Ma’ruza: M{lec}")]
+    body = head(f"{lab_label(b)}-laboratoriya ishi: {strip_tags(b['title'])}", strip_tags(b["goal"])[:160]) + header("index.html#laboratoriya") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("index.html#laboratoriya", "Laboratoriya"), ("", f"L{lab_label(b)}")], f"{lab_label(b)}-laboratoriya ishi", b["title"], "", chips, read="maqsad,nazariy,tartib") + f'<div class="container" style="padding-top:1rem"><div class="chips">{tn_chips(b["tn"])}</div></div>' + doc(toc, S, pager(prev, nxt)) + "</main>" + footer(sims=bool(sims))
+    write(f"lab{n}.html", body)
+    for s in b["sess"][1:]:
+        redirect(f"lab{s}.html", f"lab{n}.html", f"{lab_label(b)}-laboratoriya ishi")
 
 
-# ================= Fan dasturi sahifalari =================
-def table(head, rows, cls=()):
-    th = ''.join(f'<th{" class=c" if i in cls else ""}>{h}</th>' for i, h in enumerate(head))
-    tr = ''.join('<tr>' + ''.join(f'<td{" class=c" if i in cls else ""}>{c}</td>' for i, c in enumerate(r)) + '</tr>' for r in rows)
-    return f'<div class="tbl-wrap"><table><thead><tr>{th}</tr></thead><tbody>{tr}</tbody></table></div>'
+def redirect(name, target, title):
+    depth = name.count("/")
+    pre = "../" * depth
+    html = f"""<!doctype html><html lang="uz"><head><meta charset="UTF-8"><title>{esc(title)} — {SITE}</title><meta http-equiv="refresh" content="0; url={pre}{target}"><link rel="canonical" href="{pre}{target}"><meta name="robots" content="noindex"></head><body><p>Sahifa ko‘chirildi: <a href="{pre}{target}">{esc(title)}</a></p></body></html>
+"""
+    write(name, html)
 
 
-def build_annotatsiya():
-    f = FAN
-    info = table(['Ko‘rsatkich', 'Qiymat'], [
-        ['Fan nomi', f['nomi']], ['Fan kodi', f'<span class="mono">{f["kod"]}</span>'], ['O‘quv yili', f['yil']], ['Semestr', f['semestr']],
-        ['ECTS kreditlar', f['ects']], ['Fan turi', f['turi']], ['O‘qitish tili', f['til']],
-        ['O‘quv rejadagi tartib raqami', f['tartib']], ['Haftalik soat', f['hafta_soat']],
-        ['Umumiy yuklama', f'{f["jami"]} soat: ma’ruza — {f["maruza"]}, laboratoriya — {f["lab"]}, mustaqil ta’lim — {f["mustaqil"]} (auditoriya — {f["auditoriya"]})'],
-        ['Bilim sohasi', f['bilim_sohasi']], ['Ta’lim sohasi', f['talim_sohasi']], ['Ta’lim yo‘nalishi', f['yonalish']],
-        ['Fakultet / kafedra', f'{f["fakultet"]} / {f["kafedra"]}']])
-    tn = ('<h3>Kasbiy kompetensiyalar</h3><ul>' + ''.join(f'<li><b class="notranslate" translate="no">{c}</b> — {E(t)}</li>' for c, k, t in TN if k == 'k') +
-          '</ul><h3>Ko‘nikmalar</h3><ul>' + ''.join(f'<li><b class="notranslate" translate="no">{c}</b> — {E(t)}</li>' for c, k, t in TN if k == 'n') + '</ul>')
-    mar = table(['#', 'Mavzu va mazmuni', 'Soat', 'Adabiyot'],
-                [[f'<span class="mono">M{i}</span>', f'<b>{E(t)}</b><br><span style="color:var(--text-2)">{E(d)}</span>', '2', f'[{a}]']
-                 for i, (t, d, a) in enumerate(MARUZA, 1)], cls=(2,))
-    lab = table(['#', 'Laboratoriya mashg‘uloti mavzusi', 'Soat'], [[f'<span class="mono">L{i}</span>', E(t), '2'] for i, t in enumerate(LAB, 1)], cls=(2,))
-    adab = ('<h3>Asosiy adabiyotlar</h3><ol>' + ''.join(f'<li>{E(x)}</li>' for x in ADABIYOT_ASOSIY) + '</ol>'
-            '<h3>Qo‘shimcha adabiyotlar</h3><ol>' + ''.join(f'<li>{E(x)}</li>' for x in ADABIYOT_QOSHIMCHA) + '</ol>'
-            '<h3>Axborot resurslari</h3><ul>' + ''.join(f'<li><a href="{u}" target="_blank" rel="noopener">{E(t)}</a></li>' for t, u in RESURS) + '</ul>')
-    muall = ('<h3>Tuzuvchilar</h3><ul>' + ''.join(f'<li><b>{E(n)}</b> — {E(r)}</li>' for n, r in TUZUVCHI) + '</ul>'
-             '<h3>Taqrizchilar</h3><ul>' + ''.join(f'<li><b>{E(n)}</b> — {E(r)}</li>' for n, r in TAQRIZCHI) + '</ul>'
-             f'<p>Fan dasturi {E(f["fakultet"])} Kengashida muhokama qilingan va tasdiqlashga tavsiya etilgan; '
-             f'{E(f["kafedra"])} tomonidan taqdim etilgan. Elektron imzo bilan tasdiqlangan (cams.kokandsu.uz, ID: 2397).</p>')
-    secs = [('malumot', 'Fan haqida ma’lumot', info, False),
-            ('maqsad', 'Maqsad va vazifalar', f'<p><b>Fanning maqsadi</b> — {E(MAQSAD)}</p><p><b>Fanning vazifasi</b> — {E(VAZIFA)}</p>', False),
-            ('prerekvizit', 'Prerekvizitlar', '<ol>' + ''.join(f'<li>{E(n)} (<span class="mono">{c}</span>)</li>' for n, c in PREREKV) + '</ol>', False),
-            ('natijalar', 'Ta’lim natijalari (TN)', tn, True),
-            ('maruzalar', f'Ma’ruza mavzulari — {f["maruza"]} soat', '<p>Fan dasturida tasdiqlangan 27 ta ma’ruza mavzusi:</p>' + mar, False),
-            ('laboratoriya', f'Laboratoriya mashg‘ulotlari — {f["lab"]} soat', lab, False),
-            ('mustaqil', f'Mustaqil ta’lim — {f["mustaqil"]} soat', f'<p>45 ta mavzu bo‘yicha taqdimot tayyorlash (har biri 4 soat). To‘liq ro‘yxat va talablar: <a href="mustaqil.html">Mustaqil ta’lim</a>.</p>', False),
-            ('texnologiya', 'Ta’lim texnologiyalari va usullari', '<ul>' + ''.join(f'<li>{E(x)}</li>' for x in TEXNOLOGIYA) + '</ul>', False),
-            ('kredit', 'Kredit olish uchun talablar', '<p>Talaba:</p><ul>' + ''.join(f'<li>{E(x)}</li>' for x in KREDIT) +
-             f'</ul><p>Fan bo‘yicha belgilangan barcha topshiriqlarni muvaffaqiyatli bajargan va baholash mezonlari asosida yetarli ball to‘plagan talabaga <b>{f["ects"]} ECTS</b> kredit beriladi. Baholash tartibi: <a href="baholash.html">Baholash</a>.</p>', True),
-            ('adabiyotlar', 'Adabiyotlar va axborot resurslari', adab, False),
-            ('tuzuvchilar', 'Tuzuvchilar va taqrizchilar', muall, False)]
-    chips = (f'<span class="tag notranslate" translate="no">{f["kod"]}</span><span class="tag m">{f["yil"]}</span>'
-             f'<span class="tag g">{f["ects"]} ECTS · {f["jami"]} soat</span><span class="tag v">{E(f["yonalish"])}</span>')
-    body = hero([('Bosh sahifa', 'index.html'), ('Darslik haqida', '')], 'Darslik haqida · Fan dasturi', 'Annotatsiya, ta’lim natijalari va fan mazmuni', chips) + doc_layout(secs) + '</div></div>'
-    page('annotatsiya.html', 'Darslik haqida — Umumiy fizika', body, desc='Umumiy fizika fan dasturi: maqsad, ta’lim natijalari, mavzular, adabiyotlar.')
+def lab_intro_page():
+    I = INTRO
+    toc = [(sid, t) for sid, t, _ in I["sections"]] + [("test", "O‘z-o‘zini tekshirish")]
+    S = [sec(sid, k + 1, t, b) for k, (sid, t, b) in enumerate(I["sections"])]
+    S.append(sec("test", len(S) + 1, "O‘z-o‘zini tekshirish testi", quiz(shuffled_quiz(I["quiz"], 77), "lab0")))
+    body = head("Laboratoriya ishlariga kirish", "O‘lchash xatoliklari, natijalarni qayta ishlash, xavfsizlik va hisobot talablari") + header("index.html#laboratoriya") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("index.html#laboratoriya", "Laboratoriya"), ("", "Kirish")], "Laboratoriya praktikumi · 66 soat", "Laboratoriya ishlariga kirish: o‘lchash va xatoliklar", "Fizik kattaliklarni o‘lchash, xatoliklarni baholash (GUM), grafik qurish, xavfsizlik qoidalari va hisobot talablari.", [("c", "33 mashg‘ulot"), ("", "29 ta ish"), ("g", "TN2, TN6, TN8")], read=",".join(s[0] for s in I["sections"][:3])) + doc(toc, S, pager(("lecture27.html", "27-ma’ruza"), (f"lab{LABS[0]['n']}.html", "1-laboratoriya ishi"))) + "</main>" + footer()
+    write("laboratoriya.html", body)
 
 
-def build_baholash():
-    umum = table(['Nazorat turi', 'Maks. ball', 'Saralash bali', 'Baholash vositalari'],
-                 [[f'<b>{E(n)}</b>', str(m), str(s), E(v)] for n, m, s, v in NAZORAT] + [['<b>Jami</b>', '<b>100</b>', '—', '—']], cls=(1, 2))
-    baho = table(['Umumiy ball', 'Baho', 'Ta’lim natijalariga erishish tavsifi'], [[f'<span class="mono">{b}</span>', f'<b>{E(n)}</b>', E(t)] for b, n, t in BAHO])
-    note = '<div class="box note"><b>Eslatma.</b> JN, ON va YaN bo‘yicha saralash talabi alohida qo‘llanadi: bir nazorat turidagi yetishmagan ball boshqa nazorat turidagi yuqori ball hisobiga qoplanmaydi.</div>'
-    sym = {'+': '<span class="ok">+</span>', '-': '<span style="color:var(--muted)">—</span>'}
-    mat = table(['TN', 'Baholanadigan bilim / ko‘nikma / kompetensiya', 'JN', 'ON', 'YaN'],
-                [[f'<b class="notranslate" translate="no">{c}</b>', E(t), *[sym[x] for x in TN_MATRIX[c]]] for c, _, t in TN], cls=(2, 3, 4))
-    mat += '<p style="color:var(--text-2);font-size:14px">Baholash vositalari: laboratoriya mashg‘uloti, mustaqil ta’lim, test, yozma ish.</p>'
-    jn = table(['Mezon', 'Ball', 'Yuqori daraja', 'Yetarli daraja', 'Minimal daraja', 'Erishilmagan'],
-               [[f'<b>{E(m)}</b>', str(b), E(a), E(y), E(mi), E(e)] for m, b, a, y, mi, e in JN_RUBRIKA] + [['<b>Jami</b>', '<b>30</b>', 'Ko‘pi bilan 30 ball', '', '', '']], cls=(1,))
-    on = ('<p>Oraliq nazorat o‘quv jarayonining <b>12-haftasida HEMIS</b> axborot tizimi orqali test shaklida o‘tkaziladi: '
-          '20 ta savol, ko‘pi bilan 20 ball. Testda elektrostatika, o‘zgarmas tok va magnit maydon qonuniyatlarini bilish va qo‘llash tekshiriladi.</p>'
-          + table(['Daraja', 'Ball', 'Tavsif'], [[n, b, E(t)] for n, (b, t) in zip(['Yuqori (a’lo)', 'Yetarli (yaxshi)', 'Minimal (qoniqarli)', 'Erishilmagan'], ON_RUBRIKA)]))
-    yan = ('<p>Yakuniy nazorat attestatsiya haftasida <b>yozma ish</b> shaklida o‘tkaziladi, ko‘pi bilan 50 ball. Har bir variantda 4 ta topshiriq: '
-           '3 ta nazariy savol va 1 ta amaliy keys.</p>')
-    for nm, b, lv, extra in YAN_RUBRIKA:
-        yan += f'<h3>{E(nm)} — {b} ball</h3><ul>' + ''.join(f'<li>{E(x)}</li>' for x in lv) + '</ul>' + (f'<div class="box">{E(extra)}</div>' if extra else '')
-    calc = ('<p>Ballaringizni kiriting — jami ball va baho avtomatik hisoblanadi, har bir nazorat turi bo‘yicha saralash bali tekshiriladi.</p>'
-            '<div class="calc" id="calc">'
-            '<label>JN (0–30)<input id="c_jn" type="number" min="0" max="30" step="0.5" value="24"></label>'
-            '<label>ON (0–20)<input id="c_on" type="number" min="0" max="20" step="0.5" value="15"></label>'
-            '<label>YaN (0–50)<input id="c_yan" type="number" min="0" max="50" step="0.5" value="38"></label>'
-            '<div class="calc-out" id="calcOut" aria-live="polite"></div></div>')
-    secs = [('umumiy', 'Baholashning umumiy tartibi', umum, False), ('baho', 'Fan bo‘yicha bahoni aniqlash', baho + note, True),
-            ('kalkulyator', 'Baho kalkulyatori', calc, True), ('matritsa', 'Ta’lim natijalari va baholash vositalari muvofiqligi', mat, False),
-            ('jn-rubrika', 'Joriy nazorat rubrikasi — 30 ball', jn, False), ('on-rubrika', 'Oraliq nazorat rubrikasi — 20 ball', on, False),
-            ('yan-rubrika', 'Yakuniy nazorat rubrikasi — 50 ball', yan, False)]
-    chips = '<span class="tag">JN 30</span><span class="tag">ON 20</span><span class="tag">YaN 50</span><span class="tag g">Saralash: 18 / 12 / 30</span><span class="tag a">HEMIS</span>'
-    body = hero([('Bosh sahifa', 'index.html'), ('Baholash', '')], 'Baholash · Fan dasturi, 9-bo‘lim', 'JN · ON · YaN rubrikalari va baho kalkulyatori', chips) + doc_layout(secs) + '</div></div>'
-    page('baholash.html', 'Baholash — Umumiy fizika', body, desc='Joriy, oraliq va yakuniy nazorat mezonlari, baho kalkulyatori.')
+# ---------------- Bosh sahifa ----------------
+def index_page():
+    mods = ""
+    for r, name, a, z in MODULES:
+        cards = "".join(card_link(f"lecture{L['n']}.html", f"{L['n']}-ma’ruza", L["short"], strip_tags(L["goal"])[:115] + "…") for L in LECT if a <= L["n"] <= z)
+        mods += f'<h3 class="mod-h" style="margin:1.6rem 0 .8rem">{r}. {name} <span class="muted" style="font-weight:500;font-size:.9rem">· M{a}–M{z}</span></h3><div class="grid grid-3">{cards}</div>'
+    lab_cards = card_link("laboratoriya.html", "Kirish", "O‘lchash, xatoliklar va xavfsizlik", "Laboratoriya ishlaridan oldin o‘qiladi: GUM, Styudent koeffitsiyenti, grafik, hisobot.")
+    lab_cards += "".join(card_link(f"lab{b['n']}.html", f"L{lab_label(b)}", b["title"], f"{AREA[b['area']]} · M{b['lec']} · {lab_hours(b)} soat") for b in LABS)
+    allsims = {}
+    for L in LECT:
+        for s in sims_of(L): allsims.setdefault(s, f"lecture{L['n']}.html")
+    for b in LABS:
+        for s in sims_of(b): allsims.setdefault(s, f"lab{b['n']}.html")
+    steps = [("1", "Diagnostika", "Blits-so‘rov va o‘z-o‘zini tekshirish testi orqali boshlang‘ich bilimni aniqlash."), ("2", "Nazariya", "Asosiy qonunlar keltirib chiqariladi, birliklar va qo‘llanish chegaralari ko‘rsatiladi."), ("3", "Interaktiv model", f"{len(SIMNAME)} ta brauzer modeli: parametrni o‘zgartiring, bashorat qiling, tekshiring."), ("4", "Masala", "Ishlangan misollar va tipik xatolar tahlili."), ("5", "Laboratoriya", "O‘lchash, xatolikni baholash va Python bilan natijani qayta ishlash."), ("6", "Taqdimot va keys", "Mustaqil ta’lim: 45 mavzu bo‘yicha taqdimot va amaliy keys-stadi.")]
+    st = "".join(f'<article class="card"><span class="badge">QADAM {a}</span><h3>{b}</h3><p class="muted">{c}</p></article>' for a, b, c in steps)
+    html = head("Bosh sahifa", f"Umumiy fizika — bakalavriat uchun interaktiv ovozli elektron darslik: 27 ma’ruza, 33 laboratoriya mashg‘uloti, 45 mustaqil ta’lim mavzusi, {len(SIMNAME)} interaktiv model.") + header() + f"""<main id="main">
+<section class="hero"><div class="container"><div class="eyebrow">60530100 — Kimyo · Bakalavriat · {CODE} · 1–2-semestr</div><h1>Tabiat qonunlarini <span>tushuning, o‘lchang va modellashtiring.</span></h1><p class="lead">Mexanikadan atom yadrosigacha — fan dasturi asosidagi ochiq interaktiv elektron darslik: har bir ma’ruza ovozli o‘qiladi, formulalar so‘z bilan aytiladi, har bir qonunni brauzerdagi modelda sinab ko‘rish mumkin. Baholash va rasmiy topshirish HEMIS orqali amalga oshiriladi.</p>
+<div class="grid grid-4" style="margin-top:2rem"><div class="card"><div class="eyebrow">01</div><h3>27 ta ma’ruza</h3><p class="muted">54 soat: nazariya, ishlangan misollar, ovozli o‘qish va 10 savolli test.</p></div><div class="card"><div class="eyebrow">02</div><h3>{len(LABS)} ta laboratoriya ishi</h3><p class="muted">66 soat (33 mashg‘ulot): tartib, jadval, xatolik hisobi va Python.</p></div><div class="card"><div class="eyebrow">03</div><h3>45 ta mustaqil ish</h3><p class="muted">180 soat: taqdimot rejalari va keys-stadi banki.</p></div><div class="card"><div class="eyebrow">04</div><h3>{len(SIMNAME)} ta model</h3><p class="muted">Brauzerda ishlaydigan, ovozli namoyishli interaktiv modellar.</p></div></div></div></section>
+<section id="darslik" class="section"><div class="container"><div class="section-head"><div class="eyebrow">Darslik haqida</div><h2>Annotatsiya, baholash va ilovalar</h2><p class="muted">10 ECTS kredit (300 soat), 1–2-semestr. Darslik fan dasturi, ECTS va xalqaro sifat mezonlariga muvofiq tuzilgan.</p></div><div class="grid grid-3">
+{card_link("annotatsiya.html", "Kirish", "Annotatsiya, mundarija va xalqaro standartlar", "Bibliografik ma’lumot, uch tildagi annotatsiya, ta’lim natijalari va sifat mezonlariga muvofiqlik.")}
+{card_link("baholash.html", "Baholash", "JN · ON · YaN rubrikalari", "100 ballik tizim, saralash ballari, TN–nazorat matritsasi va baho kalkulyatori.")}
+{card_link("oqituvchi.html", "O‘qituvchi", "O‘qituvchi uchun qo‘llanma", "30 haftalik taqvim, dars rejasi shablonlari, laboratoriyani tashkil etish va SI siyosati.")}
+{card_link("mustaqil.html", "Mustaqil ta’lim", "45 mavzu va keys-stadi banki", "Har bir mavzu uchun reja, manbalar va taqdimot talablari; kimyo va texnikaga oid keyslar.")}
+{card_link("glossariy.html", "1-ilova", "Atamalar lug‘ati", f"{len(other.GLOSS)} ta atama: o‘zbekcha–ruscha–inglizcha, qisqa ta’rif va mavzu havolasi.")}
+{card_link("vositalar.html", "2-ilova", "Dasturiy vositalar", "PhET, Python, Tracker, GeoGebra va boshqa bepul vositalar.")}
+</div></div></section>
+<section id="model" class="section"><div class="container"><div class="section-head"><div class="eyebrow">O‘quv modeli</div><h2>Har bir mavzu bo‘yicha olti qadam</h2><p class="muted">Nazariya, interaktiv model, masala va laboratoriya tajribasi bitta o‘quv sikliga birlashtirilgan.</p></div><div class="grid grid-3">{st}</div></div></section>
+<section id="maruzalar" class="section"><div class="container"><div class="section-head"><div class="eyebrow">Ma’ruzalar · 54 soat</div><h2>27 ta ma’ruza — besh modul</h2><p class="muted">Har bir ma’ruza sahifasida “Tinglash” tugmasi bor: matn tabiiy o‘zbekcha ovozda o‘qiladi.</p></div>{mods}</div></section>
+<section id="laboratoriya" class="section"><div class="container"><div class="section-head"><div class="eyebrow">Laboratoriya mashg‘ulotlari · 66 soat</div><h2>{len(LABS)} ta laboratoriya ishi (33 mashg‘ulot)</h2><p class="muted">Har birida asbob-jihozlar, bajarish tartibi, namunaviy o‘lchash jadvali, xatolik hisobi, Python kodi va nazorat savollari.</p></div><div class="grid grid-3">{lab_cards}</div></div></section>
+<section id="simulyatorlar" class="section"><div class="container"><div class="section-head"><div class="eyebrow">Interaktiv modellar</div><h2>Fizik jarayonlar simulyatorlari</h2><p class="muted">Quyida ikkita model; barchasi <a href="simulyatorlar.html">simulyatorlar sahifasida</a>.</p></div>
+{sim_block("projectile", "i1")}<div style="margin-top:1.4rem">{sim_block("lens", "i2")}</div></div></section>
+<section id="ai-lab" class="section"><div class="container"><div class="section-head"><div class="eyebrow">SI integratsiyasi</div><h2>Prompt generatori</h2><p class="muted">Mavzu va rolni tanlang — tekshiruv qoidalari kiritilgan tayyor prompt hosil bo‘ladi.</p></div><div class="grid grid-2"><div class="card"><label class="control">Mavzu<select id="p-topic">{''.join(f'<option>{strip_tags(L["short"])}</option>' for L in LECT)}</select></label><label class="control" style="margin-top:.8rem">Daraja<select id="p-level"><option>Boshlang‘ich</option><option selected>O‘rta</option><option>Ilg‘or</option></select></label><label class="control" style="margin-top:.8rem">Rol<select id="p-role"><option value="student">talaba</option><option value="teacher">o‘qituvchi</option></select></label><button class="primary" id="gen-prompt" style="margin-top:1rem" type="button">Prompt yaratish</button></div><div class="card"><div class="prompt-box"><button class="secondary copy" type="button" data-copy="p-out">Nusxalash</button><pre id="p-out">Prompt shu yerda ko‘rinadi…</pre></div></div></div></div></section>
+<section id="hemis" class="section"><div class="container"><div class="card" style="border-left:4px solid #38bdf8"><div class="eyebrow">Rasmiy jarayonlar</div><h2>Baholash va topshiriqlarni topshirish — HEMIS’da</h2><p class="muted">Ushbu sayt ochiq o‘quv materiallari to‘plami bo‘lib, hisob yaratmaydi va baho qo‘ymaydi. Mustaqil ta’lim topshiriqlari (1-MT, 2-MT), oraliq nazorat testi (12-hafta) va yakuniy nazorat natijalari universitetning HEMIS axborot tizimida belgilangan tartibda yuritiladi.</p></div></div></section>
+<section id="muallif" class="section"><div class="container"><div class="card author-card"><div class="author-info"><div class="eyebrow">Muallif</div><h2>{AUTHOR_FULL}</h2><p class="author-role">Elektron darslik muallifi</p><p class="muted">Qo‘qon davlat universiteti, Fizika va astronomiya kafedrasi.</p><p class="muted">Fan dasturini tuzuvchilar: Meliqo‘ziyev Dadaqo‘zi Jo‘raqo‘ziyevich (PhD), Mirsultonov Ilhomjon Mirzaxakimovich (PhD). Taqrizchilar: N.X. Yo‘ldoshev — f.-m.f.d., professor (Farg‘ona davlat texnika universiteti); F.O. Dadaboyeva — p.f.f.d. (PhD), dotsent (Qo‘qon davlat universiteti).</p><p class="muted" style="font-size:.85rem">Dizayn va tuzilma: I.M. Eshboltayevning “Yarimo‘tkazgich asboblar fizikasi” interaktiv elektron darsligi asosida.</p></div></div></div></section>
+</main>""" + footer(sims=True)
+    write("index.html", html)
 
 
-def build_mustaqil():
-    tal = ('<p>Mustaqil ta’lim fan dasturiga ko‘ra <b>180 soat</b> bo‘lib, 45 ta mavzu bo‘yicha taqdimot tayyorlashdan iborat (har biri 4 soat). '
-           'Joriy nazoratda ikki topshiriq baholanadi:</p><ul>'
-           '<li><b>1-MT — taqdimot va himoya (5 ball).</b> Qo‘shimcha ilmiy-uslubiy adabiyotlardan foydalanilgan, fizik jarayonlar, formulalar va chizmalar mantiqan izchil bayon qilingan bo‘lishi; himoyada fikrni mustaqil ifodalash talab etiladi.</li>'
-           '<li><b>2-MT — keys-stadi tahlili va yechimi (5 ball).</b> Fizik qonunlarni hayotiy yoki amaliy muammoga qo‘llab, asoslangan yechim taklif qilish.</li></ul>'
-           '<div class="box note">Ish belgilangan muddatda <b>HEMIS</b> tizimiga yuklanishi shart; muddatida yuklanmagan ish baholanmaydi. Ko‘chirmachilik minimal darajadan past baholanadi.</div>')
-    tav = ('<p>Quyidagi tavsiyalar JN rubrikasining “yuqori daraja” mezonlaridan kelib chiqadi:</p><ol>'
-           '<li>Mavzuning fizik mohiyati va asosiy qonuniyatlarini aniq ifodalang; formulalarni kattaliklar va birliklar bilan bering.</li>'
-           '<li>Har bir muhim fikrni chizma, sxema yoki grafik bilan ko‘rsating.</li>'
-           '<li>Asosiy darslikdan tashqari kamida bitta qo‘shimcha manbadan foydalaning va slayd oxirida manbalarni keltiring.</li>'
-           '<li>Mavzuga oid hayotiy yoki texnik misol, iloji bo‘lsa simulyator yoki tajriba natijasini qo‘shing.</li>'
-           '<li>Himoyaga tayyor matnsiz, o‘z so‘zlaringiz bilan gapirishga tayyorlaning.</li></ol>')
-    rows = [[f'<span class="mono">{i}</span>', E(t), '4', 'Taqdimot'] for i, t in enumerate(MUSTAQIL, 1)]
-    mtl = '<div class="grid">' + ''.join(
-        (f'<a class="card" href="yoriqnomalar/MT-{i:02d}.html"><span class="tag">MT-{i:02d}</span><h3>{E(MT_T[i])}</h3><p>Nazariy savollar, masala yechish va amaliy tahlil.</p></a>'
-         if exists(f'yoriqnomalar/MT-{i:02d}.html') else
-         f'<div class="card soon"><div class="card-body"><span class="tag">MT-{i:02d}</span> <span class="tag m">tez orada</span><h3>Mustaqil topshiriq {i}</h3><p>Material tayyorlanmoqda.</p></div></div>')
-        for i in range(1, 16)) + '</div>'
-    secs = [('talablar', 'Talablar va baholash', tal, True),
-            ('mavzular', '45 ta mavzu — fan dasturi bo‘yicha', table(['#', 'Mavzu', 'Soat', 'Shakl'], rows, cls=(2,)), False),
-            ('taqdimot', 'Taqdimot tayyorlash bo‘yicha tavsiyalar', tav, False),
-            ('yoriqnomalar', 'Yo‘riqnomalar (MT)', mtl, False)]
-    chips = '<span class="tag">180 soat</span><span class="tag">45 mavzu</span><span class="tag v">1-MT: taqdimot · 2-MT: keys-stadi</span>'
-    body = hero([('Bosh sahifa', 'index.html'), ('Mustaqil ta’lim', '')], 'Mustaqil ta’lim · Fan dasturi, 6-bo‘lim', 'Mustaqil ta’lim mavzulari va topshiriqlari', chips) + doc_layout(secs) + '</div></div>'
-    page('mustaqil.html', 'Mustaqil ta’lim — Umumiy fizika', body, desc='Fan dasturidagi 45 ta mustaqil ta’lim mavzusi va topshiriq talablari.')
+# ---------------- Simulyatorlar ----------------
+def sims_page():
+    used = {}
+    for L in LECT:
+        for s in sims_of(L): used.setdefault(s, []).append((f"lecture{L['n']}.html#model", f"M{L['n']}"))
+    for b in LABS:
+        for s in sims_of(b): used.setdefault(s, []).append((f"lab{b['n']}.html#model", f"L{lab_label(b)}"))
+    groups = [("Mexanika", ["vernier", "kinem", "projectile", "newton", "spring", "beam", "collision", "rotation", "oscill"]), ("Molekulyar fizika va termodinamika", ["maxwell", "gas", "calorimeter", "capillary", "archimedes"]), ("Elektr va magnetizm", ["coulomb", "capacitor", "circuit", "kirchhoff", "wheatstone", "vacdiode", "bfield", "induction", "rlc", "ac"]), ("Optika", ["young", "grating", "malus", "lens", "snell", "planck", "photo", "photometry"]), ("Atom va yadro fizikasi", ["bohr", "franck", "decay", "binding"])]
+    S, toc = [], []
+    for k, (g, keys) in enumerate(groups, 1):
+        cards = "".join(f'<div class="card"><span class="badge">model</span><h3>{SIMNAME[s]}</h3><p class="muted">{" · ".join(f"<a href=\"{h}\">{t}</a>" for h, t in used.get(s, []))}</p></div>' for s in keys)
+        S.append(sec(f"g{k}", k, g, f'<div class="grid grid-3">{cards}</div>'))
+        toc.append((f"g{k}", g))
+    S.append(sec("demo", len(groups) + 1, "Namoyish: tebranishlar va fotoeffekt", sim_block("oscill", "s1") + '<div style="margin-top:1.4rem"></div>' + sim_block("photo", "s2")))
+    toc.append(("demo", "Namoyish modellari"))
+    html = head("Simulyatorlar", f"{len(SIMNAME)} ta interaktiv fizik model: mexanika, termodinamika, elektr, optika, atom fizikasi") + header("simulyatorlar.html") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("", "Simulyatorlar")], "Interaktiv modellar", "Fizik jarayonlar simulyatorlari", "Har bir model tegishli ma’ruza yoki laboratoriya sahifasida ochiladi; modellar internetsiz ham ishlaydi.", [("c", f"{len(SIMNAME)} model"), ("v", "Ovozli namoyish")]) + doc(toc, S) + "</main>" + footer(sims=True)
+    write("simulyatorlar.html", html)
 
 
-def build_oqituvchi():
-    soat = table(['Mashg‘ulot turi', 'Soat', 'Izoh'], [
-        ['Ma’ruza', FAN['maruza'], '27 mavzu × 2 soat'], ['Laboratoriya', FAN['lab'], '33 mashg‘ulot × 2 soat'],
-        ['Mustaqil ta’lim', FAN['mustaqil'], '45 mavzu × 4 soat'], ['<b>Jami</b>', f'<b>{FAN["jami"]}</b>', f'{FAN["semestr"]}-semestrlar, haftasiga {FAN["hafta_soat"]} soat auditoriya']], cls=(1,))
-    taqvim = table(['Nazorat', 'Muddat', 'Shakl'], [
-        ['Joriy nazorat (JN)', 'Semestr davomida', '1-MT taqdimot va himoya, laboratoriyadagi faollik, 2-MT keys-stadi'],
-        ['Oraliq nazorat (ON)', '12-hafta', 'HEMIS tizimida test, 20 savol'],
-        ['Yakuniy nazorat (YaN)', 'Attestatsiya haftasi', 'Yozma ish: 3 nazariy savol + 1 keys']])
-    usul = ('<ul>'
-            '<li><b>Blits-so‘rov</b> — mashg‘ulot boshida oldingi mavzu bo‘yicha 3–5 ta qisqa savol; ma’ruza sahifalaridagi “Nazariy savollar” bo‘limidan foydalanish mumkin.</li>'
-            '<li><b>Keys-stadi</b> — hayotiy vaziyatni fizik qonunlar orqali tahlil qilish; YaN ning 4-savoli va 2-MT shu shaklda.</li>'
-            '<li><b>Guruhlarda ishlash</b> — laboratoriya natijalarini guruhlarda solishtirish va xatoliklarni muhokama qilish.</li>'
-            '<li><b>Taqdimotlar</b> — mustaqil ta’lim mavzulari bo‘yicha (1-MT).</li>'
-            '<li><b>Loyihalar</b> — jamoaviy ish va himoya; masalan, simulyator yordamida tajriba rejasini tuzish.</li></ul>')
-    reja = table(['Bosqich', 'Vaqt', 'Mazmun'], [
-        ['Kirish va blits-so‘rov', '10 daqiqa', 'Oldingi mavzuni takrorlash, maqsadni e’lon qilish'],
-        ['Nazariy qism', '35 daqiqa', 'Asosiy tushunchalar va qonunlar, formulalarni keltirib chiqarish'],
-        ['Interaktiv model / misol', '20 daqiqa', 'Simulyatorda parametrlarni o‘zgartirib, natijani oldindan taxmin qilish'],
-        ['Mustahkamlash', '10 daqiqa', 'Nazariy savollar, qisqa masala'],
-        ['Yakun va topshiriq', '5 daqiqa', 'Xulosa, mustaqil ta’lim topshirig‘ini berish']])
-    reja = '<p>Bitta mashg‘ulot (2 akademik soat, 80 daqiqa) uchun <b>tavsiya</b> etiladigan tuzilma. Bu fan dasturining talabi emas, o‘qituvchi o‘z guruhiga moslashtiradi.</p>' + reja
-    sayt = ('<ul><li><b>Til:</b> yuqoridagi UZ / RU / EN tugmalari butun sahifani tarjima qiladi (Google Translate). Fan rus tilida o‘qitiladi, shuning uchun RU rejimi talabalar uchun qulay.</li>'
-            '<li><b>Elektron doska:</b> kun/tun tugmasi bilan yorqinlikni moslang; mundarija orqali bo‘limlarga tez o‘ting.</li>'
-            '<li><b>Tinglash:</b> ma’ruza matnini brauzer ovozida o‘qitish mumkin; istalgan xatboshini bosib, o‘sha joydan davom ettiriladi.</li>'
-            '<li><b>Chop etish:</b> brauzerning “Chop etish” funksiyasi menyusiz toza variantni chiqaradi.</li></ul>')
-    hal = '<p>Fan dasturi talabiga ko‘ra talabalar akademik halollik tamoyillariga rioya qilishi shart. Mustaqil ish va keyslarda ko‘chirmachilik aniqlansa, rubrikaga ko‘ra minimal darajadan past baholanadi.</p>'
-    secs = [('soatlar', 'Soatlar taqsimoti', soat, False), ('taqvim', 'Nazorat taqvimi', taqvim, True), ('usullar', 'Ta’lim texnologiyalarini qo‘llash', usul, False),
-            ('reja', 'Mashg‘ulot rejasi namunasi (80 daqiqa)', reja, False), ('sayt', 'Saytdan darsda foydalanish', sayt, False), ('halollik', 'Akademik halollik', hal, False)]
-    body = hero([('Bosh sahifa', 'index.html'), ('O‘qituvchi uchun', '')], 'O‘qituvchi uchun qo‘llanma', 'Fanni o‘qitish bo‘yicha qo‘llanma',
-                '<span class="tag">54 + 66 + 180 soat</span><span class="tag v">ON — 12-hafta</span><span class="tag a">YaN — attestatsiya haftasi</span>') + doc_layout(secs) + '</div></div>'
-    page('oqituvchi.html', 'O‘qituvchi uchun — Umumiy fizika', body)
+# ---------------- Annotatsiya ----------------
+def annot_page():
+    toc = [("bib", "Bibliografik ma’lumot"), ("ann", "Annotatsiya (uz/ru/en)"), ("soz", "So‘z boshi"), ("fan", "Fan ma’lumotlari"), ("tn", "Ta’lim natijalari"), ("std", "Xalqaro standartlar"), ("mund", "Mundarija"), ("adab", "Adabiyotlar"), ("foyd", "Foydalanish tavsiyalari")]
+    S = []
+    S.append(sec("bib", 1, "Bibliografik ma’lumot", f"""<p><b>{AUTHOR}</b> Umumiy fizika: interaktiv ovozli elektron darslik (bakalavriat, 60530100 — Kimyo). — Qo‘qon: Qo‘qon davlat universiteti, 2026.</p>
+<p><b>Fan dasturini tuzuvchilar:</b> Meliqo‘ziyev Dadaqo‘zi Jo‘raqo‘ziyevich — QDU Fizika va astronomiya kafedrasi o‘qituvchisi, PhD; Mirsultonov Ilhomjon Mirzaxakimovich — QDU Fizika va astronomiya kafedrasi o‘qituvchisi, PhD.</p>
+<p><b>Taqrizchilar:</b> N.X. Yo‘ldoshev — fizika-matematika fanlari doktori, professor (Farg‘ona davlat texnika universiteti, “Fizika” kafedrasi); F.O. Dadaboyeva — pedagogika fanlari bo‘yicha falsafa doktori (PhD), dotsent (Qo‘qon davlat universiteti, “Fizika va astronomiya” kafedrasi).</p>
+<p class="muted">Darslik “Umumiy fizika” fanining 2026/2027 o‘quv yili uchun tasdiqlangan o‘quv dasturi ({CODE}) asosida tayyorlangan. Fan dasturi Tabiiy fanlar va iqtisodiyot fakulteti Kengashida ma’qullangan, elektron imzo bilan tasdiqlangan (cams.kokandsu.uz, ID: 2397).</p>"""))
+    S.append(sec("ann", 2, "Annotatsiya", """<h3>O‘zbekcha</h3><p>Elektron darslikda umumiy fizika kursining besh bo‘limi — mexanika, molekulyar fizika va termodinamika, elektr va magnetizm, optika, atom va yadro fizikasi — fan dasturidagi 27 ta ma’ruza, 33 ta laboratoriya mashg‘uloti va 45 ta mustaqil ta’lim mavzusi asosida bayon etilgan. Har bir ma’ruza maqsad va ta’lim natijalari, nazariy qism, ishlangan misollar, interaktiv model, sun’iy intellekt bilan ishlash topshirig‘i, tipik xato tushunchalar tahlili, 10 savolli test va adabiyotlardan iborat; matn tabiiy o‘zbekcha ovozda tinglanadi. Laboratoriya ishlari o‘lchash xatoliklarini xalqaro GUM tavsiyalari asosida baholash va natijalarni Python bilan qayta ishlashni o‘z ichiga oladi. Darslik kimyo yo‘nalishi talabalari va o‘qituvchilar uchun mo‘ljallangan.</p>
+<div lang="ru"><h3>Русский</h3><p>В электронном учебнике изложены пять разделов курса общей физики — механика, молекулярная физика и термодинамика, электричество и магнетизм, оптика, атомная и ядерная физика — в соответствии с 27 лекциями, 33 лабораторными занятиями и 45 темами самостоятельной работы учебной программы. Каждая лекция содержит цели и результаты обучения, теорию, решённые примеры, интерактивную модель, задание с использованием ИИ, разбор типичных ошибок, тест из 10 вопросов и список литературы; текст озвучен естественным узбекским голосом. Лабораторные работы включают оценку погрешностей по рекомендациям GUM и обработку результатов на Python. Учебник предназначен для студентов направления «Химия» и преподавателей.</p></div>
+<div lang="en"><h3>English</h3><p>This interactive, voice-enabled e-textbook covers the five parts of the general physics course — mechanics, molecular physics and thermodynamics, electricity and magnetism, optics, atomic and nuclear physics — following the 27 lectures, 33 laboratory sessions and 45 independent-study topics of the approved syllabus. Each lecture includes learning objectives and outcomes, theory, worked examples, an interactive model, an AI-assisted task, an analysis of common misconceptions, a 10-question quiz and references; the text can be listened to in natural Uzbek speech. Laboratory work includes uncertainty evaluation following the GUM and data processing in Python. It is intended for Chemistry undergraduates and instructors.</p></div>"""))
+    S.append(sec("soz", 3, "So‘z boshi", "<p>Kimyogar uchun fizika — bu moddaning tuzilishi va o‘zgarishini tushunish tili: gaz qonunlari va termodinamika reaksiyalar energetikasini, elektr va magnetizm elektrokimyo va spektroskopiyani, optika va kvant fizikasi esa zamonaviy tahlil usullarini (spektrofotometriya, rentgen-struktura tahlili, YaMR) tushuntiradi. Shu sababli har bir mavzuda “Kimyogar uchun” izohi berilgan.</p><p>Darslik fizik modeldan o‘lchanadigan natijagacha bo‘lgan yo‘lni takrorlaydi: hodisa → qonun → formula → son → grafik → tajriba. Interaktiv modellar parametrlar natijaga qanday ta’sir qilishini bevosita ko‘rish imkonini beradi, laboratoriya ishlari esa natijani o‘lchash xatoligi bilan birga asoslashga o‘rgatadi. Sun’iy intellekt vositalari yordamchi sifatida, aniq tekshiruv qoidalari bilan kiritilgan.</p>"))
+    S.append(sec("fan", 4, "Fan ma’lumotlari", table(["Ko‘rsatkich", "Qiymat"], [["Fan nomi / kodi", f"Umumiy fizika (Общая физика) / {CODE}"], ["Ta’lim yo‘nalishi", "60530100 — Kimyo (kunduzgi ta’lim), o‘quv rejadagi tartib raqami 1.11"], ["Bilim / ta’lim sohasi", "500 000 — Tabiiy fanlar, matematika va statistika / 530 000 — Fizika va tabiiy fanlar"], ["O‘quv yili / semestr", "2026/2027 / 1–2-semestr"], ["ECTS kreditlar", "10 (jami 300 soat)"], ["Jami yuklama", "Auditoriya 120 soat: ma’ruza 54, laboratoriya 66; mustaqil ta’lim 180 soat"], ["Haftalik auditoriya soati", "4"], ["Fan turi / o‘qitish tili (dastur bo‘yicha)", "Majburiy / rus tili; darslik tili — o‘zbek (UZ/RU/EN tarjima tugmalari mavjud)"], ["Baholash", "JN 30 + ON 20 + YaN 50 = 100 ball; saralash 18/12/30"]]) + "<h3>Maqsad va vazifalar</h3><p><b>Fanning maqsadi</b> — talabalarni makro va mikrodunyodagi harakat va uning turlari, modda tuzilishi va xossalari, turli agregat holatlardagi makroskopik tizimlarning (alohida jismlar va maydonlar uchun) fizik xossalari, Koinot obyektlari va hodisalari haqidagi zarur ilmiy tasavvurlar, bilim va tushunchalar bilan qurollantirish hamda ularda fenomenologik bilim, ko‘nikma va malakalarni shakllantirish.</p><p><b>Fanning vazifasi</b> — talabalarda umumiy fizika kursi bo‘limlari bo‘yicha masala yechish ko‘nikmasini, laboratoriya ishlarini tushunish va ular bo‘yicha xulosa chiqara olishni, shuningdek fizik qonuniyatlar va munosabatlarni to‘g‘ri aniqlashni shakllantirish.</p><h3>Boshlang‘ich bilimlar (prerekvizitlar)</h3>" + ul(["Umumiy fizika (UMF11210) — maktab fizika kursi asosida", "Umumiy psixologiya (UMP1106)", "Oliy matematika (OMT11208): hosila, integral, vektorlar"]) + "<h3>Ta’lim texnologiyalari</h3>" + ul(["Ma’ruzalar (multimedia, ovozli o‘qish, interaktiv modellar)", "Laboratoriya ishlarini bajarish va tahlil qilish", "Interaktiv keys-stadilar", "Blits-so‘rov", "Guruhlarda ishlash", "Taqdimotlar o‘tkazish", "Jamoaviy ish va himoya uchun loyihalar"])))
+    S.append(sec("tn", 5, "Ta’lim natijalari (TN1–TN10)", "<p>TN1–TN5 — kasbiy kompetensiyalar, TN6–TN10 — ko‘nikmalar (fan dasturi, 4-bo‘lim). Jadvalda har bir natija darslikning qaysi sahifalarida shakllantirilishi ko‘rsatilgan.</p>" + table(["Kod", "Natija", "Darslikdagi mavzular"], [[t, TN_TEXT[t], ", ".join([f'<a href="lecture{L["n"]}.html">M{L["n"]}</a>' for L in LECT if t in L["tn"]] + [f'<a href="lab{b["n"]}.html">L{lab_label(b)}</a>' for b in LABS if t in b["tn"]]) or "Mustaqil ta’lim, keys-stadi"] for t in TN_TEXT])))
+    S.append(sec("std", 6, "Xalqaro ta’lim talablariga muvofiqlik", "<p>Darslik quyidagi xalqaro mezonlar asosida loyihalangan. Jadvalda har bir mezon darslikda qanday amalga oshirilgani ko‘rsatilgan.</p>" + table(["Mezon", "Talab", "Darslikda amalga oshirilishi"], [
+        ["ECTS Users’ Guide (2015), Bolonya jarayoni", "Ta’lim natijalari va kredit yuklamasi aniq; 1 kredit ≈ 25–30 soat", "10 ECTS = 300 soat; har bir mavzu TN kodlariga bog‘langan; mustaqil ta’lim soatlari ko‘rsatilgan"],
+        ["Dublin deskriptorlari (1-bosqich — bakalavriat)", "Bilim va tushunish, qo‘llash, mustaqil xulosa, kommunikatsiya, o‘rganish ko‘nikmasi", "Nazariya + misol (bilim), model, masala va laboratoriya (qo‘llash), keys-stadi (xulosa), taqdimot himoyasi (kommunikatsiya)"],
+        ["Konstruktiv moslashuv (Biggs) va Blum taksonomiyasi", "Natija → faoliyat → baholash bir-biriga mos", "TN–nazorat matritsasi (baholash sahifasi); “eslash”dan “baholash/yaratish”gacha bo‘lgan topshiriqlar"],
+        ["Fizika ta’limi tadqiqotlari (PER): faol o‘rganish", "Bashorat → kuzatish → tushuntirish, xato tushunchalar bilan ishlash", "Har bir ma’ruzada interaktiv model, POE topshiriqlari va “Tipik xato tushunchalar” bo‘limi"],
+        ["Quality Matters (QM) — oliy ta’lim kurs dizayni rubrikasi", "Aniq maqsadlar, o‘lchanadigan natijalar, ochiq baholash mezonlari, faol o‘rganish, qulaylik", "Har bir sahifada maqsad va natijalar; rubrikalar ochiq; modellar va testlar; mundarija va navigatsiya"],
+        ["JCGM 100:2008 (GUM) — o‘lchash noaniqligi", "Natija noaniqlik bilan birga, yagona qoidalar asosida beriladi", "Laboratoriyaga kirish sahifasi: A va B turdagi noaniqlik, Styudent koeffitsiyenti, bilvosita o‘lchash; har bir ishda xatolik hisobi"],
+        ["SI birliklar tizimi (BIPM, 9-nashr, 2019)", "Kattaliklar va birliklarning bir xil yozilishi", "Barcha misollarda SI birliklari; asosiy doimiylar CODATA qiymatlarida"],
+        ["WCAG 2.2 AA (veb-qulaylik)", "Kontrast, klaviatura bilan boshqarish, matnli muqobil, ovozli o‘qish", "“Asosiy mazmunga o‘tish” havolasi, fokus belgisi, aria-yorliqlar, ovozli o‘qish, kun/tun rejimi, chop etish uslubi"],
+        ["UNESCO OER tavsiyasi (2019)", "Ochiq, qayta foydalaniladigan o‘quv resurslari", "Ro‘yxatdan o‘tishsiz kirish, manba kodi GitHub’da; formulalar va modellar internetsiz ham ishlaydi"],
+        ["Akademik halollik va SI dan mas’uliyatli foydalanish", "SI yordamini oshkor qilish, natijani tekshirish", "Har bir ma’ruzada SI topshirig‘i tekshiruv ro‘yxati bilan; baholanadigan ishda prompt ilova qilinadi"],
+        ["Xalqaro dasturlar bilan qiyoslash", "Mazmunni yetakchi universitet kurslari bilan solishtirish", "Mavzular qamrovi Halliday–Resnick–Walker, Young–Freedman, OpenStax University Physics darsliklari va MIT OCW materiallari bilan muvofiqlashtirilgan"]])
+        + '<p class="muted" style="font-size:.85rem">Eslatma: jadval darslik dizayni qaysi mezonlarga yo‘naltirilganini ko‘rsatadi; rasmiy akkreditatsiya yoki sertifikatlashni anglatmaydi.</p>'))
+    mund = ""
+    for r, name, a, z in MODULES:
+        mund += f"<h3>{r}. {name}</h3>" + ul([f'<a href="lecture{L["n"]}.html">{L["n"]}-ma’ruza. {L["title"]}</a>' for L in LECT if a <= L["n"] <= z])
+    mund += "<h3>Laboratoriya ishlari</h3>" + ul(['<a href="laboratoriya.html">Laboratoriya ishlariga kirish: o‘lchash va xatoliklar</a>'] + [f'<a href="lab{b["n"]}.html">{lab_label(b)}. {b["title"]}</a>' for b in LABS])
+    mund += "<h3>Mustaqil ta’lim va baholash</h3>" + ul(['<a href="mustaqil.html">45 ta mustaqil ta’lim mavzusi va keys-stadi banki</a>', '<a href="baholash.html">Baholash rubrikalari va kalkulyator</a>', '<a href="oqituvchi.html">O‘qituvchi uchun qo‘llanma</a>', '<a href="simulyatorlar.html">Interaktiv modellar</a>']) + "<h3>Ilovalar</h3>" + ul(['<a href="glossariy.html">1-ilova. Atamalar lug‘ati</a>', '<a href="vositalar.html">2-ilova. Dasturiy vositalar</a>'])
+    S.append(sec("mund", 7, "Mundarija", mund))
+    lit = "<h3>Asosiy adabiyotlar (fan dasturi)</h3>" + ul([f"[{k}] {v}" for k, v in BASE_LIT.items()]) + "<h3>Qo‘shimcha adabiyotlar (fan dasturi)</h3>" + ul(list(ADD_LIT.values())) + "<h3>Axborot resurslari</h3>" + ul([f'<a href="{u}" target="_blank" rel="noopener">{t}</a>' for u, t in WEB]) + "<h3>Xalqaro darsliklar va standartlar (tavsiya)</h3>" + ul(list(INTL.values()))
+    S.append(sec("adab", 8, "Adabiyotlar va axborot resurslari", lit))
+    S.append(sec("foyd", 9, "Foydalanish tavsiyalari", ul(["<b>Talabaga:</b> ma’ruza sahifasini tartib bilan o‘qing yoki tinglang; ishlangan misolni yechimni ochmasdan avval o‘zingiz yeching; modelda bashorat qiling, keyin tekshiring; testni oxirida bajaring.", "<b>Tinglash:</b> sarlavha yonidagi “Tinglash” tugmasi matnni tabiiy o‘zbekcha ovozda o‘qiydi; istalgan xatboshini bosib, o‘sha joydan davom ettirish mumkin.", "<b>Laboratoriyaga:</b> har bir ishdan oldin “Laboratoriya ishlariga kirish” sahifasidagi xatolik qoidalarini takrorlang.", "<b>O‘qituvchiga:</b> har bir ma’ruza oxirida 80 daqiqalik dars rejasi berilgan; modellarni proyektorda namoyish qilish mumkin.", "<b>Chop etish:</b> brauzerda Ctrl+P — interaktiv elementlarsiz toza matn chiqadi (PDF sifatida saqlash mumkin).", "<b>Rasmiy topshirish</b> faqat HEMIS’da."])))
+    html = head("Darslik haqida", "Annotatsiya, fan ma’lumotlari, ta’lim natijalari va xalqaro standartlarga muvofiqlik") + header("annotatsiya.html") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("", "Darslik haqida")], "Kirish", "Annotatsiya, so‘z boshi va mundarija", "Bibliografik ma’lumot, uch tildagi annotatsiya, fan ma’lumotlari, ta’lim natijalari va xalqaro ta’lim talablariga muvofiqlik.", [("c", "10 ECTS"), ("", "300 soat"), ("g", "TN1–TN10")]) + doc(toc, S) + "</main>" + footer()
+    write("annotatsiya.html", html)
 
 
-def build_glossariy():
-    items = sorted(GLOSSARIY, key=lambda x: x[0].replace('‘', '').replace('’', '').lower())
-    lst = ''.join(f'<div class="gl-item"><b>{E(u)}</b><span class="tr notranslate" translate="no" data-noalif>{E(r)} · {E(e)}</span>'
-                  f'<p>{E(d)} <a href="annotatsiya.html#maruzalar" class="mono" style="font-size:12px">M{n}</a></p></div>' for u, r, e, d, n in items)
-    inner = f'<input class="search" id="glSearch" type="search" placeholder="Atamani qidiring (o‘zbekcha, ruscha yoki inglizcha)..." aria-label="Qidiruv">{lst}'
-    secs = [('atamalar', f'{len(items)} ta atama: o‘zbekcha — ruscha — inglizcha', inner, False)]
-    body = hero([('Bosh sahifa', 'index.html'), ('Atamalar lug‘ati', '')], '1-ilova', 'Atamalar lug‘ati',
-                '<span class="tag">UZ · RU · EN</span><span class="tag m">Fan dasturi mavzulari bo‘yicha (M1–M27)</span>') + doc_layout(secs, toc=False) + '</div></div>'
-    page('glossariy.html', 'Atamalar lug‘ati — Umumiy fizika', body)
+# ---------------- Mustaqil ta'lim ----------------
+def mustaqil_page():
+    items = []
+    for i, (t, plan, lec) in enumerate(other.MT, 1):
+        links = ", ".join(f'<a href="lecture{m}.html">M{m}</a>' for m in lec)
+        items.append(f'<details class="mt-item" id="mt-{i:02d}"><summary><span class="badge">MT-{i:02d}</span> {t} <span class="muted" style="margin-left:auto;font-weight:500">4 soat</span></summary><div class="body"><b>Taqdimot rejasi:</b>{ul(plan)}<p class="muted">Bog‘liq ma’ruza: {links}. Manbalar: fan dasturidagi [1]–[5], <a href="glossariy.html">lug‘at</a> va xalqaro darsliklar. Hajmi: 10–12 slayd, kamida bitta chizma yoki grafik, kamida 3 manba.</p></div></details>')
+    keys = "".join(f'<div class="example"><div class="ex-h">{t}</div><div class="ex-b"><p>{d}</p><p class="tn">{", ".join(tn)}</p></div></div>' for t, d, tn in other.KEYS)
+    toc = [("umumiy", "Umumiy talablar"), ("mavzular", "45 ta mavzu"), ("taqdimot", "1-MT: taqdimot talablari"), ("keys", "2-MT: keys-stadi banki"), ("halollik", "Akademik halollik")]
+    S = [sec("umumiy", 1, "Umumiy talablar", table(["Ko‘rsatkich", "Qiymat"], [["Jami hajm", "180 soat (45 mavzu × 4 soat)"], ["1-MT", "Taqdimot va uning himoyasi — 5 ball (HEMIS’ga yuklash)"], ["2-MT", "Keys-stadi tahlili va yechimi — 5 ball (HEMIS’ga yuklash)"], ["Mavzuni tanlash", "O‘qituvchi tomonidan guruh ro‘yxati bo‘yicha taqsimlanadi (bir mavzu — bir talaba)"], ["Muddat", "O‘qituvchi belgilagan muddatda; muddatida yuklanmagan ish baholanmaydi"]])),
+         sec("mavzular", 2, "Mustaqil ta’lim mavzulari (fan dasturi, 6-bo‘lim)", f'<input class="search" type="text" placeholder="Mavzu bo‘yicha qidirish…" data-filter=".mt-item" data-count="mt-count" aria-label="Mavzu qidirish"><p class="muted" id="mt-count">{len(other.MT)} ta natija</p><div class="acc">{"".join(items)}</div>'),
+         sec("taqdimot", 3, "1-MT: taqdimot va himoya talablari (5 ball)", table(["Daraja", "Tavsif (fan dasturi bo‘yicha)"], [["Yuqori", "Qo‘shimcha ilmiy-metodik adabiyotlardan foydalanib batafsil taqdimot tayyorlagan; fizik jarayonlar, formulalar va chizmalarni mantiqan izchil bayon qiladi, himoyada fikrini mustaqil va erkin ifodalaydi."], ["Yetarli", "Mavzu asosan yoritilgan, taqdimot tushunarli, ammo faqat asosiy darsliklar bilan cheklangan; himoyada tayyor matnga qaram, ayrim atama va formulalarni tushuntirishda kichik noaniqliklar bor."], ["Minimal", "Taqdimot yuzaki, materiallar to‘liq tahlil qilinmagan va ko‘chirmachilikka yo‘l qo‘yilgan; slaydlarda zarur chizma va diagrammalar yo‘q, mavzuni tushuntira olmaydi."], ["Erishilmagan", "Taqdimot tayyorlanmagan, mavzuni bilmaydi yoki belgilangan muddatda HEMIS’ga yuklanmagan."]]) + "<h3>Slaydlar tuzilishi (tavsiya)</h3>" + ul(["Sarlavha, muallif, guruh", "Hodisa va uning dolzarbligi (texnika, kimyo, tabiatdagi misol)", "Asosiy qonun: formula, kattaliklar va SI birliklari", "Chizma yoki grafik (o‘zingiz chizgan yoki modeldan olingan)", "Raqamli misol yoki tajriba natijasi", "Xulosa va 3–5 manba"], True)),
+         sec("keys", 4, "2-MT: keys-stadi banki (5 ball)", f'<p>Har bir talaba bitta keysni tanlaydi (yoki o‘qituvchi tayinlaydi). Yechim 3–5 betlik hisobot: muammo tahlili → fizik sabablar → hisob → kamida ikki yechim varianti va ularni taqqoslash → xulosa.</p>{keys}<h3>Baholash mezoni (fan dasturi bo‘yicha)</h3>' + table(["Daraja", "Tavsif"], [["Yuqori", "Muammoli fizik vaziyat chuqur tahlil qilingan, fizik qonuniyatlar asosida to‘liq va ijodiy yechim taklif etilgan; barcha xulosalar mantiqan to‘g‘ri va ilmiy asoslangan."], ["Yetarli", "Keys tahlil qilingan, asosiy fizik qonunlar qisman to‘g‘ri qo‘llangan; yechimni asoslash yoki formulalarni amaliyotga bog‘lashda kamchiliklar bor, mustaqil yondashuv yetishmaydi."], ["Minimal", "Muammo mohiyati to‘liq anglanmagan, aniq yechim taklif qilinmagan; tahlil o‘rniga umumiy so‘zlar yozilgan yoki boshqa mavzuga chalg‘ilgan."], ["Erishilmagan", "Keys bajarilmagan, yechim taqdim etilmagan yoki muddatida topshirilmagan."]])),
+         sec("halollik", 5, "Akademik halollik va SI", ul(["Taqdimot va keys yechimi talabaning o‘z ishi bo‘lishi kerak; boshqa manbalardan olingan rasm va matnlar havola bilan beriladi.", "SI vositalaridan foydalanilgan bo‘lsa, ishga qisqa ilova qo‘shiladi: qaysi vosita, qaysi prompt, natija qanday tekshirildi.", "SI yozgan matnni o‘zgartirmasdan topshirish va manbalarni uydirish qoidabuzarlik hisoblanadi."]))]
+    html = head("Mustaqil ta’lim", "45 ta mustaqil ta’lim mavzusi, taqdimot talablari va keys-stadi banki") + header("mustaqil.html") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("", "Mustaqil ta’lim")], "Mustaqil ta’lim · 180 soat", "Mustaqil ta’lim topshiriqlari", "Fan dasturidagi 45 ta mavzu bo‘yicha taqdimot rejalari va fizik qonunlarni amaliy muammolarga qo‘llashga oid keys-stadilar.", [("c", "45 mavzu"), ("a", "1-MT: taqdimot"), ("a", "2-MT: keys-stadi")]) + doc(toc, S) + "</main>" + footer()
+    write("mustaqil.html", html)
 
 
-def build_vositalar():
-    cards = ''.join(f'<a class="card" href="{u}" target="_blank" rel="noopener"><span class="tag">{E(k)}</span> <span class="tag m">{E(p)}</span>'
-                    f'<h3><span class="notranslate" translate="no">{E(n)}</span></h3><p>{E(d)}</p></a>' for n, k, d, u, p in VOSITALAR)
-    secs = [('vositalar', 'Dasturiy vositalar va ochiq resurslar', f'<p>Laboratoriya natijalarini qayta ishlash, modellashtirish va mustaqil ta’lim uchun bepul yoki keng tarqalgan vositalar.</p><div class="grid-2">{cards}</div>', False)]
-    body = hero([('Bosh sahifa', 'index.html'), ('Dasturiy vositalar', '')], '2-ilova', 'Dasturiy vositalar', '<span class="tag">Bepul vositalar</span><span class="tag g">Brauzerda ishlaydi</span>', listen=False) + doc_layout(secs, toc=False) + '</div></div>'
-    page('vositalar.html', 'Dasturiy vositalar — Umumiy fizika', body)
+# ---------------- Baholash ----------------
+def baholash_page():
+    toc = [("tartib", "Umumiy tartib"), ("matritsa", "TN–nazorat matritsasi"), ("jn", "Joriy nazorat (30)"), ("on", "Oraliq nazorat (20)"), ("yn", "Yakuniy nazorat (50)"), ("baho", "Yakuniy baho"), ("kalk", "Baho kalkulyatori")]
+    mat = table(["TN", "Natija", "JN", "ON", "YaN"], [[t, TN_TEXT[t]] + [f'<span class="{"plus" if v == "+" else "minus"}">{v}</span>' for v in TN_MATRIX[t]] for t in TN_TEXT])
+    S = [sec("tartib", 1, "Baholashning umumiy tartibi", "<p>Fan bo‘yicha talabaning bilimi 100 ballik tizimda baholanadi va uchta asosiy bosqichni qamrab oladi. Talaba har bir nazorat turidan muvaffaqiyatli o‘tishi uchun ajratilgan maksimal ballning kamida 60 foizini to‘plashi shart.</p>" + table(["Nazorat turi", "Maksimal ball", "Saralash bali", "Baholash vositasi (fan dasturi bo‘yicha)"], [["Joriy nazorat (JN)", "30", "18", "1-MT: mustaqil ta’lim taqdimoti va himoyasi (5); DF: laboratoriya mashg‘ulotlaridagi faollik — fizik qonunlarni tahlil qilish va yechim modelini tuzish (20); 2-MT: keys-stadi tahlili va yechimi (5)"], ["Oraliq nazorat (ON)", "20", "12", "12-haftada HEMIS’da 20 savolli test"], ["Yakuniy nazorat (YaN)", "50", "30", "1-kurslar uchun yozma ish: 3 nazariy savol + 1 amaliy keys"], ["Jami", "100", "—", ""]]) + '<div class="callout warn"><b>Muhim</b>Saralash talabi JN, ON va YaN bo‘yicha alohida qo‘llaniladi. Bir nazorat turidagi yetishmagan ball boshqasidagi yuqori ball hisobiga qoplanmaydi.</div>'),
+         sec("matritsa", 2, "Ta’lim natijasi — baholash vositasi muvofiqligi", "<p>Har bir ta’lim natijasi qaysi nazorat turida baholanishi fan dasturida belgilangan. Vositalar: laboratoriya mashg‘uloti, mustaqil ta’lim, test, yozma ish.</p>" + mat),
+         sec("jn", 3, "Joriy nazorat rubrikasi — 30 ball", table(["Mezon", "Ball", "Yuqori", "Yetarli", "Minimal", "Erishilmagan"], [
+             ["1-MT: mustaqil ta’lim taqdimoti va himoyasi", "5", "Qo‘shimcha adabiyot bilan batafsil taqdimot; jarayon, formula va chizmalarni izchil bayon qiladi, erkin fikr bildiradi", "Tushunarli, lekin darsliklar bilan cheklangan; himoyada matnga qaram", "Yuzaki, ko‘chirmachilik, chizmalar yo‘q", "Tayyorlanmagan yoki muddatida yuklanmagan"],
+             ["DF: fizik qonunlarni tahlil qilish va yechim modelini tuzish (laboratoriya mashg‘ulotlari)", "20", "Qonuniyatni aniq tanlaydi, chizma va sxemalarni xatosiz chizadi, algoritmni mustaqil tuzadi", "Asosiy qonunlarni yozadi, murakkab sxemada yordamga tayanadi", "Faqat bitta formulali sodda masalalar; sxema chiza olmaydi", "Shartni tushunmaydi, sxema va chizma chiza olmaydi"],
+             ["2-MT: keys-stadi tahlili va yechimi", "5", "Chuqur tahlil, to‘liq va ijodiy, ilmiy asoslangan yechim", "Qisman to‘g‘ri, asoslashda kamchilik", "Mohiyat anglanmagan, umumiy so‘zlar", "Bajarilmagan yoki muddatida topshirilmagan"]]) + '<p class="muted" style="font-size:.85rem">Jami 30 balldan oshmaydi.</p>'),
+         sec("on", 4, "Oraliq nazorat rubrikasi — 20 ball", "<p>Oraliq nazorat o‘quv jarayonining 12-haftasida HEMIS axborot tizimi orqali test shaklida o‘tkaziladi. Test sinovlari talabalarning elektrostatika, o‘zgarmas va o‘zgaruvchan tok, magnit maydon qonunlarini qanchalik mustaqil kuzata olishi, olingan bilimlarni amalda qo‘llay olishi va fan mohiyatini tushunishini tahlil qiladi.</p>" + table(["Daraja", "To‘g‘ri javoblar (20 tadan)", "Tavsif"], [["Yuqori", "18–20 (90–100 %)", "Fan mohiyatini to‘liq tushunadi, mustaqil fikrlaydi va olgan bilimini to‘g‘ri ifodalaydi"], ["Yetarli", "14–17 (70–89,9 %)", "Fan mohiyatini tushunadi va biladi, ammo ayrim murakkabroq nazariy savol yoki hisoblarda xato qiladi"], ["Minimal", "12–13 (60–69,9 %)", "Olingan bilimni amaliyotda qo‘llashda qiynaladi, fan haqida umumiy tasavvurga ega, asosan sodda savollarni yechadi"], ["Erishilmagan", "0–11 (0–59,9 %)", "Fan dasturini o‘zlashtirmagan, mavzular mohiyatini tushunmaydi"]]) + f'<p class="muted">Tayyorgarlik uchun har bir ma’ruzadagi nazorat testlaridan foydalaning (jami {sum(len(L["quiz"]) for L in LECT)} savol).</p>'),
+         sec("yn", 5, "Yakuniy nazorat rubrikasi — 50 ball", "<p>Yakuniy nazorat attestatsiya haftasida yozma ish shaklida o‘tkaziladi. Har bir variant 4 ta topshiriqdan iborat: 3 ta nazariy savol va 1 ta amaliy keys. Nazariy savollar orqali talabaning asosiy ifoda va qonunlardan to‘g‘ri foydalanishi, hodisalarni mantiqan izchil tushuntira olishi; keys orqali esa nazariy bilimni aniq muammoli vaziyatga qo‘llay olishi tekshiriladi.</p>" + table(["Topshiriq", "Ball", "Yuqori", "Yetarli", "Minimal", "Erishilmagan"], [["Nazariy savollar (1–3), har biri 10 ball: mohiyatni ochib berish (4) + atama va kalit ifodalar (3) + fikrni mantiqiy bayon qilish (3)", "30", "27–30", "21–26", "18–20", "0–17"], ["Keys topshirig‘i (4-savol): fizik qonunlarni muammoli vaziyatga qo‘llash va masalani yechish (natija SI birliklarida)", "20", "18–20", "14–17", "12–13", "0–11"]]) + "<h3>Namunaviy keys (4-savol)</h3><p>Laboratoriyada 1,5 kVt quvvatli elektr choynakda 1,2 kg suv 20 °C dan qaynaguncha 6 daqiqada isitildi. Choynakning foydali ish koeffitsiyentini toping; agar tarmoq kuchlanishi 10 % ga pasaysa, isitish vaqti qanday o‘zgaradi? Natijani Joul–Lens qonuni va issiqlik balansi asosida tahlil qiling. (Yechim yo‘nalishi: <a href=\"lecture10.html\">M10</a>, <a href=\"lecture13.html\">M13</a>.)</p>"),
+         sec("baho", 6, "Fan bo‘yicha bahoni aniqlash", table(["Jami ball", "Baho", "Tavsif"], [["90–100", "A’lo", "Ta’lim natijalarini yuqori darajada egallagan; bilimni mustaqil tahlil qiladi va yangi vaziyatlarda qo‘llaydi."], ["70–89,9", "Yaxshi", "Asosiy ta’lim natijalarini barqaror egallagan; bilim va ko‘nikmalarni amaliy vaziyatlarda qo‘llaydi."], ["60–69,9", "Qoniqarli", "Minimal talab etiladigan natijalarga erishgan, biroq tahlil, asoslash yoki mustaqil qo‘llashda cheklovlar mavjud."], ["0–59,9", "Qoniqarsiz", "Minimal ta’lim natijalariga yetarli darajada erishmagan."]])),
+         sec("kalk", 7, "Baho kalkulyatori", """<div id="grade-calc" class="two"><div>
+<label class="control">1-MT taqdimot (0–5) <output data-for="jn-mt1"></output><input id="jn-mt1" type="range" min="0" max="5" step="0.5" value="4"></label>
+<label class="control">DF laboratoriya faolligi (0–20) <output data-for="jn-df"></output><input id="jn-df" type="range" min="0" max="20" step="0.5" value="15"></label>
+<label class="control">2-MT keys-stadi (0–5) <output data-for="jn-mt2"></output><input id="jn-mt2" type="range" min="0" max="5" step="0.5" value="4"></label>
+<label class="control">Oraliq nazorat (0–20) <output data-for="on"></output><input id="on" type="range" min="0" max="20" step="1" value="15"></label>
+<label class="control">Yakuniy nazorat (0–50) <output data-for="yn"></output><input id="yn" type="range" min="0" max="50" step="1" value="38"></label></div>
+<div class="card kpi"><div class="l">Jami</div><div class="calc-out" id="calc-total"></div><div class="l" style="margin-top:.6rem">Baho</div><div class="v" id="calc-grade" style="font-size:1.3rem"></div><p class="muted" id="calc-detail" style="font-size:.8rem"></p></div></div><p class="muted" style="font-size:.85rem">Kalkulyator ma’lumot uchun; rasmiy ball HEMIS’da hisoblanadi.</p>""")]
+    html = head("Baholash", "JN, ON, YaN rubrikalari, TN–nazorat matritsasi va baho kalkulyatori") + header("baholash.html") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("", "Baholash")], "Baholash · 100 ball", "Talaba bilimini baholash mezonlari", "Fan dasturidagi baholash tartibi, rubrikalar va ta’lim natijalari bilan muvofiqlik.", [("c", "JN 30 / 18"), ("c", "ON 20 / 12"), ("c", "YaN 50 / 30")]) + doc(toc, S) + "</main>" + footer()
+    write("baholash.html", html)
 
 
-def build_simulyatorlar():
-    def sim(id_, title, ctl, txt):
-        return (f'<div class="card sim" id="{id_}"><span class="tag a">Interaktiv model</span><h3 style="font-size:19px;margin:10px 0 4px">{title}</h3>'
-                f'<p style="color:var(--text-2);font-size:14px">{txt}</p><canvas width="900" height="380" data-sim="{id_}" role="img" aria-label="{title}"></canvas>'
-                f'<div class="sim-ctl">{ctl}</div><div class="sim-out" data-out="{id_}"></div></div>')
-    def rng(id_, name, lbl, mn, mx, st, v, unit):
-        return f'<label>{lbl}: <b data-v="{id_}-{name}">{v}</b> {unit}<input type="range" data-p="{id_}-{name}" min="{mn}" max="{mx}" step="{st}" value="{v}"></label>'
-    own = ''.join([
-        sim('mayatnik', 'Matematik mayatnik', rng('mayatnik', 'l', 'Ip uzunligi l', 0.2, 2.5, 0.05, 1.0, 'm') + rng('mayatnik', 'g', 'Erkin tushish tezlanishi g', 1.6, 24.8, 0.1, 9.8, 'm/s²') + rng('mayatnik', 'a', 'Boshlang‘ich og‘ish', 3, 40, 1, 15, '°'),
-            'Davr $T = 2\\pi\\sqrt{l/g}$ ga teng va kichik og‘ishlarda amplitudaga bog‘liq emas. g ni Oy (1,6) yoki Yupiter (24,8) qiymatiga o‘zgartirib ko‘ring. (M7, L8)'),
-        sim('otilish', 'Burchak ostida otilgan jism', rng('otilish', 'v', 'Boshlang‘ich tezlik v₀', 5, 40, 1, 20, 'm/s') + rng('otilish', 'u', 'Otilish burchagi α', 5, 85, 1, 45, '°') + rng('otilish', 'g', 'g', 1.6, 24.8, 0.1, 9.8, 'm/s²'),
-            'Uchish uzoqligi $L = v_0^2\\sin 2\\alpha / g$, ko‘tarilish balandligi $H = v_0^2\\sin^2\\alpha / 2g$. Qaysi burchakda uzoqlik eng katta? (M1–M2, MT-5)'),
-        sim('linza', 'Yupqa linzada tasvir yasash', rng('linza', 'F', 'Fokus masofasi F', -20, 20, 1, 10, 'sm') + rng('linza', 'd', 'Buyumgacha masofa d', 2, 45, 0.5, 25, 'sm'),
-            'Yupqa linza formulasi $\\frac{1}{F} = \\frac{1}{d} + \\frac{1}{f}$. F manfiy bo‘lsa — sochuvchi linza. Buyumni fokusdan yaqinroq qo‘yib, mavhum tasvirni kuzating. (M22, L29)'),
-        sim('yemirilish', 'Radioaktiv yemirilish', rng('yemirilish', 'T', 'Yarim yemirilish davri T½', 1, 10, 0.5, 3, 's') + '<label><button class="btn btn-ghost" type="button" data-reset="yemirilish"><i class="fas fa-rotate"></i> Qayta boshlash</button></label>',
-            'Har bir yadro tasodifiy yemiriladi, lekin ko‘p yadrolar uchun $N = N_0\\, 2^{-t/T_{1/2}}$ qonuni bajariladi. Ko‘k chiziq — nazariya, nuqtalar — model. (M26)')])
-    by = {}
-    for n, t, sl, d in PHET:
-        by.setdefault(n, []).append((t, sl, d))
+# ---------------- O'qituvchi qo'llanmasi ----------------
+def calendar():
+    """30 haftalik taqvim: har haftada 2 mashg'ulot (ma'ruza yoki laboratoriya)."""
+    byn = {b["n"]: b for b in LABS}
+    sess = {}
+    for b in LABS:
+        for k, s in enumerate(b["sess"]):
+            sess[s] = (b, k)
+    def lab_cell(s):
+        b, k = sess[s]
+        return f'<a href="lab{b["n"]}.html">L{s}</a>: {b["title"][:60]}{"…" if len(b["title"]) > 60 else ""}' + (f" ({k+1}-qism)" if len(b["sess"]) > 1 else "")
+    def lec_cell(m):
+        return f'<a href="lecture{m}.html">M{m}</a>: {strip_tags(LECT[m-1]["short"])}'
     rows = []
-    for n in sorted(by):
-        for t, sl, d in by[n]:
-            rows.append([f'<span class="mono">M{n}</span>', f'<a href="https://phet.colorado.edu/en/simulations/{sl}" target="_blank" rel="noopener"><span class="notranslate" translate="no">{E(t)}</span></a>', E(d)])
-    phet = ('<p>Kolorado universitetining <b>PhET</b> simulyatorlari bepul, brauzerda ishlaydi va rus tilini qo‘llab-quvvatlaydi. Fan dasturi ma’ruzalariga moslab tanlangan:</p>'
-            + table(['Ma’ruza', 'Simulyator', 'Nimani o‘rganadi'], rows))
-    secs = [('modellar', 'Saytning interaktiv modellari', f'<div style="display:flex;flex-direction:column;gap:16px">{own}</div>', False),
-            ('phet', 'PhET simulyatorlari — fan dasturi bo‘yicha', phet, False)]
-    body = hero([('Bosh sahifa', 'index.html'), ('Simulyatorlar', '')], 'Interaktiv modellar', 'Simulyatorlar',
-                f'<span class="tag a">4 ta o‘z modeli</span><span class="tag">{len(PHET)} ta PhET simulyatori</span>', listen=False) + doc_layout(secs) + '</div></div>'
-    page('simulyatorlar.html', 'Simulyatorlar — Umumiy fizika', body, scripts=('sims.js',))
+    plan = [(1, list(range(1, 14)), list(range(1, 18))), (2, list(range(14, 28)), list(range(18, 34)))]
+    notes = {5: "1-MT mavzularini taqsimlash va himoya boshlanadi", 10: "2-MT: keys-stadi topshirig‘i", 12: "Oraliq nazorat (HEMIS, 20 savol)", 15: "Yakuniy nazoratga tayyorgarlik"}
+    for sem, lecs, labs in plan:
+        lecs, labs = lecs[:], labs[:]
+        for w in range(1, 16):
+            a = lec_cell(lecs.pop(0)) if lecs else lab_cell(labs.pop(0))
+            bcell = lab_cell(labs.pop(0)) if labs else "—"
+            rows.append([f"{sem}-sem., {w}", a, bcell, notes.get(w, "—")])
+    return rows
 
 
-# ================= Bosh sahifa =================
-def build_index():
-    def lcard(i, t):
-        if exists(f'lectures/lecture{i}.html'):
-            return f'<a class="card" href="lectures/lecture{i}.html"><span class="tag">{i}-ma’ruza</span><h3>{E(t)}</h3><p>{E(LECT_D[i-1])}</p></a>'
-        return f'<div class="card soon"><div class="card-body"><span class="tag">{i}-ma’ruza</span> <span class="tag m">tez orada</span><h3>{E(t)}</h3><p>Material tayyorlanmoqda.</p></div></div>'
-    def bcard(i, t):
-        if exists(f'labs/lab{i}.html'):
-            return f'<a class="card" href="labs/lab{i}.html"><span class="tag">L{i}</span><h3>{E(t)}</h3><p>{E(LAB_D.get(i, ""))}</p></a>'
-        return f'<div class="card soon"><div class="card-body"><span class="tag">L{i}</span> <span class="tag m">tez orada</span><h3>{E(t)}</h3><p>Material tayyorlanmoqda.</p></div></div>'
-    L = '\n'.join(lcard(i, t) for i, t in enumerate(LECT, 1))
-    B = '\n'.join(bcard(i, t) for i, t in enumerate(LAB_N, 1))
-    nl = sum(exists(f'lectures/lecture{i}.html') for i in range(1, 29))
-    about = [('annotatsiya.html', 'Kirish', 'Annotatsiya va fan dasturi', 'Fan ma’lumotlari, ta’lim natijalari (TN1–TN10), 27 ma’ruza va 33 laboratoriya mavzusi, adabiyotlar.'),
-             ('baholash.html', 'Baholash', 'JN · ON · YaN rubrikalari', '100 ballik tizim, saralash ballari, TN–nazorat matritsasi va baho kalkulyatori.'),
-             ('oqituvchi.html', 'O‘qituvchi', 'O‘qituvchi uchun qo‘llanma', 'Soatlar taqsimoti, nazorat taqvimi, mashg‘ulot rejasi namunasi va saytdan foydalanish.'),
-             ('mustaqil.html', 'Mustaqil ta’lim', '45 mavzu va topshiriqlar', 'Taqdimot va keys-stadi talablari, yo‘riqnomalar (MT).'),
-             ('glossariy.html', '1-ilova', 'Atamalar lug‘ati', f'{len(GLOSSARIY)} ta atama: o‘zbekcha–ruscha–inglizcha, qisqa ta’rif va mavzu havolasi.'),
-             ('vositalar.html', '2-ilova', 'Dasturiy vositalar', 'PhET, Tracker, GeoGebra, Python va boshqa bepul vositalar.')]
-    about = ''.join(f'<a class="card" href="{h}"><span class="tag">{E(k)}</span><h3>{E(t)}</h3><p>{E(d)}</p></a>' for h, k, t, d in about)
-    steps = [('Maqsad', 'Mavzu maqsadi va asosiy tushunchalar bilan tanishish.'), ('Nazariya', 'Qonunlar va formulalarni o‘zlashtirish.'),
-             ('Interaktiv model', 'Parametrlarni o‘zgartiring, natijani taxmin qiling, tekshiring.'), ('Laboratoriya', 'Tajriba, o‘lchov va natijalarni nazariya bilan solishtirish.'),
-             ('Mustaqil ish', 'Taqdimot (1-MT) va keys-stadi (2-MT).'), ('Baholash', 'JN, ON va YaN natijalari HEMIS tizimida.')]
-    steps = ''.join(f'<div class="card"><div class="card-body"><span class="tag">QADAM {i}</span><h3>{E(t)}</h3><p>{E(d)}</p></div></div>' for i, (t, d) in enumerate(steps, 1))
-    simc = ''.join(f'<a class="card" href="simulyatorlar.html#{k}"><span class="tag a">Model</span><h3>{E(v)}</h3><p>Brauzerda ishlaydigan interaktiv model.</p></a>' for k, v in OWN_SIM.items())
-    body = f'''<section class="hero">
-<div class="kicker">{FAN['yonalish']} · {FAN['kod']} · {FAN['yil']}</div>
-<h1>Tabiat qonunlarini<br><span class="grad">tushuning, o‘lchang<br>va modellashtiring.</span></h1>
-<p class="hero-lead">Mexanika va termodinamikadan elektromagnetizm, optika, atom va yadro fizikasigacha — fan dasturi asosida tuzilgan ochiq elektron darslik. Baholash va rasmiy topshiriqlar HEMIS orqali amalga oshiriladi.</p>
-<div class="hero-actions"><a class="btn btn-primary" href="lectures/lecture1.html"><i class="fas fa-play"></i> Birinchi ma’ruzadan boshlash</a><a class="btn btn-ghost" href="annotatsiya.html"><i class="fas fa-book-open"></i> Fan dasturi</a></div>
-<div class="stats">
-<div class="card stat"><div class="num">01</div><h3>{FAN['maruza']} soat ma’ruza</h3><p>{nl} ta ma’ruza sahifasi: maqsad, nazariya, interaktiv model va nazorat savollari.</p></div>
-<div class="card stat"><div class="num">02</div><h3>{FAN['lab']} soat laboratoriya</h3><p>Fan dasturida 33 ta laboratoriya mashg‘uloti: o‘lchov, tajriba va tahlil.</p></div>
-<div class="card stat"><div class="num">03</div><h3>{FAN['mustaqil']} soat mustaqil ta’lim</h3><p>45 ta mavzu bo‘yicha taqdimot va keys-stadi topshiriqlari.</p></div>
-<div class="card stat"><div class="num">04</div><h3>{FAN['ects']} ECTS kredit</h3><p>{FAN['jami']} soat, {FAN['semestr']}-semestrlar. Baholash: JN 30 · ON 20 · YaN 50.</p></div>
-</div></section>
-
-<section class="section" id="darslik-haqida"><div class="wrap"><div class="kicker">Darslik haqida</div><h2>Annotatsiya, baholash va ilovalar</h2>
-<p class="section-lead">{FAN['ects']} ECTS kredit ({FAN['jami']} soat), {FAN['semestr']}-semestrlar. Darslik {FAN['yil']} o‘quv yili uchun tasdiqlangan fan dasturi ({FAN['kod']}) asosida tuzilgan.</p>
-<div class="grid">{about}</div></div></section>
-
-<section class="section" id="oquv-modeli"><div class="wrap"><div class="kicker">O‘quv modeli</div><h2>Har bir mavzu bo‘yicha olti qadam</h2>
-<p class="section-lead">Nazariya, interaktiv model, tajriba va mustaqil ish bitta o‘quv sikliga birlashtirilgan.</p><div class="grid">{steps}</div></div></section>
-
-<section class="section" id="maruzalar"><div class="wrap"><div class="kicker">Ma’ruzalar · {FAN['maruza']} soat</div><h2>Ma’ruzalar</h2>
-<p class="section-lead">Har bir ma’ruzada: maqsad, asosiy tushunchalar, nazariy ma’lumot, interaktiv model, nazorat savollari va adabiyotlar. Fan dasturidagi rasmiy mavzular ro‘yxati — <a href="annotatsiya.html#maruzalar">Darslik haqida</a>.</p>
-<div class="grid">{L}</div></div></section>
-
-<section class="section" id="laboratoriya"><div class="wrap"><div class="kicker">Laboratoriya ishlari · {FAN['lab']} soat</div><h2>Laboratoriya ishlari</h2>
-<p class="section-lead">Maqsad, uskunalar, ish tartibi va hisobot talablari. Fan dasturidagi 33 ta mashg‘ulot ro‘yxati — <a href="annotatsiya.html#laboratoriya">Darslik haqida</a>.</p>
-<div class="grid">{B}</div></div></section>
-
-<section class="section" id="mustaqil"><div class="wrap"><div class="kicker">Mustaqil ta’lim · {FAN['mustaqil']} soat</div><h2>45 mavzu va yo‘riqnomalar</h2>
-<p class="section-lead">Taqdimot (1-MT) va keys-stadi (2-MT) talablari, fan dasturidagi barcha mavzular va MT yo‘riqnomalari.</p>
-<div class="hero-actions" style="justify-content:flex-start;margin-top:0"><a class="btn btn-primary" href="mustaqil.html"><i class="fas fa-list-check"></i> Mavzular va talablar</a><a class="btn btn-ghost" href="yoriqnomalar/MT-01.html">MT-01 yo‘riqnomasi</a></div></div></section>
-
-<section class="section" id="simulyatorlar"><div class="wrap"><div class="kicker">Simulyatorlar</div><h2>Interaktiv modellar</h2>
-<p class="section-lead">Saytning o‘z modellari va fan dasturiga moslab tanlangan {len(PHET)} ta PhET simulyatori.</p><div class="grid-2">{simc}</div></div></section>
-
-<section class="section" id="baholash"><div class="wrap"><div class="card callout"><div class="kicker">Rasmiy jarayonlar</div><h2 style="margin-top:8px">Baholash va topshiriqlarni topshirish — HEMIS’da</h2>
-<p>Ushbu sayt ochiq o‘quv materiallari to‘plami bo‘lib, baho qo‘ymaydi va topshiriq qabul qilmaydi. Joriy, oraliq (12-hafta) va yakuniy nazorat natijalari universitetning HEMIS axborot tizimida belgilangan tartibda yuritiladi. Mezonlar: <a href="baholash.html">Baholash</a>.</p></div></div></section>
-
-<section class="section" id="muallif"><div class="wrap"><div class="card author"><div class="avatar">DE</div><div><div class="kicker">Elektron darslik muallifi</div>
-<h2 style="margin:6px 0 4px">Ergashev Dadaxon</h2><div class="role">Qo‘qon davlat universiteti, Fizika va astronomiya kafedrasi</div>
-<p>Fan dasturini tuzuvchilar: {', '.join(n for n, _ in TUZUVCHI)}. Taqrizchilar: {', '.join(n for n, _ in TAQRIZCHI)}.</p></div></div></div></section>'''
-    page('index.html', 'Umumiy fizika — interaktiv elektron darslik', body, desc='Umumiy fizika fani bo‘yicha ochiq elektron darslik: ma’ruzalar, laboratoriya, mustaqil ta’lim, baholash.')
+def teacher_page():
+    toc = [("taqvim", "30 haftalik taqvim"), ("shablon", "Dars rejasi shablonlari"), ("lab", "Laboratoriyani tashkil etish"), ("model", "Modellar va ovozdan foydalanish"), ("si", "SI siyosati"), ("baholash", "Baholashni tashkil etish"), ("moslash", "Darslikni yangilash")]
+    S = [sec("taqvim", 1, "O‘quv taqvimi: 2 semestr × 15 hafta (haftada 4 soat)", table(["Hafta", "1-mashg‘ulot (2 soat)", "2-mashg‘ulot (2 soat)", "Nazorat / izoh"], calendar()) + '<p class="muted" style="font-size:.85rem">Taqvim fan dasturidagi M1–M27 va L1–L33 tartibiga mos tavsiya. 1-semestr: M1–M13 va L1–L17; 2-semestr: M14–M27 va L18–L33. Nazorat muddatlari fakultetning o‘quv jarayoni jadvali va HEMIS bo‘yicha aniqlashtiriladi.</p>'),
+         sec("shablon", 2, "Ma’ruza va laboratoriya darsi rejasi shabloni", "<h3>Ma’ruza (80 daqiqa)</h3>" + table(["Vaqt", "Bosqich", "O‘qituvchi", "Talaba"], [["0–10", "Kirish", "Blits-so‘rov, muammoli savol", "Javob beradi, bashorat qiladi"], ["10–45", "Nazariya", "Qonunlarni keltirib chiqaradi", "Konspekt, savollar"], ["45–60", "Model", "Simulyatorni namoyish qiladi", "Bashorat → kuzatish → izoh"], ["60–72", "Misol", "Masalani beradi, yo‘naltiradi", "Juftlikda yechadi"], ["72–80", "Yakun", "Test, xato tushunchalar", "O‘z-o‘zini tekshiradi"]]) + "<h3>Laboratoriya mashg‘uloti (80 daqiqa)</h3>" + table(["Vaqt", "Bosqich"], [["0–10", "Kirish nazorati: ish maqsadi, hisoblash formulasi, xavfsizlik (2–3 savol)"], ["10–55", "O‘lchashlar: juftlikda ishlash, jadvalni to‘ldirish; o‘qituvchi DF bahosi uchun kuzatadi"], ["55–70", "Hisoblash va xatolikni baholash (kalkulyator yoki Python)"], ["70–80", "Natijani himoya qilish: jadval qiymati bilan solishtirish, nazorat savollari"]])),
+         sec("lab", 3, "Laboratoriya ishlarini tashkil etish", ul(["<b>Guruhlash:</b> 2–3 talabadan iborat brigadalar; har bir brigada semestr davomida ishlarni aylanma (frontal emas) tartibda bajaradi.", "<b>Kirish nazorati:</b> talaba ish nazariyasi va tartibini bilmasa, o‘lchashga qo‘yilmaydi — tayyorgarlik uchun darslik sahifasi va virtual model tavsiya etiladi.", "<b>Ikki mashg‘ulotli ishlar</b> (L6–L7, L13–L14, L15–L16, L31–L32): 1-mashg‘ulotda asosiy o‘lchash, 2-mashg‘ulotda boshqa namuna yoki rejim, natijalarni umumlashtirish va himoya.", "<b>Xatolik hisobi:</b> barcha hisobotlarda natija \\(x=\\bar x\\pm\\Delta x\\) ko‘rinishida, ishonchlilik ehtimoli \\(P=0{,}95\\) ko‘rsatiladi (laboratoriyaga kirish sahifasi).", "<b>L33 kompyuter tajribasi:</b> darslikdagi Bor va Frank–Gers modellari yoki PhET “Models of the Hydrogen Atom” simulyatoridan foydalaniladi.", "<b>Xavfsizlik:</b> har bir ish sahifasida xavfsizlik texnikasi bo‘limi bor; birinchi mashg‘ulotda yo‘riqnoma o‘tkazilib, jurnalga imzo olinadi."])),
+         sec("model", 4, "Interaktiv modellar va ovozdan foydalanish", ul(["<b>Bashorat → kuzatish → tushuntirish (POE):</b> parametrni o‘zgartirishdan oldin talabalardan natijani bashorat qilishni so‘rang.", "<b>Ishlangan misol bilan tekshirish:</b> misoldagi qiymatlarni modelga kiriting — natija mos kelishi kerak.", "<b>Cheklovlarni muhokama qiling:</b> modellar soddalashtirilgan (havo qarshiligi, issiqlik yo‘qotishi, ideal asboblar); qaysi effektlar hisobga olinmaganini so‘rang.", "<b>Proyektor uchun:</b> brauzerni to‘liq ekranga o‘tkazing (F11); modellar internetsiz ham ishlaydi.", "<b>Ovozli namoyish:</b> model ostidagi tugma parametrlarni o‘zi bosqichma-bosqich o‘zgartirib, natijani ovoz va yozuv bilan tushuntiradi; tugagach boshqaruv talabalarga o‘tadi.", "<b>Tinglash:</b> sarlavha yonidagi tugma nazariya va misollarni o‘qiydi, formulalarni so‘z bilan aytadi. O‘zbekcha matnlar oldindan tayyorlangan neyron ovozli MP3 fayllardan ijro etiladi — barcha qurilmalarda bir xil tabiiy ovoz eshitiladi. Pastdagi panel: pauza / davom, oldingi va keyingi xatboshi, to‘xtatish (Esc); istalgan xatboshini bosib, o‘sha joydan o‘qish mumkin.", "<b>Til:</b> UZ / RU / EN tugmalari butun saytni (testlar bilan birga) Google Translate orqali tarjima qiladi; rus va ingliz tillarida brauzer ovozi ishlatiladi."])),
+         sec("si", 5, "Sun’iy intellekt bo‘yicha kurs siyosati (tavsiya)", ul(["SI tushuntirish, masala yechimini tekshirish va Python kod qoralamasi uchun ruxsat etiladi.", "Baholanadigan ishda SI ishlatilgan bo‘lsa, prompt va tekshiruv natijasi ilova qilinadi.", "SI bergan son va formulalar darslik yoki mustaqil hisob bilan tasdiqlanishi shart.", "Yozma nazoratlarda (ON, YaN) SI dan foydalanish taqiqlanadi.", "Laboratoriya o‘lchov natijalarini SI yordamida “to‘g‘rilash” yoki uydirish akademik halollik buzilishi hisoblanadi."])),
+         sec("baholash", 6, "Baholashni tashkil etish bo‘yicha tavsiyalar", ul(["<b>DF (20 ball):</b> har laboratoriya mashg‘ulotida kirish nazorati, o‘lchash madaniyati va hisobot himoyasini kuzating; 4 darajali rubrikadan foydalaning (laboratoriya sahifalarining oxirgi bo‘limi).", "<b>1-MT:</b> 45 mavzuni 1-haftada taqsimlang; himoya 5–7 daqiqa + 3 daqiqa savol.", "<b>2-MT:</b> keys-stadi bankidan tanlov; hisobot 3–5 bet.", f"<b>ON:</b> ma’ruzalardagi {sum(len(L['quiz']) for L in LECT)} ta test savoli HEMIS savol banki uchun namuna bo‘la oladi (yangi variantlar tuzish tavsiya etiladi).", "<b>YaN:</b> namunaviy keys baholash sahifasida."])),
+         sec("moslash", 7, "Darslikni moslashtirish va yangilash", "<p>Sayt statik HTML/CSS/JS fayllaridan iborat va GitHub Pages’da ishlaydi. Mazmun <code>gen/</code> papkasidagi Python fayllarida saqlanadi: <code>lec_mex.py</code>, <code>lec_mol.py</code>, <code>lec_el.py</code>, <code>lec_opt.py</code>, <code>lec_atom.py</code> (ma’ruzalar), <code>labs_a.py</code>, <code>labs_b.py</code>, <code>lab_intro.py</code> (laboratoriya), <code>other.py</code> (mustaqil ta’lim, keyslar, lug‘at, vositalar), <code>tours.py</code> (ovozli namoyishlar). Matnni o‘zgartirgach, <code>python gen/build.py .</code> buyrug‘i barcha sahifalarni qayta yaratadi; o‘zgargan xatboshilar uchun ovoz GitHub Actions orqali avtomatik yangilanadi. Simulyatorlar <code>js/sims.js</code> faylida.</p>")]
+    html = head("O‘qituvchi uchun", "30 haftalik taqvim, dars rejasi shablonlari, laboratoriyani tashkil etish va SI siyosati") + header("oqituvchi.html") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("", "O‘qituvchi uchun")], "Metodik qo‘llanma", "O‘qituvchi uchun qo‘llanma", "Fan dasturi asosidagi haftalik taqvim, dars shablonlari, laboratoriyani tashkil etish, baholash va darslikni yangilash bo‘yicha ko‘rsatmalar.", [("a", "2 × 15 hafta"), ("", "Haftada 4 soat")]) + doc(toc, S) + "</main>" + footer()
+    write("oqituvchi.html", html)
 
 
-if __name__ == '__main__':
-    build_lectures(); build_labs(); build_mt()
-    build_annotatsiya(); build_baholash(); build_mustaqil(); build_oqituvchi()
-    build_glossariy(); build_vositalar(); build_simulyatorlar(); build_index()
-    print('Tayyor.')
+# ---------------- Lug'at ----------------
+def gloss_page():
+    def mlink(m):
+        return f'<a href="lecture{m}.html">M{m}</a>' if isinstance(m, int) else f'<a href="lab{m[1:]}.html">{m}</a>'
+    rows = "".join(f'<tr class="g-row"><td><b>{u}</b></td><td><span lang="ru">{r}</span></td><td><i lang="en">{e}</i></td><td>{d}</td><td>{mlink(m)}</td></tr>' for u, r, e, d, m in sorted(other.GLOSS, key=lambda x: x[0].lower()))
+    body = f'<input class="search" type="text" placeholder="Atama qidirish (o‘zbekcha, ruscha yoki inglizcha)…" data-filter=".g-row" data-count="g-count" aria-label="Atama qidirish"><p class="muted" id="g-count">{len(other.GLOSS)} ta natija</p><div class="tw"><table class="t"><thead><tr><th>Atama</th><th>Русский</th><th>English</th><th>Ta’rif</th><th>Mavzu</th></tr></thead><tbody>{rows}</tbody></table></div>'
+    html = head("Atamalar lug‘ati", "Umumiy fizika atamalari: o‘zbekcha–ruscha–inglizcha lug‘at") + header("glossariy.html") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("", "Lug‘at")], "1-ilova", "Atamalar lug‘ati", "O‘zbekcha atama, ruscha va inglizcha muqobili, qisqa ta’rif va u o‘rganiladigan mavzu.", [("c", f"{len(other.GLOSS)} atama")]) + f'<div class="container" style="padding:2rem 0 3rem"><section class="doc-sec">{body}</section></div></main>' + footer()
+    write("glossariy.html", html)
+
+
+def tools_page():
+    secs, toc = [], []
+    for i, (cat, items) in enumerate(other.TOOLS, 1):
+        rows = [[(f'<a href="{u}" rel="noopener" target="_blank">{n}</a>' if u.startswith("http") else f'<a href="{u}">{n}</a>') if u else f"<b>{n}</b>", d, a] for n, u, d, a in items]
+        secs.append(sec(f"t{i}", i, cat, table(["Vosita", "Darslikda qo‘llanilishi", "Kirish"], rows)))
+        toc.append((f"t{i}", cat))
+    secs.append('<div class="callout info"><b>Eslatma</b>Tariflar va litsenziya shartlari o‘zgarib turadi — foydalanishdan oldin rasmiy saytni tekshiring. Darslikdagi barcha topshiriqlarni bepul vositalar (PhET, Python/Colab, Tracker, GeoGebra) bilan bajarish mumkin.</div>')
+    html = head("Dasturiy vositalar", "PhET, Python, Tracker, GeoGebra va boshqa bepul vositalar") + header("vositalar.html") + '<main id="main">' + hero([("index.html", "Bosh sahifa"), ("", "Vositalar")], "2-ilova", "Dasturiy vositalar va virtual laboratoriyalar", "Ma’ruza, laboratoriya va mustaqil ta’lim topshiriqlari uchun tavsiya etilgan bepul vositalar.", []) + doc(toc, secs) + "</main>" + footer()
+    write("vositalar.html", html)
+
+
+def notfound():
+    html = head("Sahifa topilmadi", "404") + header() + '<main id="main">' + hero([("index.html", "Bosh sahifa")], "404", "Sahifa topilmadi", "So‘ralgan sahifa mavjud emas yoki ko‘chirilgan. Bosh sahifaga qayting.", []) + "</main>" + footer()
+    write("404.html", html)
+
+
+def legacy_redirects():
+    """Avvalgi versiya manzillari (lectures/, labs/, yoriqnomalar/) yangi sahifalarga yo'naltiriladi."""
+    for i in range(1, 25):
+        redirect(f"lectures/lecture{i}.html", "index.html#maruzalar", "Ma’ruzalar")
+    for i in range(1, 4):
+        redirect(f"labs/lab{i}.html", "index.html#laboratoriya", "Laboratoriya ishlari")
+    for i in range(1, 4):
+        redirect(f"yoriqnomalar/MT-{i:02d}.html", "mustaqil.html", "Mustaqil ta’lim")
+
+
+if __name__ == "__main__":
+    os.makedirs(OUT, exist_ok=True)
+    assert [L["n"] for L in LECT] == list(range(1, 28)), "ma'ruzalar 1..27 bo'lishi kerak"
+    allsess = sorted(s for b in LABS for s in b["sess"])
+    assert allsess == list(range(1, 34)), f"laboratoriya mashg'ulotlari 1..33: {allsess}"
+    for L in LECT:
+        for s in sims_of(L): assert s in SIMNAME, s
+        lecture_page(L)
+    for b in LABS:
+        for s in sims_of(b): assert s in SIMNAME, s
+        lab_page(b)
+    lab_intro_page(); index_page(); sims_page(); annot_page(); mustaqil_page(); baholash_page(); teacher_page(); gloss_page(); tools_page(); notfound(); legacy_redirects()
+    print("OK:", len(LECT), "ma'ruza,", len(LABS), "laboratoriya ishi ->", os.path.abspath(OUT))

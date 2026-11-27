@@ -1,1 +1,7 @@
 __pycache__/
+*.pyc
+.DS_Store
+.claude/
+_*.html
+audio/uz/texts.json
+*.log
