@@ -858,30 +858,117 @@
 
   /* M22, L27, L29 — Yupqa linza */
   S.lens = {
-    title: 'Yupqa linzada tasvir yasash', stat: '1/d + 1/d′ = 1/f',
+    title: 'Yupqa linzada tasvir yasash (3D)', stat: '1/d + 1/d′ = 1/f · 3D', anim: true,
     params: [
       { k: 'f', l: 'Fokus masofasi f, sm (manfiy — sochuvchi)', min: -30, max: 30, step: 1, v: 15 },
       { k: 'd', l: 'Buyumdan linzagacha d, sm', min: 4, max: 80, step: 1, v: 40 },
-      { k: 'hb', l: 'Buyum balandligi h, sm', min: 1, max: 5, step: .5, v: 3 }
+      { k: 'hb', l: 'Buyum balandligi h, sm', min: 1, max: 5, step: .5, v: 3 },
+      { k: 'nur', l: 'Nurlar', type: 'sel', opts: ['Hammasi', '3 ta xarakterli nur', 'Nurlar konusi (3D)'], v: 'Hammasi' }
     ],
-    draw(cv, P) {
+    draw(cv, P, dt) {
       const { c, w, h } = ctx2d(cv), f = Math.abs(P.f) < 2 ? (P.f < 0 ? -2 : 2) : P.f, d = P.d, hb = P.hb;
       const dp = Math.abs(d - f) < 1e-9 ? Infinity : f * d / (d - f), Gm = -dp / d, hp = Gm * hb;
-      const span = 90, cx = w * .5, cy = h * .52, sx = w / (2 * span), sy = Math.min(h * .38 / Math.max(hb, Math.min(Math.abs(hp), 12), 4), 18);
-      const X = x => cx + x * sx, Y = y => cy - y * sy;
-      line(c, 0, cy, w, cy, '#475569', 1);
-      [[-f, 'F'], [f, 'F′'], [-2 * f, '2F'], [2 * f, '2F′']].forEach(([x, t]) => { if (Math.abs(x) < span) { dot(c, X(x), cy, 3.5, '#94a3b8'); label(c, t, X(x), cy + 16, '#94a3b8', 'center', 11); } });
-      line(c, cx, Y(-h * .45 / sy), cx, Y(h * .45 / sy), '#93c5fd', 3);
-      const tip = f > 0 ? 1 : -1, ly = h * .45; [[cy - ly, -1], [cy + ly, 1]].forEach(([yy, s]) => { line(c, cx, yy, cx - 8, yy - s * tip * 10, '#93c5fd', 3); line(c, cx, yy, cx + 8, yy - s * tip * 10, '#93c5fd', 3); });
-      arrow(c, X(-d), cy, X(-d), Y(hb), C.green, 3);
-      const xEnd = span, rays = [[Y(hb), -hb / f, C.amber], [cy, -hb / d, C.cyan], [Y(-hb * f / (d - f)), 0, C.rose]];
-      rays.forEach(([yL, slope, col], k) => {
-        const yLens = (cy - yL) / sy;
-        if (k === 0) line(c, X(-d), Y(hb), cx, Y(hb), col, 1.6); else if (k === 1) line(c, X(-d), Y(hb), cx, cy, col, 1.6); else line(c, X(-d), Y(hb), cx, yL, col, 1.6);
-        const yAt = x => yLens + slope * x; line(c, cx, yL, X(xEnd), Y(yAt(xEnd)), col, 1.6);
-        if (!(dp > 0) && isFinite(dp)) line(c, cx, yL, X(dp), Y(yAt(dp)), col, 1, [5, 4]);
+      /* Kamera holati: sichqoncha/barmoq bilan aylantirish, g'ildirak bilan masshtab */
+      const s0 = st(cv, () => ({ yaw: -.55, pitch: .32, zoom: 1, drag: null, auto: true, bound: false, tm: 0 }));
+      if (!s0.bound) {
+        s0.bound = true; cv.style.touchAction = 'none'; cv.style.cursor = 'grab';
+        cv.addEventListener('pointerdown', e => { s0.drag = { x: e.clientX, y: e.clientY }; s0.auto = false; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; });
+        cv.addEventListener('pointermove', e => {
+          if (!s0.drag) return;
+          s0.yaw += (e.clientX - s0.drag.x) * .008; s0.pitch = Math.min(1.45, Math.max(-.6, s0.pitch + (e.clientY - s0.drag.y) * .006));
+          s0.drag = { x: e.clientX, y: e.clientY };
+        });
+        const up = () => { s0.drag = null; cv.style.cursor = 'grab'; };
+        cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+        cv.addEventListener('wheel', e => { e.preventDefault(); s0.auto = false; s0.zoom = Math.min(3, Math.max(.5, s0.zoom * Math.exp(-e.deltaY * .0012))); }, { passive: false });
+        cv.addEventListener('dblclick', () => { s0.yaw = -.55; s0.pitch = .32; s0.zoom = 1; s0.auto = true; s0.tm = 0; });
+      }
+      if (s0.auto) { s0.tm += dt; s0.yaw = -.55 + .45 * Math.sin(s0.tm * .35); }
+
+      /* Sahna: optik o'q — x (sm); y, z — ko'ndalang o'lchamlar E marta kattalashtirilgan */
+      const span = 90, Rl = Math.max(hb * 1.8, 5), E = .3 * span / Rl, k = 1 / span;
+      const cyw = Math.cos(s0.yaw), syw = Math.sin(s0.yaw), cp = Math.cos(s0.pitch), sp = Math.sin(s0.pitch);
+      const D = 2.1 / s0.zoom, F = Math.min(w * 1.1, h * 2);
+      const pr = (x, y, z) => {
+        const X = x * k, Y = y * E * k, Z = z * E * k;
+        const x1 = X * cyw - Z * syw, z1 = X * syw + Z * cyw;
+        const y2 = Y * cp - z1 * sp, z2 = Y * sp + z1 * cp, dd = z2 + D;
+        if (dd < .08) return null;
+        return [w / 2 + F * x1 / dd, h * .55 - F * y2 / dd, dd];
+      };
+      const seg = (p, q, col, wd = 1, dash = []) => { const A1 = pr(...p), B1 = pr(...q); if (A1 && B1) line(c, A1[0], A1[1], B1[0], B1[1], col, wd, dash); };
+      const poly = (pts, fill, stroke, wd = 1) => {
+        const pp = pts.map(p => pr(...p)); if (pp.some(p => !p)) return;
+        c.beginPath(); pp.forEach((p, i) => (i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]))); c.closePath();
+        if (fill) { c.fillStyle = fill; c.fill(); } if (stroke) { c.strokeStyle = stroke; c.lineWidth = wd; c.stroke(); }
+      };
+      const ball = (p, r, col) => { const q = pr(...p); if (q) dot(c, q[0], q[1], r * 2.1 / q[2], col); };
+      const txt = (p, s, col, al = 'center', size = 11, dy = 0) => { const q = pr(...p); if (q) label(c, s, q[0], q[1] + dy, col, al, size); };
+
+      /* Fon va optik skameyka */
+      const bg = c.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#0a1226'); bg.addColorStop(1, '#030712');
+      c.fillStyle = bg; c.fillRect(0, 0, w, h);
+      const yb = -Rl * 1.25, bw = Rl * .35;
+      for (let x = -span; x <= span + 1e-9; x += 10) seg([x, yb, -Rl * 1.3], [x, yb, Rl * 1.3], C.grid, 1);
+      for (let z = -Rl * 1.3; z <= Rl * 1.3 + 1e-9; z += Rl * .65) seg([-span, yb, z], [span, yb, z], C.grid, 1);
+      poly([[-span, yb, -bw], [span, yb, -bw], [span, yb, bw], [-span, yb, bw]], '#1e293b', '#334155');
+      for (let x = -80; x <= 80; x += 20) txt([x, yb, bw * 2.2], `${x}`, '#475569', 'center', 10);
+      seg([0, yb, 0], [0, -Rl, 0], '#475569', 3);
+
+      /* Optik o'q va fokuslar */
+      seg([-span, 0, 0], [span, 0, 0], '#475569', 1, [6, 4]);
+      [[-f, 'F'], [f, 'F′'], [-2 * f, '2F'], [2 * f, '2F′']].forEach(([x, t]) => { if (Math.abs(x) < span) { ball([x, 0, 0], 3.4, '#94a3b8'); txt([x, 0, 0], t, '#94a3b8', 'center', 11, 17); } });
+
+      /* Buyum: "L" shaklidagi strelka — tasvirda ham vertikal, ham ko'ndalang ag'darilishni ko'rsatadi */
+      const shape = (x, s, col, wd, dash = []) => {
+        seg([x, 0, 0], [x, s * hb, 0], col, wd, dash); seg([x, 0, 0], [x, 0, s * hb * .55], col, wd, dash);
+        const tip = pr(x, s * hb, 0), bse = pr(x, s * hb * .72, 0); if (tip && bse) arrow(c, bse[0], bse[1], tip[0], tip[1], col, wd, 10);
+        ball([x, s * hb, 0], 3, col); ball([x, 0, s * hb * .55], 2.6, col);
+      };
+      shape(-d, 1, C.green, 3); txt([-d, hb, 0], 'Buyum', C.green, 'center', 11, -12);
+
+      /* Nurlar: yupqa linza qoidasi — chiqishdagi og'ish = kirishdagi og'ish − (balandlik)/f */
+      const mode = P.nur || 'Hammasi', show3 = mode !== 'Nurlar konusi (3D)', showC = mode !== '3 ta xarakterli nur';
+      const ray = (py, pz, col, wd, al) => {
+        const sy = (py - hb) / d - py / f, sz = pz / d - pz / f;
+        seg([-d, hb, 0], [0, py, pz], col, wd);
+        seg([0, py, pz], [span, py + sy * span, pz + sz * span], col, wd);
+        if (isFinite(dp) && dp < 0 && al) seg([0, py, pz], [dp, py + sy * dp, pz + sz * dp], col, 1, [5, 4]);
+      };
+      const out = [];
+      if (showC) { const N = 14; for (let i = 0; i < N; i++) { const u = i / N * 2 * Math.PI; out.push([Rl * .82 * Math.cos(u), Rl * .82 * Math.sin(u)]); } }
+      out.forEach(([py, pz]) => ray(py, pz, 'rgba(34,211,238,.38)', 1.1, false));
+
+      /* Linza: shaffof disk + kesim profillari (yig'uvchi — qavariq, sochuvchi — botiq) */
+      const ring = lin(0, 2 * Math.PI, 49).map(u => [0, Rl * Math.cos(u), Rl * Math.sin(u)]);
+      const t0 = 3, conv = f > 0;
+      const prof = () => lin(-1, 1, 25).map(v => { const th = conv ? t0 * (1 - v * v) : t0 * (.35 + .65 * v * v); return [th, v]; });
+      poly(ring, conv ? 'rgba(147,197,253,.16)' : 'rgba(196,181,253,.14)', '#93c5fd', 2);
+      [[1, 0], [0, 1]].forEach(([oy, oz]) => {
+        const pts = prof().map(([th, v]) => [th, v * Rl * oy, v * Rl * oz]).concat(prof().reverse().map(([th, v]) => [-th, v * Rl * oy, v * Rl * oz]));
+        poly(pts, 'rgba(147,197,253,.12)', 'rgba(191,219,254,.75)', 1.4);
       });
-      if (isFinite(dp) && Math.abs(dp) < span) arrow(c, X(dp), cy, X(dp), Y(hp), C.amber, dp > 0 ? 3 : 2, 9);
+      txt([0, Rl, 0], conv ? 'Yig‘uvchi linza' : 'Sochuvchi linza', '#93c5fd', 'center', 11, -10);
+
+      if (show3) {
+        const p3 = hb * f / (f - d);
+        [[hb, C.amber], [0, C.cyan], [Math.abs(p3) < Rl * 1.6 ? p3 : NaN, C.rose]].forEach(([py, col]) => { if (isFinite(py)) ray(py, 0, col, 2, true); });
+      }
+
+      /* Ekran (haqiqiy tasvir uchun) va tasvir */
+      if (isFinite(dp) && dp > 0 && dp < span) {
+        const sh = Math.max(Math.abs(hp) * 1.4, Rl * .8);
+        poly([[dp, -sh, -sh], [dp, sh, -sh], [dp, sh, sh], [dp, -sh, sh]], 'rgba(248,250,252,.07)', 'rgba(203,213,225,.4)');
+        txt([dp, -sh, 0], 'Ekran', '#94a3b8', 'center', 10, 14);
+      }
+      if (isFinite(dp) && Math.abs(dp) < span) {
+        const s = Gm;
+        seg([dp, 0, 0], [dp, s * hb, 0], C.amber, dp > 0 ? 3 : 2, dp > 0 ? [] : [5, 4]); seg([dp, 0, 0], [dp, 0, s * hb * .55], C.amber, dp > 0 ? 3 : 2, dp > 0 ? [] : [5, 4]);
+        const tip = pr(dp, s * hb, 0), bse = pr(dp, s * hb * .72, 0); if (tip && bse) arrow(c, bse[0], bse[1], tip[0], tip[1], C.amber, dp > 0 ? 3 : 2, 10);
+        ball([dp, s * hb, 0], 3, C.amber); ball([dp, 0, s * hb * .55], 2.6, C.amber);
+        txt([dp, s * hb, 0], dp > 0 ? 'Haqiqiy tasvir' : 'Mavhum tasvir', C.amber, 'center', 11, s > 0 ? -12 : 18);
+      }
+      label(c, 'Aylantirish: sichqoncha / barmoq · g‘ildirak — masshtab · 2× bosish — tiklash · ko‘ndalang o‘lchamlar kattalashtirilgan', 12, h - 10, '#64748b', 'left', 11);
       const kind = !isFinite(dp) ? A('tasvir hosil bo‘lmaydi (cheksizlikda)') : A(`${dp > 0 ? 'haqiqiy' : 'mavhum'}, ${hp * hb < 0 ? 'teskari' : 'to‘g‘ri'}, ${Math.abs(Gm) > 1 ? 'kattalashgan' : Math.abs(Gm) < 1 ? 'kichiklashgan' : 'teng'}`);
       return { 'Tasvirgacha masofa d′, sm': isFinite(dp) ? fx(dp, 1) : '∞', 'Chiziqli kattalashtirish Γ = −d′/d': isFinite(Gm) ? fx(Gm, 2) : '∞', 'Tasvir balandligi h′, sm': isFinite(hp) ? fx(hp, 2) : '∞', 'Tasvir': kind, 'Optik kuch D = 1/f, dptr': fx(100 / f, 2) };
     }
