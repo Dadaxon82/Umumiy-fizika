@@ -279,3 +279,19 @@ body.has-player .footer { padding-bottom:6rem; }
   .hero-lab .container { padding:.4rem 0 2rem; }
   .hero-lab h1 { max-width:none; }
 }
+/* Simulyatorlar: M/L havolalari */
+.sim-links { display:flex; flex-wrap:wrap; gap:.5rem; margin:.7rem 0 0; }
+.sim-link { position:relative; display:inline-flex; align-items:center; gap:.35rem; padding:.38rem .75rem; border-radius:999px; border:1px solid #0891b277; background:#0891b214; color:#67e8f9; font:700 .78rem 'JetBrains Mono',monospace; text-decoration:none; overflow:hidden; cursor:pointer; transition:transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s, background .25s, color .25s, border-color .25s; }
+.sim-link.l { border-color:#05966977; background:#05966914; color:#6ee7b7; }
+.sim-link i { font-style:normal; display:inline-block; max-width:0; opacity:0; transform:translateX(-6px); transition:max-width .25s, opacity .25s, transform .25s; }
+.sim-link::before { content:""; position:absolute; inset:0; background:linear-gradient(110deg,transparent 30%,#ffffff40 50%,transparent 70%); transform:translateX(-120%); }
+.sim-link:hover, .sim-link:focus-visible { transform:translateY(-3px) scale(1.08); background:#0891b2; color:#fff; border-color:#0891b2; box-shadow:0 8px 20px -6px #0891b2aa; text-decoration:none; }
+.sim-link.l:hover, .sim-link.l:focus-visible { background:#059669; border-color:#059669; box-shadow:0 8px 20px -6px #059669aa; }
+.sim-link:hover::before, .sim-link:focus-visible::before { animation:simShine .7s ease; }
+.sim-link:hover i, .sim-link:focus-visible i { max-width:1.2em; opacity:1; transform:translateX(0); }
+.sim-link:active { transform:translateY(0) scale(.97); }
+@keyframes simShine { to { transform:translateX(120%); } }
+[data-theme="light"] .sim-link { background:#ecfeff; color:#0e7490; border-color:#67e8f9; }
+[data-theme="light"] .sim-link.l { background:#ecfdf5; color:#047857; border-color:#6ee7b7; }
+[data-theme="light"] .sim-link:hover { background:#0891b2; color:#fff; } [data-theme="light"] .sim-link.l:hover { background:#059669; color:#fff; }
+@media (prefers-reduced-motion:reduce) { .sim-link, .sim-link i { transition:none; } .sim-link:hover::before { animation:none; } }

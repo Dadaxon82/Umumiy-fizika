@@ -63,7 +63,7 @@ INTL = {k: f'<span lang="en">{v}</span>' for k, v in INTL.items()}
 
 HEAD_JS = r"""<script>(function(){var d=document.documentElement;try{d.dataset.theme=localStorage.getItem('yaf-theme')||'light';}catch(e){d.dataset.theme='light';}var m=document.cookie.match(/googtrans=\/uz\/(ru|en)/);if(m){d.classList.add('alif-old');d.dataset.tl=m[1];}})();</script>"""
 esc = _h.escape
-V = "14"  # kesh versiyasi
+V = "15"  # kesh versiyasi
 
 
 def head(title, desc, katex=True, extra_css=True, body_cls=""):

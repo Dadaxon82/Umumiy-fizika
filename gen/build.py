@@ -306,13 +306,13 @@ def index_page():
 def sims_page():
     used = {}
     for L in LECT:
-        for s in sims_of(L): used.setdefault(s, []).append((f"lecture{L['n']}.html#model", f"M{L['n']}"))
+        for s in sims_of(L): used.setdefault(s, []).append((f"lecture{L['n']}.html#model", f"M{L['n']}", f"{L['n']}-ma’ruza: {strip_tags(L['short'])}", "m"))
     for b in LABS:
-        for s in sims_of(b): used.setdefault(s, []).append((f"lab{b['n']}.html#model", f"L{lab_label(b)}"))
+        for s in sims_of(b): used.setdefault(s, []).append((f"lab{b['n']}.html#model", f"L{lab_label(b)}", f"{lab_label(b)}-laboratoriya ishi: {strip_tags(b['title'])}", "l"))
     groups = [("Mexanika", ["vernier", "kinem", "projectile", "newton", "spring", "beam", "collision", "rotation", "oscill"]), ("Molekulyar fizika va termodinamika", ["maxwell", "gas", "calorimeter", "capillary", "archimedes"]), ("Elektr va magnetizm", ["coulomb", "capacitor", "circuit", "kirchhoff", "wheatstone", "vacdiode", "bfield", "induction", "rlc", "ac"]), ("Optika", ["young", "grating", "malus", "lens", "snell", "planck", "photo", "photometry"]), ("Atom va yadro fizikasi", ["bohr", "franck", "decay", "binding"])]
     S, toc = [], []
     for k, (g, keys) in enumerate(groups, 1):
-        cards = "".join(f'<div class="card"><span class="badge">model</span><h3>{SIMNAME[s]}</h3><p class="muted">{" · ".join(f"<a href=\"{h}\">{t}</a>" for h, t in used.get(s, []))}</p></div>' for s in keys)
+        cards = "".join(f'<div class="card"><span class="badge">model</span><h3>{SIMNAME[s]}</h3><p class="sim-links">{"".join(f'<a class="sim-link {c}" href="{h}" title="{tip} — modelni ochish" aria-label="{tip} — modelni ochish"><span>{t}</span><i aria-hidden="true">→</i></a>' for h, t, tip, c in used.get(s, []))}</p></div>' for s in keys)
         S.append(sec(f"g{k}", k, g, f'<div class="grid grid-3">{cards}</div>'))
         toc.append((f"g{k}", g))
     S.append(sec("demo", len(groups) + 1, "Namoyish: tebranishlar va fotoeffekt", sim_block("oscill", "s1") + '<div style="margin-top:1.4rem"></div>' + sim_block("photo", "s2")))
