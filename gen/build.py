@@ -249,6 +249,16 @@ def lab_intro_page():
 
 
 # ---------------- Bosh sahifa ----------------
+# Bosh sahifa kartochkalari uchun chiziqli ikonkalar (rangi CSS: currentColor)
+_IC = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+FEAT_IC = {
+    "lec": _IC + '<path d="M24 7 41 14.5 24 22 7 14.5Z"/><path d="M7 14.5V19L24 26.5 41 19v-4.5"/><path d="M7 23.5V28L24 35.5 41 28v-4.5"/><path d="M7 32.5V37L24 44.5 41 37v-4.5"/></svg>',
+    "lab": _IC + '<path d="M18 6h12M20.5 6v13L9.6 37.4A3.8 3.8 0 0 0 12.9 43h22.2a3.8 3.8 0 0 0 3.3-5.6L27.5 19V6"/><path d="M13.6 31h20.8"/><circle cx="20" cy="36.6" r="1.7" fill="currentColor" stroke="none"/><circle cx="27.6" cy="35" r="1.3" fill="currentColor" stroke="none"/><circle cx="24.4" cy="39.7" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    "mt": _IC + '<rect x="9" y="6" width="30" height="37" rx="4.5"/><path d="M15.5 16.5l2.6 2.6 4.6-5M27 16.5h6"/><path d="M15.5 26.5l2.6 2.6 4.6-5M27 26.5h6"/><path d="M16 36h17"/></svg>',
+    "sim": _IC + '<rect x="4.5" y="7" width="39" height="27" rx="3.5"/><path d="M17 42h14M24 34v8"/><path d="M10 21c2.5 0 3.2-7 6.4-7s3.9 14 7.6 14 4.4-14 7.6-14 3.6 7 6.4 7"/></svg>',
+}
+
+
 def index_page():
     mods = ""
     for r, name, a, z in MODULES:
@@ -263,9 +273,15 @@ def index_page():
         for s in sims_of(b): allsims.setdefault(s, f"lab{b['n']}.html")
     steps = [("1", "Diagnostika", "Blits-so‘rov va o‘z-o‘zini tekshirish testi orqali boshlang‘ich bilimni aniqlash."), ("2", "Nazariya", "Asosiy qonunlar keltirib chiqariladi, birliklar va qo‘llanish chegaralari ko‘rsatiladi."), ("3", "Interaktiv model", f"{len(SIMNAME)} ta brauzer modeli: parametrni o‘zgartiring, bashorat qiling, tekshiring."), ("4", "Masala", "Ishlangan misollar va tipik xatolar tahlili."), ("5", "Laboratoriya", "O‘lchash, xatolikni baholash va Python bilan natijani qayta ishlash."), ("6", "Taqdimot va keys", "Mustaqil ta’lim: 45 mavzu bo‘yicha taqdimot va amaliy keys-stadi.")]
     st = "".join(f'<article class="card"><span class="badge">QADAM {a}</span><h3>{b}</h3><p class="muted">{c}</p></article>' for a, b, c in steps)
-    html = head("Bosh sahifa", f"Umumiy fizika — bakalavriat uchun interaktiv ovozli elektron darslik: 27 ma’ruza, 33 laboratoriya mashg‘uloti, 45 mustaqil ta’lim mavzusi, {len(SIMNAME)} interaktiv model.") + header() + f"""<main id="main">
-<section class="hero"><div class="container"><div class="eyebrow">60530100 — Kimyo · Bakalavriat · {CODE} · 1–2-semestr</div><h1>Tabiat qonunlarini <span>tushuning, o‘lchang va modellashtiring.</span></h1><p class="lead">Mexanikadan atom yadrosigacha — fan dasturi asosidagi ochiq interaktiv elektron darslik: har bir ma’ruza ovozli o‘qiladi, formulalar so‘z bilan aytiladi, har bir qonunni brauzerdagi modelda sinab ko‘rish mumkin. Baholash va rasmiy topshirish HEMIS orqali amalga oshiriladi.</p>
-<div class="grid grid-4" style="margin-top:2rem"><div class="card"><div class="eyebrow">01</div><h3>27 ta ma’ruza</h3><p class="muted">54 soat: nazariya, ishlangan misollar, ovozli o‘qish va 10 savolli test.</p></div><div class="card"><div class="eyebrow">02</div><h3>{len(LABS)} ta laboratoriya ishi</h3><p class="muted">66 soat (33 mashg‘ulot): tartib, jadval, xatolik hisobi va Python.</p></div><div class="card"><div class="eyebrow">03</div><h3>45 ta mustaqil ish</h3><p class="muted">180 soat: taqdimot rejalari va keys-stadi banki.</p></div><div class="card"><div class="eyebrow">04</div><h3>{len(SIMNAME)} ta model</h3><p class="muted">Brauzerda ishlaydigan, ovozli namoyishli interaktiv modellar.</p></div></div></div></section>
+    feats = [("lec", "#maruzalar", "01", "27 ta ma’ruza", "54 soat: nazariya, ishlangan misollar, ovozli o‘qish va 10 savolli test."),
+             ("lab", "#laboratoriya", "02", f"{len(LABS)} ta laboratoriya ishi", "66 soat (33 mashg‘ulot): tartib, jadval, xatolik hisobi va Python."),
+             ("mt", "mustaqil.html", "03", "45 ta mustaqil ish", "180 soat: taqdimot rejalari va keys-stadi banki."),
+             ("sim", "simulyatorlar.html", "04", f"{len(SIMNAME)} ta model", "Brauzerda ishlaydigan, ovozli namoyishli interaktiv modellar.")]
+    fc = "".join(f'<a class="card feat" href="{h}"><span class="feat-ic">{FEAT_IC[i]}</span><div class="feat-head"><div class="feat-n">{n}</div><h3>{t}</h3></div><p>{d}</p></a>' for i, h, n, t, d in feats)
+    html = head("Bosh sahifa", f"Umumiy fizika — bakalavriat uchun interaktiv ovozli elektron darslik: 27 ma’ruza, 33 laboratoriya mashg‘uloti, 45 mustaqil ta’lim mavzusi, {len(SIMNAME)} interaktiv model.", body_cls="home") + header() + f"""<main id="main">
+<section class="hero-lab"><div class="hero-photo" aria-hidden="true"><img src="img/hero-lab.webp" alt="" width="882" height="392" fetchpriority="high"></div><div class="container"><div class="eyebrow">60530100 — Kimyo · Bakalavriat · {CODE} · 1–2-semestr</div><h1>Tabiat qonunlarini tushuning, o‘lchang va modellashtiring.</h1></div></section>
+<section class="intro"><div class="container"><p class="lead">Mexanikadan atom yadrosigacha — fan dasturi asosidagi ochiq interaktiv elektron darslik: har bir ma’ruza ovozli o‘qiladi, formulalar so‘z bilan aytiladi, har bir qonunni brauzerdagi modelda sinab ko‘rish mumkin. Baholash va rasmiy topshirish HEMIS orqali amalga oshiriladi.</p>
+<div class="grid grid-4 feat-cards">{fc}</div></div></section>
 <section id="darslik" class="section"><div class="container"><div class="section-head"><div class="eyebrow">Darslik haqida</div><h2>Annotatsiya, baholash va ilovalar</h2><p class="muted">10 ECTS kredit (300 soat), 1–2-semestr. Darslik fan dasturi, ECTS va xalqaro sifat mezonlariga muvofiq tuzilgan.</p></div><div class="grid grid-3">
 {card_link("annotatsiya.html", "Kirish", "Annotatsiya, mundarija va xalqaro standartlar", "Bibliografik ma’lumot, uch tildagi annotatsiya, ta’lim natijalari va sifat mezonlariga muvofiqlik.")}
 {card_link("baholash.html", "Baholash", "JN · ON · YaN rubrikalari", "100 ballik tizim, saralash ballari, TN–nazorat matritsasi va baho kalkulyatori.")}

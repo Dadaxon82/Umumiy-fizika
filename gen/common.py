@@ -61,12 +61,12 @@ INTL = {
 }
 INTL = {k: f'<span lang="en">{v}</span>' for k, v in INTL.items()}
 
-HEAD_JS = r"""<script>(function(){var d=document.documentElement;try{d.dataset.theme=localStorage.getItem('yaf-theme')||'dark';}catch(e){d.dataset.theme='dark';}var m=document.cookie.match(/googtrans=\/uz\/(ru|en)/);if(m){d.classList.add('alif-old');d.dataset.tl=m[1];}})();</script>"""
+HEAD_JS = r"""<script>(function(){var d=document.documentElement;try{d.dataset.theme=localStorage.getItem('yaf-theme')||'light';}catch(e){d.dataset.theme='light';}var m=document.cookie.match(/googtrans=\/uz\/(ru|en)/);if(m){d.classList.add('alif-old');d.dataset.tl=m[1];}})();</script>"""
 esc = _h.escape
-V = "9"  # kesh versiyasi
+V = "14"  # kesh versiyasi
 
 
-def head(title, desc, katex=True, extra_css=True):
+def head(title, desc, katex=True, extra_css=True, body_cls=""):
     k = ""
     if katex:
         k = ('<link rel="stylesheet" href="vendor/katex/katex.min.css">\n'
@@ -86,17 +86,18 @@ def head(title, desc, katex=True, extra_css=True):
 <link rel="stylesheet" href="css/styles.css?v={V}">
 {f'<link rel="stylesheet" href="css/darslik.css?v={V}">' if extra_css else ''}
 {k}</head>
-<body>
+<body{f' class="{body_cls}"' if body_cls else ''}>
 <a class="skip-link" href="#main">Asosiy mazmunga o‘tish</a>
 """
 
-ATOM = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="1.6" fill="#fff"/></svg>'
+# Logotip: chiziqli atom belgisi (rangi CSS dagi currentColor dan olinadi)
+ATOM = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><ellipse cx="24" cy="24" rx="20" ry="8"/><ellipse cx="24" cy="24" rx="20" ry="8" transform="rotate(60 24 24)"/><ellipse cx="24" cy="24" rx="20" ry="8" transform="rotate(120 24 24)"/><circle cx="24" cy="24" r="3.6"/><circle cx="24" cy="24" r="1.4" fill="currentColor" stroke="none"/></svg>'
 
 
 def header(active=""):
     links = "".join(
         f'<a href="{h}"{" aria-current=\"page\"" if h == active else ""}>{t}</a>' for h, t in NAV)
-    return f"""<header class="site-header"><div class="container navbar"><a class="brand" href="index.html"><span class="brand-mark">{ATOM}</span><span>UMUMIY FIZIKA<small>Interaktiv elektron darslik · Bakalavriat</small></span></a><nav class="nav-links" aria-label="Asosiy navigatsiya">{links}</nav><div class="hdr-tools notranslate" translate="no"><div class="lang-switch" role="group" aria-label="Til / Язык / Language"><button type="button" data-lang="uz">UZ</button><button type="button" data-lang="ru">RU</button><button type="button" data-lang="en">EN</button></div><button class="icon-btn theme-btn" type="button" aria-label="Kun va tun rejimini almashtirish" title="Kun / tun rejimi"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></div><button class="menu-toggle" type="button" aria-label="Menyuni ochish" aria-expanded="false">☰</button></div></header>
+    return f"""<header class="site-header"><div class="container navbar"><a class="brand" href="index.html"><span class="brand-mark">{ATOM}</span><span class="brand-txt"><b>UMUMIY FIZIKA</b><small>Interaktiv elektron darslik · Bakalavriat</small></span></a><div class="hdr-tools notranslate" translate="no"><div class="lang-switch" role="group" aria-label="Til / Язык / Language"><button type="button" data-lang="uz">UZ</button><button type="button" data-lang="ru">RU</button><button type="button" data-lang="en">EN</button></div><span class="hdr-sep" aria-hidden="true"></span><button class="icon-btn theme-btn" type="button" aria-label="Kun va tun rejimini almashtirish" title="Kun / tun rejimi"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></div><button class="menu-toggle" type="button" aria-label="Menyuni ochish" aria-expanded="false">☰</button></div><div class="nav-row"><div class="container"><nav class="nav-links" aria-label="Asosiy navigatsiya">{links}</nav></div></div></header>
 """
 
 
