@@ -163,26 +163,122 @@
 
   /* M2 — Otilgan jism */
   S.projectile = {
-    title: 'Gorizontga burchak ostida otilgan jism', stat: 'havo qarshiligisiz', anim: true,
+    title: 'Gorizontga burchak ostida otilgan jism (3D)', stat: 'havo qarshiligisiz · 3D', anim: true,
     params: [
       { k: 'v0', l: 'Boshlang‘ich tezlik v₀, m/s', min: 5, max: 40, step: .5, v: 20 },
       { k: 'al', l: 'Otish burchagi α, °', min: 0, max: 90, step: 1, v: 45 },
+      { k: 'ph', l: 'Otish yo‘nalishi (azimut) φ, °', min: -60, max: 60, step: 1, v: 0 },
       { k: 'h0', l: 'Boshlang‘ich balandlik h₀, m', min: 0, max: 30, step: .5, v: 0 },
       { k: 'pl', l: 'Sayyora', type: 'sel', opts: ['Yer (g = 9,81 m/s²)', 'Mars (g = 3,71 m/s²)', 'Oy (g = 1,62 m/s²)'], v: 'Yer (g = 9,81 m/s²)' }
     ],
     draw(cv, P, dt) {
-      const { c, w, h } = ctx2d(cv), g = num(P.pl, /g = ([\d,]+)/), a = P.al * deg, vx = P.v0 * Math.cos(a), vy = P.v0 * Math.sin(a);
-      const T = (vy + Math.sqrt(vy * vy + 2 * g * P.h0)) / g, L = vx * T, H = P.h0 + vy * vy / (2 * g);
-      const s0 = st(cv, () => ({ t: 0 })); s0.t += dt * Math.max(1, T / 4); if (s0.t > T * 1.25 + .5) s0.t = 0;
-      const t = Math.min(s0.t, T), px = vx * t, py = P.h0 + vy * t - g * t * t / 2, vyt = vy - g * t;
-      const span = Math.max(L, 10) * 1.12, ymax = Math.max(H, 5) * 1.25;
-      const pts = lin(0, T, 140).map(tt => [vx * tt, P.h0 + vy * tt - g * tt * tt / 2]);
-      const { X, Y } = plot(c, [0, 0, w, h], { xr: [0, span], yr: [0, ymax], xl: 'x, m', yl: 'y, m', series: [{ pts, c: C.cyan, w: 2 }], vl: [{ x: L, l: `L = ${dc(L, 1)} m`, c: C.green }], hl: [{ y: H, l: `H = ${dc(H, 1)} m`, c: C.violet }] });
-      const sc = Math.min(w, h) / 90;
-      arrow(c, X(px), Y(py), X(px) + vx * sc, Y(py), C.rose); arrow(c, X(px), Y(py), X(px), Y(py) - vyt * sc, C.green); arrow(c, X(px), Y(py), X(px) + vx * sc, Y(py) - vyt * sc, C.amber);
-      dot(c, X(px), Y(py), 7, '#f8fafc');
-      label(c, 'vₓ', X(px) + vx * sc + 4, Y(py) + 14, C.rose); label(c, 'vᵧ', X(px) + 6, Y(py) - vyt * sc, C.green);
-      return { 'Uchish vaqti T, s': fx(T, 2), 'Uchish uzoqligi L, m': fx(L, 1), 'Maksimal balandlik H, m': fx(H, 2), 'Yerga tushish tezligi, m/s': fx(Math.hypot(vx, vy - g * T), 1), 'vₓ = v₀cos α (o‘zgarmas), m/s': fx(vx, 2) };
+      const { c, w, h } = ctx2d(cv), g = num(P.pl, /g = ([\d,]+)/), a = P.al * deg, ph = (P.ph || 0) * deg;
+      const vh = P.v0 * Math.cos(a), vy = P.v0 * Math.sin(a), ex = Math.cos(ph), ez = Math.sin(ph);
+      const T = (vy + Math.sqrt(vy * vy + 2 * g * P.h0)) / g, L = vh * T, H = P.h0 + vy * vy / (2 * g), tH = vy / g;
+      /* Holat: animatsiya vaqti va kamera (sichqoncha/barmoq bilan aylantiriladi) */
+      const s0 = st(cv, () => ({ t: 0, yaw: -.62, pitch: .38, zoom: 1, drag: null, auto: true, bound: false }));
+      if (!s0.bound) {
+        s0.bound = true; cv.style.touchAction = 'none'; cv.style.cursor = 'grab';
+        cv.addEventListener('pointerdown', e => { s0.drag = { x: e.clientX, y: e.clientY }; s0.auto = false; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; });
+        cv.addEventListener('pointermove', e => {
+          if (!s0.drag) return;
+          s0.yaw += (e.clientX - s0.drag.x) * .008; s0.pitch = Math.min(1.45, Math.max(.04, s0.pitch + (e.clientY - s0.drag.y) * .006));
+          s0.drag = { x: e.clientX, y: e.clientY };
+        });
+        const up = () => { s0.drag = null; cv.style.cursor = 'grab'; };
+        cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+        cv.addEventListener('wheel', e => { e.preventDefault(); s0.auto = false; s0.zoom = Math.min(3, Math.max(.5, s0.zoom * Math.exp(-e.deltaY * .0012))); }, { passive: false });
+        cv.addEventListener('dblclick', () => { s0.yaw = -.62; s0.pitch = .38; s0.zoom = 1; s0.auto = true; });
+      }
+      if (s0.auto) s0.yaw += dt * .12;
+      s0.t += dt * Math.max(1, T / 4); if (s0.t > T * 1.25 + .5) s0.t = 0;
+      const t = Math.min(s0.t, T), r = vh * t, py = P.h0 + vy * t - g * t * t / 2, vyt = vy - g * t;
+      const pos = tt => { const rr = vh * tt; return [rr * ex, P.h0 + vy * tt - g * tt * tt / 2, rr * ez]; };
+
+      /* Sahna o'lchami va perspektiv proyeksiya */
+      const span = Math.max(L, H * 1.25, 10), k = 1 / span;
+      const cx0 = L / 2 * ex, cz0 = L / 2 * ez, cy0 = Math.min(H, span * .5) * .35;
+      const cyw = Math.cos(s0.yaw), syw = Math.sin(s0.yaw), cp = Math.cos(s0.pitch), sp = Math.sin(s0.pitch);
+      const D = 2 / s0.zoom, F = Math.min(w * 1.15, h * 2);
+      const pr = (x, y, z) => {
+        const X = (x - cx0) * k, Y = (y - cy0) * k, Z = (z - cz0) * k;
+        const x1 = X * cyw - Z * syw, z1 = X * syw + Z * cyw;
+        const y2 = Y * cp - z1 * sp, z2 = Y * sp + z1 * cp, d = z2 + D;
+        if (d < .08) return null;
+        return [w / 2 + F * x1 / d, h * .56 - F * y2 / d, d];
+      };
+      const seg = (p, q, col, wd = 1, dash = []) => { const A1 = pr(...p), B1 = pr(...q); if (A1 && B1) line(c, A1[0], A1[1], B1[0], B1[1], col, wd, dash); };
+      const poly = (pts, fill, stroke) => {
+        const pp = pts.map(p => pr(...p)); if (pp.some(p => !p)) return;
+        c.beginPath(); pp.forEach((p, i) => (i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]))); c.closePath();
+        if (fill) { c.fillStyle = fill; c.fill(); } if (stroke) { c.strokeStyle = stroke; c.lineWidth = 1; c.stroke(); }
+      };
+      const path = (pts, col, wd, dash = []) => {
+        c.strokeStyle = col; c.lineWidth = wd; c.setLineDash(dash); c.beginPath(); let on = false;
+        pts.forEach(p => { const q = pr(...p); if (!q) { on = false; return; } if (on) c.lineTo(q[0], q[1]); else { c.moveTo(q[0], q[1]); on = true; } });
+        c.stroke(); c.setLineDash([]);
+      };
+      const txt = (p, s, col, al = 'left', size = 12) => { const q = pr(...p); if (q) label(c, s, q[0], q[1], col, al, size); };
+
+      /* Osmon foni */
+      const sky = c.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#0b1730'); sky.addColorStop(1, '#030712');
+      c.fillStyle = sky; c.fillRect(0, 0, w, h);
+
+      /* Yer tekisligi va to'r */
+      const step = niceTicks(0, span, 6); const st1 = step.length > 1 ? step[1] - step[0] : span / 5;
+      const gx0 = -Math.ceil(span * .25 / st1) * st1, gx1 = Math.ceil(span * 1.12 / st1) * st1, gz = Math.ceil(span * .6 / st1) * st1;
+      poly([[gx0, 0, -gz], [gx1, 0, -gz], [gx1, 0, gz], [gx0, 0, gz]], 'rgba(22,48,40,.55)', '#1f3b33');
+      for (let x = gx0; x <= gx1 + 1e-9; x += st1) seg([x, 0, -gz], [x, 0, gz], C.grid, 1);
+      for (let z = -gz; z <= gz + 1e-9; z += st1) seg([gx0, 0, z], [gx1, 0, z], C.grid, 1);
+      for (let x = st1; x <= gx1 + 1e-9; x += st1) txt([x, 0, -gz - st1 * .35], fmtTick(x), C.axis, 'center', 10);
+
+      /* Koordinata o'qlari */
+      const ax = span * .18;
+      const axis3 = (q, col, lab) => { const o = pr(0, 0, 0), e = pr(...q); if (o && e) { arrow(c, o[0], o[1], e[0], e[1], col, 1.6, 7); label(c, lab, e[0] + 5, e[1] - 4, col, 'left', 12); } };
+      axis3([gx1, 0, 0], '#64748b', 'x, m'); axis3([0, Math.max(H, ax) * 1.15, 0], '#64748b', 'y, m'); axis3([0, 0, gz], '#64748b', 'z, m');
+
+      /* Boshlang'ich balandlik — minora */
+      if (P.h0 > 0) {
+        const b = span * .02;
+        poly([[-b, 0, -b], [-b, P.h0, -b], [b, P.h0, -b], [b, 0, -b]], '#334155', '#475569');
+        poly([[-b, 0, b], [-b, P.h0, b], [b, P.h0, b], [b, 0, b]], '#334155', '#475569');
+        poly([[b, 0, -b], [b, P.h0, -b], [b, P.h0, b], [b, 0, b]], '#3f4f66', '#475569');
+        poly([[-b, P.h0, -b], [b, P.h0, -b], [b, P.h0, b], [-b, P.h0, b]], '#64748b', '#94a3b8');
+        txt([0, P.h0 / 2, -b * 3], `h₀ = ${dc(P.h0, 1)} m`, C.text, 'right', 11);
+      }
+
+      /* Trayektoriya: soya, to'liq yo'l va o'tilgan qism */
+      const all = lin(0, T, 160).map(pos), done = lin(0, t, 100).map(pos);
+      path(all.map(([x, , z]) => [x, 0, z]), 'rgba(148,163,184,.35)', 2, [5, 5]);
+      path(all, 'rgba(34,211,238,.35)', 1.6, [6, 5]);
+      if (t > 0) path(done, C.cyan, 3);
+
+      /* Otish burchagi yoyi */
+      const ra = span * .09;
+      path(lin(0, a, 24).map(u => [ra * Math.cos(u) * ex, P.h0 + ra * Math.sin(u), ra * Math.cos(u) * ez]), C.amber, 1.5);
+      seg([0, P.h0, 0], [ra * 1.4 * ex, P.h0, ra * 1.4 * ez], 'rgba(251,191,36,.6)', 1, [3, 3]);
+      txt([ra * 1.15 * Math.cos(a / 2) * ex, P.h0 + ra * 1.15 * Math.sin(a / 2), ra * 1.15 * Math.cos(a / 2) * ez], `α = ${P.al}°`, C.amber, 'left', 11);
+
+      /* L va H belgilari */
+      seg([0, 0, 0], [L * ex, 0, L * ez], C.green, 2.2);
+      { const q = pr(L / 2 * ex, 0, L / 2 * ez); if (q) label(c, `L = ${dc(L, 1)} m`, q[0], q[1] + 18, C.green, 'center', 12); }
+      if (tH > 0) { const pa = pos(tH); seg([pa[0], 0, pa[2]], pa, C.violet, 1.4, [5, 4]); txt([pa[0], pa[1] + span * .03, pa[2]], `H = ${dc(H, 1)} m`, C.violet, 'center', 12); }
+
+      /* Jism: soya, vertikal chiziq, shar va tezlik vektorlari */
+      const bx = r * ex, bz = r * ez, B = pr(bx, py, bz), Bs = pr(bx, 0, bz);
+      if (Bs) { c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.ellipse(Bs[0], Bs[1], 9 * 2.3 / Bs[2] * .6, 3.5 * 2.3 / Bs[2] * .6, 0, 0, 7); c.fill(); }
+      seg([bx, 0, bz], [bx, py, bz], 'rgba(203,213,225,.35)', 1, [2, 3]);
+      if (B) {
+        const sc = span * .2 / Math.max(P.v0, 1);
+        const vec = (dx, dyy, dz, col, lab) => { const E = pr(bx + dx * sc, py + dyy * sc, bz + dz * sc); if (E) { arrow(c, B[0], B[1], E[0], E[1], col, 2.2, 8); label(c, lab, E[0] + 5, E[1] + 4, col, 'left', 12); } };
+        vec(vh * ex, 0, vh * ez, C.rose, 'vₓ'); vec(0, vyt, 0, C.green, 'vᵧ'); vec(vh * ex, vyt, vh * ez, C.amber, 'v');
+        const R = Math.max(4, 7 * 2.3 / B[2]);
+        const gr = c.createRadialGradient(B[0] - R * .35, B[1] - R * .35, R * .1, B[0], B[1], R);
+        gr.addColorStop(0, '#ffffff'); gr.addColorStop(.55, '#cbd5e1'); gr.addColorStop(1, '#475569');
+        c.fillStyle = gr; c.beginPath(); c.arc(B[0], B[1], R, 0, 7); c.fill();
+      }
+      label(c, 'Aylantirish: sichqoncha / barmoq · g‘ildirak — masshtab · 2× bosish — tiklash', 12, h - 10, '#64748b', 'left', 11);
+      return { 'Uchish vaqti T, s': fx(T, 2), 'Uchish uzoqligi L, m': fx(L, 1), 'Maksimal balandlik H, m': fx(H, 2), 'Yerga tushish tezligi, m/s': fx(Math.hypot(vh, vy - g * T), 1), 'vₓ = v₀cos α (o‘zgarmas), m/s': fx(vh, 2), 'Tushish nuqtasi (x; z), m': `${fx(L * ex, 1)}; ${fx(L * ez, 1)}` };
     }
   };
 
